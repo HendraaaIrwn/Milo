@@ -13,6 +13,8 @@ struct MiloRootView: View {
 
     @ObservedObject var state: MiloFloatingPetState
     @ObservedObject var stateStore: MiloStateStore
+    var onAddReminder: () -> Void = {}
+    var onHideMilo: () -> Void = {}
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
     @State private var mouseLocation: CGPoint?
     @State private var characterFrame: CGRect = MiloRootView.defaultCharacterFrame
@@ -43,6 +45,30 @@ struct MiloRootView: View {
                     }
                 }
             )
+            .contextMenu {
+                Button("Add Reminder") {
+                    onAddReminder()
+                }
+
+                Divider()
+
+                Button("Hide Milo") {
+                    onHideMilo()
+                }
+            }
+
+            if stateStore.shouldShowReminderBubble, let reminderBubbleText = stateStore.reminderBubbleText {
+                MiloReminderBubbleView(message: reminderBubbleText)
+                    .offset(y: -MiloLayout.designHeight - 10)
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .move(edge: .bottom)),
+                            removal: .opacity.combined(with: .move(edge: .top))
+                        )
+                    )
+                    .zIndex(30)
+                    .allowsHitTesting(false)
+            }
 
             if let bubbleText {
                 MiloReactionBubbleView(text: bubbleText)
@@ -90,6 +116,10 @@ struct MiloRootView: View {
     }
 
     private var bubbleText: String? {
+        if stateStore.shouldShowReminderBubble {
+            return nil
+        }
+
         if stateStore.shouldShowTypingBubble, let typingBubbleText = stateStore.typingBubbleText {
             return typingBubbleText
         }

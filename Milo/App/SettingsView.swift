@@ -24,6 +24,8 @@ struct SettingsView: View {
     @AppStorage(MiloSettingsKeys.typingReaction) private var typingReaction = true
     @AppStorage(MiloSettingsKeys.typingBubbleDialogs) private var typingBubbleDialogs = true
     @AppStorage(MiloSettingsKeys.breakNudgesEnabled) private var breakNudgesEnabled = true
+    @AppStorage(MiloStorageKeys.reminderNotificationsEnabled) private var reminderNotificationsEnabled = true
+    @AppStorage(MiloStorageKeys.reminderSoundEnabled) private var reminderSoundEnabled = true
 
     var body: some View {
         TabView {
@@ -44,9 +46,7 @@ struct SettingsView: View {
             }
             .tabItem { Label("Pomodoro", systemImage: "timer") }
 
-            Form {
-                Text("Local reminders only")
-            }
+            reminderTab
             .tabItem { Label("Reminders", systemImage: "bell") }
 
             Form {
@@ -108,6 +108,16 @@ struct SettingsView: View {
                     MiloMumbleEngine.shared.speakName()
                 }
             }
+        }
+    }
+
+    private var reminderTab: some View {
+        Form {
+            Toggle("Reminder Notifications Enabled", isOn: $reminderNotificationsEnabled)
+            Toggle("Reminder Sound Enabled", isOn: $reminderSoundEnabled)
+            Text("Reminders stay local and are saved on this Mac only.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }

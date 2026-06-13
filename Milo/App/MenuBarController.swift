@@ -14,19 +14,23 @@ final class MenuBarController: NSObject {
     private let miloWindowController: MiloWindowController
     private let pomodoroService: PomodoroService
     private let reminderService: ReminderService
+    private let todoService: TodoService
 
     private let pomodoroMenuItem = NSMenuItem()
     private var settingsWindow: NSWindow?
+    private var todoWindow: NSWindow?
 
     init(
         miloWindowController: MiloWindowController,
         pomodoroService: PomodoroService,
-        reminderService: ReminderService
+        reminderService: ReminderService,
+        todoService: TodoService
     ) {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.miloWindowController = miloWindowController
         self.pomodoroService = pomodoroService
         self.reminderService = reminderService
+        self.todoService = todoService
 
         super.init()
         setupStatusItem()
@@ -36,6 +40,8 @@ final class MenuBarController: NSObject {
     func cleanup() {
         settingsWindow?.close()
         settingsWindow = nil
+        todoWindow?.close()
+        todoWindow = nil
         NSStatusBar.system.removeStatusItem(statusItem)
     }
 
@@ -63,6 +69,7 @@ final class MenuBarController: NSObject {
         menu.addItem(pomodoroMenuItem)
 
         menu.addItem(makeMenuItem(title: "Add Reminder", action: #selector(addReminder)))
+        menu.addItem(makeMenuItem(title: "Open Todos", action: #selector(openTodos)))
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Settings", action: #selector(openSettings)))
         menu.addItem(makeMenuItem(title: "Quit", action: #selector(quitApp)))
@@ -102,9 +109,7 @@ final class MenuBarController: NSObject {
     }
 
     @objc private func addReminder() {
-        reminderService.openReminderEntryWindow { [weak self] _ in
-            self?.miloWindowController.showBubble("Reminder saved.", mood: .reminder)
-        }
+        miloWindowController.openReminderEntry(source: .menuBar)
     }
 
     @objc private func openSettings() {
@@ -114,7 +119,16 @@ final class MenuBarController: NSObject {
         window.makeKeyAndOrderFront(nil)
     }
 
+    @objc private func openTodos() {
+        let window = todoWindow ?? makeTodoWindow()
+        todoWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     @objc private func quitApp() {
+        reminderService.save()
+        todoService.save()
         pomodoroService.stop()
         reminderService.closeEntryWindow()
         miloWindowController.close()
@@ -141,6 +155,21 @@ final class MenuBarController: NSObject {
         window.isReleasedWhenClosed = false
         window.center()
         window.contentViewController = NSHostingController(rootView: SettingsView())
+        return window
+    }
+
+    private func makeTodoWindow() -> NSWindow {
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 360, height: 420),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "MILO Todos"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(rootView: TodoListView(todoService: todoService))
         return window
     }
 }

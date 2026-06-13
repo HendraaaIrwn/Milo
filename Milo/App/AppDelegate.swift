@@ -14,6 +14,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var miloWindowController: MiloWindowController?
     private var pomodoroService: PomodoroService?
     private var reminderService: ReminderService?
+    private var reminderSchedulerService: ReminderSchedulerService?
+    private var todoService: TodoService?
 
     private(set) var miloStateStore: MiloStateStore?
     private var keyboardActivityService: KeyboardActivityService?
@@ -35,18 +37,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         self.keyboardActivityService = keyboardService
 
-        let miloWindowController = MiloWindowController(stateStore: stateStore)
         let pomodoroService = PomodoroService()
         let reminderService = ReminderService()
+        let miloWindowController = MiloWindowController(
+            stateStore: stateStore,
+            reminderService: reminderService
+        )
+        let todoService = TodoService()
+        let reminderSchedulerService = ReminderSchedulerService(
+            reminderService: reminderService,
+            miloStateStore: stateStore
+        )
 
         self.miloWindowController = miloWindowController
         self.pomodoroService = pomodoroService
         self.reminderService = reminderService
+        self.reminderSchedulerService = reminderSchedulerService
+        self.todoService = todoService
         self.menuBarController = MenuBarController(
             miloWindowController: miloWindowController,
             pomodoroService: pomodoroService,
-            reminderService: reminderService
+            reminderService: reminderService,
+            todoService: todoService
         )
+
+        ReminderNotificationService.shared.requestAuthorizationIfNeeded()
+        reminderSchedulerService.start()
 
         if UserDefaults.standard.object(forKey: MiloSettingsKeys.showMiloOnLaunch) as? Bool ?? true {
             miloWindowController.showMilo()
@@ -67,6 +83,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         MiloMumbleEngine.shared.stop()
         keyboardActivityService?.stop()
+        reminderSchedulerService?.stop()
+        reminderService?.save()
+        todoService?.save()
         pomodoroService?.stop()
         reminderService?.closeEntryWindow()
         miloWindowController?.close()

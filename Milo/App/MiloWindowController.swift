@@ -13,11 +13,13 @@ import SwiftUI
 final class MiloWindowController {
     private let petState = MiloFloatingPetState()
     private let stateStore: MiloStateStore
+    private let reminderService: ReminderService
     private var petPanel: FloatingPetPanel?
     private var stateCancellable: AnyCancellable?
 
-    init(stateStore: MiloStateStore) {
+    init(stateStore: MiloStateStore, reminderService: ReminderService) {
         self.stateStore = stateStore
+        self.reminderService = reminderService
         observeStateStore(stateStore)
     }
 
@@ -53,7 +55,16 @@ final class MiloWindowController {
         ]
 
         panel.contentView = DraggableHostingView(
-            rootView: MiloRootView(state: petState, stateStore: stateStore)
+            rootView: MiloRootView(
+                state: petState,
+                stateStore: stateStore,
+                onAddReminder: { [weak self] in
+                    self?.openReminderEntry(source: .rightClick)
+                },
+                onHideMilo: { [weak self] in
+                    self?.hideMilo()
+                }
+            )
                 .frame(width: size.width, height: size.height)
         )
 
@@ -76,6 +87,13 @@ final class MiloWindowController {
 
         showMilo()
         petState.showBubble(text)
+    }
+
+    func openReminderEntry(source: ReminderSource) {
+        reminderService.openReminderEntryWindow(source: source) { [weak self] reminder in
+            ReminderNotificationService.shared.scheduleNotification(for: reminder)
+            self?.showBubble("Reminder saved.", mood: .reminder)
+        }
     }
 
     func close() {
