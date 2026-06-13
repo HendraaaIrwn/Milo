@@ -8,26 +8,44 @@
 import SwiftUI
 
 struct MiloChatBubble: View {
-    let mood: MiloMood
-    let onReply: () -> Void
+    private let text: String
+    private let onReply: (() -> Void)?
+    private let maxWidth: CGFloat
+    private let textStyle: Font
+
+    init(mood: MiloMood, onReply: @escaping () -> Void) {
+        self.text = mood.dialogue
+        self.onReply = onReply
+        self.maxWidth = 280
+        self.textStyle = .callout.weight(.medium)
+    }
+
+    init(text: String) {
+        self.text = text
+        self.onReply = nil
+        self.maxWidth = 148
+        self.textStyle = .caption.weight(.semibold)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 12) {
-                Text(mood.dialogue)
-                    .font(.callout.weight(.medium))
+                Text(text)
+                    .font(textStyle)
                     .foregroundStyle(.primary)
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button("Reply", action: onReply)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .tint(.accentColor)
+                if let onReply {
+                    Button("Reply", action: onReply)
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                        .tint(.accentColor)
+                }
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 14)
-            .frame(maxWidth: 280, alignment: .leading)
+            .frame(maxWidth: maxWidth, alignment: .leading)
             .background(.regularMaterial, in: .rect(cornerRadius: 22, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)

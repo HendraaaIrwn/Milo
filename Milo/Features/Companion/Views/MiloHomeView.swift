@@ -89,8 +89,6 @@ struct MiloHomeView: View {
         }
     }
 
-    /// Background colour that adapts to the host platform. iOS uses the
-    /// system grouped background; macOS uses a soft window tone.
     private static var background: Color {
         #if os(iOS)
         Color(.systemGroupedBackground)
@@ -102,8 +100,6 @@ struct MiloHomeView: View {
     }
 }
 
-/// Horizontal scroller that lets the caller pick a mood. Kept as a
-/// separate view so `MiloHomeView.body` stays small.
 private struct MiloMoodPicker: View {
     @Binding var selection: MiloMood
 

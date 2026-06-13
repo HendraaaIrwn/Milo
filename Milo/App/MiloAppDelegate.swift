@@ -10,15 +10,21 @@ import SwiftUI
 
 @MainActor
 final class MiloAppDelegate: NSObject, NSApplicationDelegate {
+    private let petState = MiloFloatingPetState()
     private var petPanel: FloatingPetPanel?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
-        showFloatingPet()
+        showMilo()
     }
 
-    private func showFloatingPet() {
-        let size = NSSize(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
+    func showMilo() {
+        if let petPanel {
+            petPanel.orderFrontRegardless()
+            return
+        }
+
+        let size = NSSize(width: MiloRootView.windowWidth, height: MiloRootView.windowHeight)
         let origin = initialOrigin(for: size)
         let panel = FloatingPetPanel(
             contentRect: NSRect(origin: origin, size: size),
@@ -30,7 +36,7 @@ final class MiloAppDelegate: NSObject, NSApplicationDelegate {
         panel.level = .floating
         panel.backgroundColor = .clear
         panel.isOpaque = false
-        panel.hasShadow = true
+        panel.hasShadow = false
         panel.hidesOnDeactivate = false
         panel.isMovableByWindowBackground = true
         panel.isReleasedWhenClosed = false
@@ -45,12 +51,30 @@ final class MiloAppDelegate: NSObject, NSApplicationDelegate {
         ]
 
         panel.contentView = DraggableHostingView(
-            rootView: MiloFloatingPetView()
+            rootView: MiloRootView(state: petState)
                 .frame(width: size.width, height: size.height)
         )
 
         petPanel = panel
         panel.orderFrontRegardless()
+    }
+
+    func hideMilo() {
+        petPanel?.orderOut(nil)
+    }
+
+    func startPomodoro() {
+        petState.mood = .focus
+        showMilo()
+    }
+
+    func addReminder() {
+        petState.mood = .reminder
+        showMilo()
+    }
+
+    func quit() {
+        NSApp.terminate(nil)
     }
 
     private func initialOrigin(for size: NSSize) -> NSPoint {
