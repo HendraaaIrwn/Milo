@@ -14,10 +14,10 @@ struct TrackingMouseView: NSViewRepresentable {
     var onExit: () -> Void = {}
 
     func makeNSView(context: Context) -> TrackingNSView {
-        let v = TrackingNSView()
-        v.onMove = onMove
-        v.onExit = onExit
-        return v
+        let view = TrackingNSView()
+        view.onMove = onMove
+        view.onExit = onExit
+        return view
     }
 
     func updateNSView(_ nsView: TrackingNSView, context: Context) {
@@ -28,6 +28,7 @@ struct TrackingMouseView: NSViewRepresentable {
     final class TrackingNSView: NSView {
         var onMove: ((CGPoint) -> Void)?
         var onExit: (() -> Void)?
+
         private var trackingArea: NSTrackingArea?
         private var timer: Timer?
         private var lastPoint: CGPoint?
@@ -49,6 +50,11 @@ struct TrackingMouseView: NSViewRepresentable {
             }
         }
 
+        override func viewDidMoveToSuperview() {
+            super.viewDidMoveToSuperview()
+            needsDisplay = true
+        }
+
         deinit {
             stopTrackingMouseGlobally()
         }
@@ -58,8 +64,11 @@ struct TrackingMouseView: NSViewRepresentable {
             if let trackingArea { removeTrackingArea(trackingArea) }
 
             let options: NSTrackingArea.Options = [
-                .mouseMoved, .mouseEnteredAndExited,
-                .activeAlways, .inVisibleRect, .enabledDuringMouseDrag
+                .mouseMoved,
+                .mouseEnteredAndExited,
+                .activeAlways,
+                .inVisibleRect,
+                .enabledDuringMouseDrag
             ]
             let area = NSTrackingArea(rect: bounds, options: options, owner: self, userInfo: nil)
             addTrackingArea(area)
@@ -102,14 +111,11 @@ struct TrackingMouseView: NSViewRepresentable {
 
         private func reportCurrentMouseLocation() {
             guard let window else { return }
-
-            let windowPoint = window.convertPoint(fromScreen: NSEvent.mouseLocation)
-            report(windowPoint)
+            report(window.convertPoint(fromScreen: NSEvent.mouseLocation))
         }
 
         private func report(_ windowPoint: CGPoint) {
             let point = convert(windowPoint, from: nil)
-
             guard lastPoint != point else { return }
             lastPoint = point
             onMove?(point)

@@ -5,8 +5,8 @@
 //  Created by Hendra Irawan on 11/06/26.
 //
 
+import Combine
 import Foundation
-import Observation
 
 enum BlinkPhase: Equatable {
     case open
@@ -17,11 +17,10 @@ enum BlinkPhase: Equatable {
 }
 
 @MainActor
-@Observable
-final class MiloBlinkEngine {
-    var isBlinking: Bool = false
+final class MiloBlinkEngine: ObservableObject {
+    @Published var isBlinking: Bool = false
 
-    var phase: BlinkPhase = .open
+    @Published var phase: BlinkPhase = .open
 
     var frequencyPerSecond: Double = 0.25
 

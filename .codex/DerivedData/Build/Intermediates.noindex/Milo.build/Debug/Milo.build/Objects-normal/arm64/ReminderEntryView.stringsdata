@@ -1,0 +1,48 @@
+{
+  "source": "/Users/neuhendra/Developer/Milo/Milo/Milo/App/ReminderEntryView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Add Reminder",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Message",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Due time",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 38
+        }
+      }
+    ]
+  },
+  "version": 1
+}

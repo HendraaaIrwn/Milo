@@ -13,6 +13,8 @@ struct ContentView: View {
     }
 }
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
     ContentView()
 }
+#endif

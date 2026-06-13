@@ -1,0 +1,30 @@
+{
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Character/MiloLayout.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloLayout.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloLayout.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloLayout.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloLayout.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloLayout.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Character/MiloMouth.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMouth.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMouth.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMouth.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMouth.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMouth.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Models/MiloAnimationState.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationState.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationState.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationState.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationState.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationState.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Models/MiloMood.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood.swiftdeps"
+  }
+}

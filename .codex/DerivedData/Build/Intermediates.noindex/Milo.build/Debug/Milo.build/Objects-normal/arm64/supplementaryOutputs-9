@@ -1,0 +1,30 @@
+{
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Models/MiloReactionLineProvider.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionLineProvider.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionLineProvider.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionLineProvider.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionLineProvider.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionLineProvider.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Views/MiloFloatingPetView.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloFloatingPetView.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloFloatingPetView.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloFloatingPetView.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloFloatingPetView.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloFloatingPetView.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Views/MiloHomeView.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloHomeView.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloHomeView.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloHomeView.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloHomeView.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloHomeView.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Views/MiloReactionBubbleView.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionBubbleView.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionBubbleView.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionBubbleView.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionBubbleView.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloReactionBubbleView.swiftdeps"
+  }
+}

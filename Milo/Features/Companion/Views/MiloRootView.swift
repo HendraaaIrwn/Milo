@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct MiloRootView: View {
-    static let windowWidth: CGFloat = 220
+    static let windowWidth: CGFloat = 240
     static let windowHeight: CGFloat = 180
 
     @ObservedObject var state: MiloFloatingPetState
-
+    @ObservedObject var stateStore: MiloStateStore
+    @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
     @State private var mouseLocation: CGPoint?
-    @State private var characterFrame: CGRect = .zero
+    @State private var characterFrame: CGRect = MiloRootView.defaultCharacterFrame
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -22,7 +23,7 @@ struct MiloRootView: View {
 
             MiloCharacter(
                 mood: state.mood,
-                mouseLocation: mouseLocation,
+                mouseLocation: eyeFollowCursor ? mouseLocation : nil,
                 characterFrame: characterFrame
             )
             .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
@@ -43,8 +44,8 @@ struct MiloRootView: View {
                 }
             )
 
-            if let reactionText = state.reactionText {
-                MiloReactionBubbleView(text: reactionText)
+            if let bubbleText {
+                MiloReactionBubbleView(text: bubbleText)
                     .offset(y: -MiloLayout.designHeight - 10)
                     .transition(
                         .asymmetric(
@@ -53,13 +54,20 @@ struct MiloRootView: View {
                         )
                     )
                     .zIndex(10)
+                    .allowsHitTesting(false)
             }
         }
         .frame(width: Self.windowWidth, height: Self.windowHeight)
         .coordinateSpace(name: "miloRoot")
         .background(Color.clear)
         .onPreferenceChange(MiloRootFramePreferenceKey.self) { frame in
+            guard !frame.isEmpty else { return }
             characterFrame = frame
+        }
+        .onChange(of: eyeFollowCursor) { _, enabled in
+            if !enabled {
+                mouseLocation = nil
+            }
         }
         #if os(macOS)
         .overlay {
@@ -67,8 +75,26 @@ struct MiloRootView: View {
                 onMove: { mouseLocation = $0 },
                 onExit: { mouseLocation = nil }
             )
+            .frame(width: Self.windowWidth, height: Self.windowHeight)
         }
         #endif
+    }
+
+    private static var defaultCharacterFrame: CGRect {
+        CGRect(
+            x: (windowWidth - MiloLayout.designWidth) * 0.5,
+            y: windowHeight - MiloLayout.designHeight,
+            width: MiloLayout.designWidth,
+            height: MiloLayout.designHeight
+        )
+    }
+
+    private var bubbleText: String? {
+        if stateStore.shouldShowTypingBubble, let typingBubbleText = stateStore.typingBubbleText {
+            return typingBubbleText
+        }
+
+        return state.reactionText
     }
 
     private func showRandomReaction() {
@@ -85,6 +111,8 @@ private struct MiloRootFramePreferenceKey: PreferenceKey {
     }
 }
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
-    MiloRootView(state: MiloFloatingPetState())
+    MiloRootView(state: MiloFloatingPetState(), stateStore: MiloStateStore())
 }
+#endif

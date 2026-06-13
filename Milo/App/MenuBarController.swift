@@ -131,7 +131,7 @@ final class MenuBarController: NSObject {
 
     private func makeSettingsWindow() -> NSWindow {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 360),
+            contentRect: NSRect(x: 0, y: 0, width: 640, height: 520),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false

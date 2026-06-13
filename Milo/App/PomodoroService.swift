@@ -58,7 +58,7 @@ final class PomodoroService: ObservableObject {
         timer?.invalidate()
 
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            MainActor.assumeIsolated {
                 self?.tick()
             }
         }

@@ -12,7 +12,7 @@ struct MiloCharacter: View {
     var mouseLocation: CGPoint? = nil
     var characterFrame: CGRect = .zero
 
-    @State private var blinkEngine = MiloBlinkEngine()
+    @StateObject private var blinkEngine = MiloBlinkEngine()
     @State private var moodAnimationPhase = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -22,6 +22,17 @@ struct MiloCharacter: View {
         let animationFrame = currentAnimationFrame
 
         ZStack {
+            if mood == .typing {
+                MiloAssets.commandLine
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: width * 0.82)
+                    .position(x: width * 0.5, y: height * 0.93)
+                    .scaleEffect(moodAnimationPhase ? 1.04 : 1.0, anchor: .center)
+                    .opacity(0.95)
+                    .accessibilityHidden(true)
+            }
+
             MiloAssets.body
                 .resizable()
                 .frame(width: width, height: height)
@@ -148,44 +159,58 @@ struct MiloCharacter: View {
     }
 }
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Idle") {
     MiloCharacter(mood: .idle)
         .padding()
         .background(.background)
 }
+#endif
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Sleepy") {
     MiloCharacter(mood: .sleepy)
         .padding()
         .background(.background)
 }
+#endif
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Happy") {
     MiloCharacter(mood: .happy)
         .padding()
         .background(.background)
 }
+#endif
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Typing") {
     MiloCharacter(mood: .typing)
         .padding()
         .background(.background)
 }
+#endif
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Confused") {
     MiloCharacter(mood: .confused)
         .padding()
         .background(.background)
 }
+#endif
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Reminder") {
     MiloCharacter(mood: .reminder)
         .padding()
         .background(.background)
 }
+#endif
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Focus") {
     MiloCharacter(mood: .focus)
         .padding()
         .background(.background)
 }
+#endif
