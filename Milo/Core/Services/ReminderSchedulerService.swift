@@ -13,7 +13,7 @@ final class ReminderSchedulerService {
     private let miloStateStore: MiloStateStore
 
     private var timerTask: Task<Void, Never>?
-    private var bubbleHideTask: Task<Void, Never>?
+    private var triggeredReminderIDs: Set<UUID> = []
 
     init(reminderService: ReminderService, miloStateStore: MiloStateStore) {
         self.reminderService = reminderService
@@ -34,29 +34,59 @@ final class ReminderSchedulerService {
     func stop() {
         timerTask?.cancel()
         timerTask = nil
-        bubbleHideTask?.cancel()
-        bubbleHideTask = nil
+        triggeredReminderIDs.removeAll()
+    }
+
+    func reschedulePendingNotifications() {
+        for reminder in reminderService.pendingReminders() where reminder.dueDate > Date() {
+            ReminderNotificationService.shared.scheduleNotification(for: reminder)
+        }
+    }
+
+    func markDone(_ reminder: MiloReminder) {
+        reminderService.markDone(id: reminder.id)
+        ReminderNotificationService.shared.cancelNotification(id: reminder.localNotificationID)
+        miloStateStore.hideReminder()
+        triggeredReminderIDs.remove(reminder.id)
+    }
+
+    func snooze(_ reminder: MiloReminder, minutes: Int) {
+        ReminderNotificationService.shared.cancelNotification(id: reminder.localNotificationID)
+
+        if let updated = reminderService.snooze(id: reminder.id, minutes: minutes) {
+            ReminderNotificationService.shared.scheduleNotification(for: updated)
+        }
+
+        miloStateStore.hideReminder()
+        triggeredReminderIDs.remove(reminder.id)
+    }
+
+    func reschedule(_ reminder: MiloReminder, newDate: Date) {
+        ReminderNotificationService.shared.cancelNotification(id: reminder.localNotificationID)
+
+        if let updated = reminderService.reschedule(id: reminder.id, newDate: newDate) {
+            ReminderNotificationService.shared.scheduleNotification(for: updated)
+        }
+
+        miloStateStore.hideReminder()
+        triggeredReminderIDs.remove(reminder.id)
     }
 
     private func checkDueReminders() {
+        guard !miloStateStore.shouldShowReminderBubble else { return }
         guard let reminder = reminderService.dueReminders().first else { return }
+        guard !triggeredReminderIDs.contains(reminder.id) else { return }
+
+        triggeredReminderIDs.insert(reminder.id)
         triggerReminder(reminder)
     }
 
     private func triggerReminder(_ reminder: MiloReminder) {
-        reminderService.markDone(id: reminder.id)
-        miloStateStore.showReminderBubble(reminder.message)
+        miloStateStore.showReminder(reminder)
         ReminderSoundEngine.shared.playReminderSound(mode: reminder.soundMode)
-        scheduleHideBubble()
-    }
 
-    private func scheduleHideBubble() {
-        bubbleHideTask?.cancel()
-
-        bubbleHideTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 6_000_000_000)
-            guard !Task.isCancelled else { return }
-            self?.miloStateStore.hideReminderBubble()
+        if reminder.soundMode == .mumble {
+            MiloMumbleEngine.shared.speak("Reminder.")
         }
     }
 }

@@ -39,14 +39,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let pomodoroService = PomodoroService()
         let reminderService = ReminderService()
-        let miloWindowController = MiloWindowController(
-            stateStore: stateStore,
-            reminderService: reminderService
-        )
         let todoService = TodoService()
         let reminderSchedulerService = ReminderSchedulerService(
             reminderService: reminderService,
             miloStateStore: stateStore
+        )
+        let miloWindowController = MiloWindowController(
+            stateStore: stateStore,
+            reminderService: reminderService,
+            reminderSchedulerService: reminderSchedulerService
         )
 
         self.miloWindowController = miloWindowController
@@ -62,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         ReminderNotificationService.shared.requestAuthorizationIfNeeded()
+        reminderSchedulerService.reschedulePendingNotifications()
         reminderSchedulerService.start()
 
         if UserDefaults.standard.object(forKey: MiloSettingsKeys.showMiloOnLaunch) as? Bool ?? true {

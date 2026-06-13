@@ -24,11 +24,12 @@ final class ReminderNotificationService {
     }
 
     func scheduleNotification(for reminder: MiloReminder) {
-        guard isReminderNotificationsEnabled else { return }
+        guard notificationsEnabled else { return }
+        guard reminder.dueDate > Date() else { return }
 
         let content = UNMutableNotificationContent()
         content.title = "MILO Reminder"
-        content.subtitle = "⏰ Time to check this"
+        content.subtitle = "⏰ Reminder due"
         content.body = reminder.message
         content.sound = .default
 
@@ -38,7 +39,7 @@ final class ReminderNotificationService {
         )
 
         let request = UNNotificationRequest(
-            identifier: reminder.id.uuidString,
+            identifier: reminder.localNotificationID,
             content: content,
             trigger: trigger
         )
@@ -50,13 +51,15 @@ final class ReminderNotificationService {
         }
     }
 
-    func cancelNotification(for reminderID: UUID) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: [reminderID.uuidString]
-        )
+    func cancelNotification(id: String) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
     }
 
-    private var isReminderNotificationsEnabled: Bool {
+    func cancelNotification(for reminderID: UUID) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [reminderID.uuidString])
+    }
+
+    private var notificationsEnabled: Bool {
         guard UserDefaults.standard.object(forKey: MiloStorageKeys.reminderNotificationsEnabled) != nil else {
             return true
         }

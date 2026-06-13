@@ -14,18 +14,27 @@ final class MiloWindowController {
     private let petState = MiloFloatingPetState()
     private let stateStore: MiloStateStore
     private let reminderService: ReminderService
+    private let reminderSchedulerService: ReminderSchedulerService
     private var petPanel: FloatingPetPanel?
     private var stateCancellable: AnyCancellable?
+    private var chatReminderWindow: NSWindow?
+    private var rescheduleWindow: NSWindow?
 
-    init(stateStore: MiloStateStore, reminderService: ReminderService) {
+    init(
+        stateStore: MiloStateStore,
+        reminderService: ReminderService,
+        reminderSchedulerService: ReminderSchedulerService
+    ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
+        self.reminderSchedulerService = reminderSchedulerService
         observeStateStore(stateStore)
     }
 
     func showMilo() {
         if let petPanel {
             petPanel.orderFrontRegardless()
+            stateStore.isMiloVisible = true
             return
         }
 
@@ -61,8 +70,25 @@ final class MiloWindowController {
                 onAddReminder: { [weak self] in
                     self?.openReminderEntry(source: .rightClick)
                 },
+                onChatReminder: { [weak self] in
+                    self?.openChatReminder()
+                },
                 onHideMilo: { [weak self] in
                     self?.hideMilo()
+                },
+                onReminderDone: { [weak self] reminder in
+                    self?.reminderSchedulerService.markDone(reminder)
+                },
+                onReminderSnooze5: { [weak self] reminder in
+                    self?.reminderSchedulerService.snooze(reminder, minutes: 5)
+                    self?.showBubble("Reminder snoozed 5 minutes.", mood: .reminder)
+                },
+                onReminderSnooze15: { [weak self] reminder in
+                    self?.reminderSchedulerService.snooze(reminder, minutes: 15)
+                    self?.showBubble("Reminder snoozed 15 minutes.", mood: .reminder)
+                },
+                onReminderReschedule: { [weak self] reminder in
+                    self?.openRescheduleReminder(reminder)
                 }
             )
                 .frame(width: size.width, height: size.height)
@@ -70,10 +96,12 @@ final class MiloWindowController {
 
         petPanel = panel
         panel.orderFrontRegardless()
+        stateStore.isMiloVisible = true
     }
 
     func hideMilo() {
         petPanel?.orderOut(nil)
+        stateStore.isMiloVisible = false
     }
 
     func setMood(_ mood: MiloMood) {
@@ -96,12 +124,108 @@ final class MiloWindowController {
         }
     }
 
+    func openChatReminder() {
+        if let chatReminderWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            chatReminderWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 180),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "MILO Chat Reminder"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: MiloChatInputView(
+                onSubmit: { [weak self, weak window] text in
+                    self?.handleChatReminder(text)
+                    self?.chatReminderWindow = nil
+                    window?.close()
+                },
+                onCancel: { [weak self, weak window] in
+                    self?.chatReminderWindow = nil
+                    window?.close()
+                }
+            )
+        )
+
+        chatReminderWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    func openRescheduleReminder(_ reminder: MiloReminder) {
+        if let rescheduleWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            rescheduleWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 400, height: 220),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "Reschedule Reminder"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: ReminderRescheduleView(
+                reminder: reminder,
+                onSave: { [weak self, weak window] newDate in
+                    self?.reminderSchedulerService.reschedule(reminder, newDate: newDate)
+                    self?.showBubble("Reminder rescheduled.", mood: .reminder)
+                    self?.rescheduleWindow = nil
+                    window?.close()
+                },
+                onCancel: { [weak self, weak window] in
+                    self?.rescheduleWindow = nil
+                    window?.close()
+                }
+            )
+        )
+
+        rescheduleWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     func close() {
         stateCancellable?.cancel()
         stateCancellable = nil
         petState.clearBubble()
+        chatReminderWindow?.close()
+        chatReminderWindow = nil
+        rescheduleWindow?.close()
+        rescheduleWindow = nil
         petPanel?.close()
         petPanel = nil
+        stateStore.isMiloVisible = false
+    }
+
+    private func handleChatReminder(_ text: String) {
+        do {
+            let parsed = try NaturalLanguageReminderParser.parse(text)
+            let reminder = reminderService.addReminder(
+                title: parsed.title,
+                message: parsed.message,
+                dueDate: parsed.dueDate,
+                createdSource: .chat
+            )
+
+            ReminderNotificationService.shared.scheduleNotification(for: reminder)
+            showBubble("Reminder set: \(parsed.message)", mood: .reminder)
+        } catch {
+            showBubble("Failed to add Reminder, Try another format", mood: .idle)
+        }
     }
 
     private func observeStateStore(_ stateStore: MiloStateStore) {

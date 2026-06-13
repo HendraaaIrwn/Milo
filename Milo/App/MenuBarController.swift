@@ -69,6 +69,7 @@ final class MenuBarController: NSObject {
         menu.addItem(pomodoroMenuItem)
 
         menu.addItem(makeMenuItem(title: "Add Reminder", action: #selector(addReminder)))
+        menu.addItem(makeMenuItem(title: "Chat Reminder", action: #selector(chatReminder)))
         menu.addItem(makeMenuItem(title: "Open Todos", action: #selector(openTodos)))
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Settings", action: #selector(openSettings)))
@@ -110,6 +111,10 @@ final class MenuBarController: NSObject {
 
     @objc private func addReminder() {
         miloWindowController.openReminderEntry(source: .menuBar)
+    }
+
+    @objc private func chatReminder() {
+        miloWindowController.openChatReminder()
     }
 
     @objc private func openSettings() {

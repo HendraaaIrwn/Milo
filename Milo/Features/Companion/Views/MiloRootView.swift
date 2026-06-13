@@ -8,13 +8,18 @@
 import SwiftUI
 
 struct MiloRootView: View {
-    static let windowWidth: CGFloat = 240
-    static let windowHeight: CGFloat = 180
+    static let windowWidth: CGFloat = 340
+    static let windowHeight: CGFloat = 240
 
     @ObservedObject var state: MiloFloatingPetState
     @ObservedObject var stateStore: MiloStateStore
     var onAddReminder: () -> Void = {}
+    var onChatReminder: () -> Void = {}
     var onHideMilo: () -> Void = {}
+    var onReminderDone: (MiloReminder) -> Void = { _ in }
+    var onReminderSnooze5: (MiloReminder) -> Void = { _ in }
+    var onReminderSnooze15: (MiloReminder) -> Void = { _ in }
+    var onReminderReschedule: (MiloReminder) -> Void = { _ in }
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
     @State private var mouseLocation: CGPoint?
     @State private var characterFrame: CGRect = MiloRootView.defaultCharacterFrame
@@ -50,6 +55,10 @@ struct MiloRootView: View {
                     onAddReminder()
                 }
 
+                Button("Chat Reminder") {
+                    onChatReminder()
+                }
+
                 Divider()
 
                 Button("Hide Milo") {
@@ -57,9 +66,15 @@ struct MiloRootView: View {
                 }
             }
 
-            if stateStore.shouldShowReminderBubble, let reminderBubbleText = stateStore.reminderBubbleText {
-                MiloReminderBubbleView(message: reminderBubbleText)
-                    .offset(y: -MiloLayout.designHeight - 10)
+            if stateStore.shouldShowReminderBubble, let activeReminder = stateStore.activeReminder {
+                MiloReminderBubbleView(
+                    reminder: activeReminder,
+                    onDone: { onReminderDone(activeReminder) },
+                    onSnooze5: { onReminderSnooze5(activeReminder) },
+                    onSnooze15: { onReminderSnooze15(activeReminder) },
+                    onReschedule: { onReminderReschedule(activeReminder) }
+                )
+                    .offset(y: -MiloLayout.designHeight - 14)
                     .transition(
                         .asymmetric(
                             insertion: .opacity.combined(with: .move(edge: .bottom)),
@@ -67,12 +82,11 @@ struct MiloRootView: View {
                         )
                     )
                     .zIndex(30)
-                    .allowsHitTesting(false)
             }
 
             if let bubbleText {
                 MiloReactionBubbleView(text: bubbleText)
-                    .offset(y: -MiloLayout.designHeight - 10)
+                    .offset(y: -MiloLayout.designHeight - 14)
                     .transition(
                         .asymmetric(
                             insertion: .opacity.combined(with: .move(edge: .bottom)),

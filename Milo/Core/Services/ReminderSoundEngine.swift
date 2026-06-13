@@ -14,21 +14,21 @@ final class ReminderSoundEngine {
     private init() {}
 
     func playReminderSound(mode: ReminderSoundMode = .reminderBell) {
-        guard isReminderSoundEnabled else { return }
+        guard reminderSoundEnabled else { return }
 
         switch mode {
         case .silent:
             return
-        case .reminderBell, .mumble:
-            NSSound(named: "Glass")?.play()
-        case .softPing, .meow:
+        case .meow, .softPing:
             NSSound(named: "Pop")?.play()
-        case .urgent:
-            NSSound(named: "Funk")?.play()
+        case .mumble:
+            MiloMumbleEngine.shared.speakName()
+        case .reminderBell, .urgent:
+            NSSound(named: "Glass")?.play()
         }
     }
 
-    private var isReminderSoundEnabled: Bool {
+    private var reminderSoundEnabled: Bool {
         guard UserDefaults.standard.object(forKey: MiloStorageKeys.reminderSoundEnabled) != nil else {
             return true
         }

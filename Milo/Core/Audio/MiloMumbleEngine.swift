@@ -21,6 +21,9 @@ final class MiloMumbleEngine {
     )!
 
     private var mumbleTask: Task<Void, Never>?
+    private var playbackGeneration = 0
+    private var lastSpeechText: String?
+    private var lastSpeechStartedAt: Date?
 
     private let logger = Logger(
         subsystem: "com.milo",
@@ -44,18 +47,21 @@ final class MiloMumbleEngine {
     /// It creates a warm mumble that gives the feeling of character speech.
     func speak(_ text: String) {
         guard isEnabled else { return }
-        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else { return }
+        guard shouldStartSpeech(for: trimmedText) else { return }
 
-        stop()
+        let generation = resetPlayback()
         ensureEngineRunning()
 
-        let pipCount = min(12, max(1, text.count / 5))
+        let pipCount = min(12, max(1, trimmedText.count / 5))
 
         mumbleTask = Task { [weak self] in
             guard let self else { return }
 
             for _ in 0..<pipCount {
                 guard !Task.isCancelled else { return }
+                guard self.playbackGeneration == generation else { return }
 
                 self.schedulePip()
 
@@ -69,32 +75,39 @@ final class MiloMumbleEngine {
     /// A4 → C#5, warm and playful.
     func speakName() {
         guard isEnabled else { return }
+        guard shouldStartSpeech(for: "__milo_name__") else { return }
 
-        stop()
+        let generation = resetPlayback()
         ensureEngineRunning()
 
         mumbleTask = Task { [weak self] in
             guard let self else { return }
+            guard self.playbackGeneration == generation else { return }
 
             self.scheduleNameNote(frequency: 440.0, duration: 0.135, vibratoDepth: 0)
 
             try? await Task.sleep(nanoseconds: 165_000_000)
             guard !Task.isCancelled else { return }
+            guard self.playbackGeneration == generation else { return }
 
             self.scheduleNameNote(frequency: 554.37, duration: 0.130, vibratoDepth: 7)
         }
     }
 
     func stop() {
+        _ = resetPlayback()
+    }
+
+    @discardableResult
+    private func resetPlayback() -> Int {
+        playbackGeneration += 1
         mumbleTask?.cancel()
         mumbleTask = nil
 
         playerNode.stop()
         playerNode.reset()
 
-        if engine.isRunning {
-            playerNode.play()
-        }
+        return playbackGeneration
     }
 
     private func ensureEngineRunning() {
@@ -130,6 +143,20 @@ final class MiloMumbleEngine {
     private func defaultBool(forKey key: String, defaultValue: Bool) -> Bool {
         guard UserDefaults.standard.object(forKey: key) != nil else { return defaultValue }
         return UserDefaults.standard.bool(forKey: key)
+    }
+
+    private func shouldStartSpeech(for text: String) -> Bool {
+        let now = Date()
+
+        if lastSpeechText == text,
+           let lastSpeechStartedAt,
+           now.timeIntervalSince(lastSpeechStartedAt) < 0.45 {
+            return false
+        }
+
+        lastSpeechText = text
+        lastSpeechStartedAt = now
+        return true
     }
 
     private func schedulePip() {

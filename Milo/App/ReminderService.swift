@@ -38,12 +38,38 @@ final class ReminderService: ObservableObject {
         storage.save(reminders, forKey: MiloStorageKeys.reminders)
     }
 
-    func addReminder(message: String, dueDate: Date, source: ReminderSource = .manual) -> MiloReminder {
-        let reminder = MiloReminder(message: message, dueDate: dueDate, source: source)
+    @discardableResult
+    func addReminder(
+        title: String,
+        message: String,
+        dueDate: Date,
+        repeatRule: ReminderRepeatRule? = nil,
+        soundMode: ReminderSoundMode = .mumble,
+        createdSource: ReminderCreatedSource
+    ) -> MiloReminder {
+        let reminder = MiloReminder(
+            title: title,
+            message: message,
+            dueDate: dueDate,
+            repeatRule: repeatRule,
+            soundMode: soundMode,
+            createdSource: createdSource
+        )
+
         reminders.append(reminder)
         sortReminders()
         save()
         return reminder
+    }
+
+    @discardableResult
+    func addReminder(message: String, dueDate: Date, source: ReminderSource = .rightClick) -> MiloReminder {
+        addReminder(
+            title: message,
+            message: message,
+            dueDate: dueDate,
+            createdSource: source
+        )
     }
 
     func updateReminder(_ reminder: MiloReminder) {
@@ -59,39 +85,63 @@ final class ReminderService: ObservableObject {
     func markDone(id: UUID) {
         guard let index = reminders.firstIndex(where: { $0.id == id }) else { return }
 
-        reminders[index].isDone = true
+        reminders[index].isCompleted = true
         reminders[index].updatedAt = Date()
         save()
     }
 
-    func snooze(id: UUID, minutes: Int) {
-        guard let index = reminders.firstIndex(where: { $0.id == id }) else { return }
+    func snooze(id: UUID, minutes: Int) -> MiloReminder? {
+        guard let index = reminders.firstIndex(where: { $0.id == id }) else { return nil }
 
         reminders[index].dueDate = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        reminders[index].isCompleted = false
         reminders[index].updatedAt = Date()
+        reminders[index].localNotificationID = UUID().uuidString
         sortReminders()
         save()
+        return reminders.first { $0.id == id }
+    }
+
+    func reschedule(id: UUID, newDate: Date) -> MiloReminder? {
+        guard let index = reminders.firstIndex(where: { $0.id == id }) else { return nil }
+
+        reminders[index].dueDate = newDate
+        reminders[index].isCompleted = false
+        reminders[index].updatedAt = Date()
+        reminders[index].localNotificationID = UUID().uuidString
+        sortReminders()
+        save()
+        return reminders.first { $0.id == id }
     }
 
     func deleteReminder(id: UUID) {
+        if let reminder = reminders.first(where: { $0.id == id }) {
+            ReminderNotificationService.shared.cancelNotification(id: reminder.localNotificationID)
+        }
+
         reminders.removeAll { $0.id == id }
-        ReminderNotificationService.shared.cancelNotification(for: id)
         save()
     }
 
     func deleteCompleted() {
-        reminders.removeAll { $0.isDone }
+        let completed = reminders.filter(\.isCompleted)
+        completed.forEach { ReminderNotificationService.shared.cancelNotification(id: $0.localNotificationID) }
+        reminders.removeAll { $0.isCompleted }
         save()
     }
 
     func dueReminders(now: Date = Date()) -> [MiloReminder] {
         reminders.filter { reminder in
-            !reminder.isDone && reminder.dueDate <= now
+            !reminder.isCompleted && reminder.dueDate <= now
         }
     }
 
+    func pendingReminders() -> [MiloReminder] {
+        reminders.filter { !$0.isCompleted }
+    }
+
     func openReminderEntryWindow(
-        source: ReminderSource = .manual,
+        source: ReminderSource = .rightClick,
         onSave: @MainActor @escaping (MiloReminder) -> Void
     ) {
         if let entryWindow {

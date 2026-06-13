@@ -19,7 +19,9 @@ final class MiloStateStore: ObservableObject {
     @Published var typingStartedAt: Date?
     @Published var typingBubbleText: String?
     @Published var shouldShowTypingBubble: Bool = false
+    @Published var isMiloVisible: Bool = false
     @Published var reminderBubbleText: String?
+    @Published var activeReminder: MiloReminder?
     @Published var shouldShowReminderBubble: Bool = false
 
     func setTyping(intensity: TypingIntensity) {
@@ -60,7 +62,18 @@ final class MiloStateStore: ObservableObject {
         shouldShowReminderBubble = true
     }
 
+    func showReminder(_ reminder: MiloReminder) {
+        activeReminder = reminder
+        reminderBubbleText = reminder.message
+        shouldShowReminderBubble = true
+    }
+
     func hideReminderBubble() {
+        hideReminder()
+    }
+
+    func hideReminder() {
+        activeReminder = nil
         reminderBubbleText = nil
         shouldShowReminderBubble = false
     }
