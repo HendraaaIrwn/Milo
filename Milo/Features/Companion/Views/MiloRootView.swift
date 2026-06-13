@@ -15,8 +15,6 @@ struct MiloRootView: View {
 
     @State private var mouseLocation: CGPoint?
     @State private var characterFrame: CGRect = .zero
-    @State private var reactionText: String?
-    @State private var bubbleHideTask: Task<Void, Never>?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -45,7 +43,7 @@ struct MiloRootView: View {
                 }
             )
 
-            if let reactionText {
+            if let reactionText = state.reactionText {
                 MiloReactionBubbleView(text: reactionText)
                     .offset(y: -MiloLayout.designHeight - 10)
                     .transition(
@@ -63,10 +61,6 @@ struct MiloRootView: View {
         .onPreferenceChange(MiloRootFramePreferenceKey.self) { frame in
             characterFrame = frame
         }
-        .onDisappear {
-            bubbleHideTask?.cancel()
-            bubbleHideTask = nil
-        }
         #if os(macOS)
         .overlay {
             TrackingMouseView(
@@ -78,20 +72,8 @@ struct MiloRootView: View {
     }
 
     private func showRandomReaction() {
-        bubbleHideTask?.cancel()
-        reactionText = MiloReactionLineProvider.randomLine(excluding: reactionText)
-
-        bubbleHideTask = Task {
-            try? await Task.sleep(nanoseconds: 3_000_000_000)
-
-            guard !Task.isCancelled else { return }
-
-            await MainActor.run {
-                withAnimation(.easeOut(duration: 0.18)) {
-                    reactionText = nil
-                }
-            }
-        }
+        let text = MiloReactionLineProvider.randomLine(excluding: state.reactionText)
+        state.showBubble(text)
     }
 }
 

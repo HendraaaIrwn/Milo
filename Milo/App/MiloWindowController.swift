@@ -1,5 +1,5 @@
 //
-//  MiloAppDelegate.swift
+//  MiloWindowController.swift
 //  Milo
 //
 //  Created by Hendra Irawan on 13/06/26.
@@ -9,14 +9,9 @@ import AppKit
 import SwiftUI
 
 @MainActor
-final class MiloAppDelegate: NSObject, NSApplicationDelegate {
+final class MiloWindowController {
     private let petState = MiloFloatingPetState()
     private var petPanel: FloatingPetPanel?
-
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
-        showMilo()
-    }
 
     func showMilo() {
         if let petPanel {
@@ -25,9 +20,8 @@ final class MiloAppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let size = NSSize(width: MiloRootView.windowWidth, height: MiloRootView.windowHeight)
-        let origin = initialOrigin(for: size)
         let panel = FloatingPetPanel(
-            contentRect: NSRect(origin: origin, size: size),
+            contentRect: NSRect(origin: initialOrigin(for: size), size: size),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -63,18 +57,23 @@ final class MiloAppDelegate: NSObject, NSApplicationDelegate {
         petPanel?.orderOut(nil)
     }
 
-    func startPomodoro() {
-        petState.mood = .focus
-        showMilo()
+    func setMood(_ mood: MiloMood) {
+        petState.mood = mood
     }
 
-    func addReminder() {
-        petState.mood = .reminder
+    func showBubble(_ text: String, mood: MiloMood? = nil) {
+        if let mood {
+            petState.mood = mood
+        }
+
         showMilo()
+        petState.showBubble(text)
     }
 
-    func quit() {
-        NSApp.terminate(nil)
+    func close() {
+        petState.clearBubble()
+        petPanel?.close()
+        petPanel = nil
     }
 
     private func initialOrigin(for size: NSSize) -> NSPoint {

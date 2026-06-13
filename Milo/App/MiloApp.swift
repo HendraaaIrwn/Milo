@@ -9,34 +9,11 @@ import SwiftUI
 
 @main
 struct MiloApp: App {
-    @NSApplicationDelegateAdaptor(MiloAppDelegate.self) private var appDelegate
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        MenuBarExtra("Milo", systemImage: "pawprint.circle") {
-            Button("Show Milo") {
-                appDelegate.showMilo()
-            }
-
-            Button("Hide Milo") {
-                appDelegate.hideMilo()
-            }
-
-            Divider()
-
-            Button("Start Pomodoro") {
-                appDelegate.startPomodoro()
-            }
-
-            Button("Add Reminder") {
-                appDelegate.addReminder()
-            }
-
-            Divider()
-
-            Button("Quit") {
-                appDelegate.quit()
-            }
+        Settings {
+            EmptyView()
         }
-        .menuBarExtraStyle(.menu)
     }
 }
