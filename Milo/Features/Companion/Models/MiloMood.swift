@@ -7,10 +7,7 @@
 
 import Foundation
 
-/// Visual / behavioral state of the Milo companion.
-///
-/// The mood influences which facial assets are rendered and how
-/// the blink + gaze engines behave.
+
 enum MiloMood: String, CaseIterable, Identifiable {
     case idle
     case typing
@@ -22,8 +19,6 @@ enum MiloMood: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    /// Probability of triggering a blink within a one-second window.
-    /// Sleepy state blinks more frequently; focus keeps it minimal.
     var blinkFrequencyPerSecond: Double {
         switch self {
         case .sleepy: 0.55

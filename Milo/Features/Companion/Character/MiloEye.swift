@@ -16,13 +16,12 @@ struct MiloEye: View {
     let side: Side
     let blinkPhase: BlinkPhase
 
-    /// Normalised pupil offset in `[-1, 1]` along each axis.
     let pupilOffset: CGSize
 
     var body: some View {
         GeometryReader { proxy in
-            let width = proxy.size.width
-            let height = proxy.size.height
+            let width = 1.2 * proxy.size.width
+            let height = 1.2 * proxy.size.height
             let visibleHeight = max(height * blinkPhase.eyeOpenness, height * 0.08)
             let pupilX = pupilOffset.width * width * MiloLayout.pupilRange
             let pupilY = pupilOffset.height * height * MiloLayout.pupilRange
@@ -43,6 +42,7 @@ struct MiloEye: View {
                         .scaledToFit()
                         .frame(width: pupilWidth, height: pupilHeight)
                         .offset(x: pupilX, y: pupilY)
+                        .animation(.smooth(duration: 0.08), value: pupilOffset)
                 }
                 .frame(width: width, height: height)
                 .mask(alignment: .bottom) {
