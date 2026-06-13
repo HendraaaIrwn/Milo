@@ -65,6 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        MiloMumbleEngine.shared.stop()
         keyboardActivityService?.stop()
         pomodoroService?.stop()
         reminderService?.closeEntryWindow()

@@ -17,8 +17,9 @@ enum MiloSettingsKeys {
 }
 
 struct SettingsView: View {
+    @StateObject private var settingsStore = MiloSettingsStore()
+
     @AppStorage(MiloSettingsKeys.showMiloOnLaunch) private var showMiloOnLaunch = true
-    @AppStorage(MiloSettingsKeys.soundEnabled) private var soundEnabled = true
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
     @AppStorage(MiloSettingsKeys.typingReaction) private var typingReaction = true
     @AppStorage(MiloSettingsKeys.typingBubbleDialogs) private var typingBubbleDialogs = true
@@ -34,9 +35,7 @@ struct SettingsView: View {
             }
             .tabItem { Label("Appearance", systemImage: "paintbrush") }
 
-            Form {
-                Toggle("Sound Enabled", isOn: $soundEnabled)
-            }
+            soundTab
             .tabItem { Label("Sound", systemImage: "speaker.wave.2") }
 
             Form {
@@ -86,6 +85,29 @@ struct SettingsView: View {
             Text("MILO only detects keyboard timing, not what you type.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private var soundTab: some View {
+        Form {
+            Toggle("Sound Effects", isOn: $settingsStore.soundEffectsEnabled)
+            Toggle("MILO Mumble Voice", isOn: $settingsStore.characterVoiceEnabled)
+            Toggle("Mute All", isOn: $settingsStore.isMuted)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Volume")
+                Slider(value: $settingsStore.soundVolume, in: 0...1)
+            }
+
+            HStack {
+                Button("Test MILO Voice") {
+                    MiloMumbleEngine.shared.speak("Milo is ready to code.")
+                }
+
+                Button("Say Milo") {
+                    MiloMumbleEngine.shared.speakName()
+                }
+            }
         }
     }
 }

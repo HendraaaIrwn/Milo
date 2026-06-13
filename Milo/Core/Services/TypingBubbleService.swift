@@ -57,7 +57,9 @@ final class TypingBubbleService {
         guard let miloStateStore else { return }
 
         canShowBubble = false
-        miloStateStore.showTypingBubble(MiloTypingDialogProvider.randomLine(for: intensity))
+        let line = MiloTypingDialogProvider.randomLine(for: intensity)
+        miloStateStore.showTypingBubble(line)
+        MiloMumbleEngine.shared.speak(line)
 
         scheduleBubbleHide()
         scheduleCooldown(for: intensity)

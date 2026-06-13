@@ -22,6 +22,7 @@ final class MiloFloatingPetState: ObservableObject {
     func showBubble(_ text: String, hideAfter seconds: UInt64 = 3) {
         bubbleHideTask?.cancel()
         reactionText = text
+        MiloMumbleEngine.shared.speak(text)
 
         bubbleHideTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: seconds * 1_000_000_000)
