@@ -1,0 +1,40 @@
+{
+  "source": "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Character/MiloCharacter.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Milo",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Milo",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Companion",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Assistant",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 96
+        }
+      }
+    ]
+  },
+  "version": 1
+}

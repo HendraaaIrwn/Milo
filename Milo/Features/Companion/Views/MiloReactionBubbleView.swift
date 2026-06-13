@@ -49,7 +49,9 @@ struct Triangle: Shape {
     }
 }
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
     MiloReactionBubbleView(text: MiloReactionLineProvider.randomLine())
         .padding()
 }
+#endif

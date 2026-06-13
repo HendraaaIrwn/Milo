@@ -1,0 +1,16 @@
+{
+  "source": "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Chat/Views/MiloChatBubble.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Reply",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 40
+        }
+      }
+    ]
+  },
+  "version": 1
+}

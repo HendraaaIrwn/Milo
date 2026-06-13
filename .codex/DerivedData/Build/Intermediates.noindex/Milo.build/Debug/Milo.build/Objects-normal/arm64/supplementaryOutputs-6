@@ -1,0 +1,30 @@
+{
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Animations/MiloAnimationConfiguration+Sleepy.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Sleepy.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Sleepy.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Sleepy.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Sleepy.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Sleepy.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Animations/MiloAnimationConfiguration+Typing.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Typing.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Typing.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Typing.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Typing.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationConfiguration+Typing.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Animations/MiloAnimationFrame.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationFrame.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationFrame.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationFrame.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationFrame.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloAnimationFrame.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Animations/MiloMood+AnimationConfiguration.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood+AnimationConfiguration.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood+AnimationConfiguration.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood+AnimationConfiguration.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood+AnimationConfiguration.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloMood+AnimationConfiguration.swiftdeps"
+  }
+}

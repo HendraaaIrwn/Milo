@@ -1,0 +1,30 @@
+{
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Core/AppState.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/AppState.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/AppState.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/AppState.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/AppState.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/AppState.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Core/Services/KeyboardActivityPermission.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityPermission.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityPermission.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityPermission.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityPermission.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityPermission.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Core/Services/KeyboardActivityService.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityService.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityService.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityService.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityService.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/KeyboardActivityService.swiftdeps"
+  },
+  "/Users/neuhendra/Developer/Milo/Milo/Milo/Core/Services/MiloStateStore.swift" : {
+    "const-values" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloStateStore.swiftconstvalues",
+    "dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloStateStore.d",
+    "diagnostics" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloStateStore.dia",
+    "object" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloStateStore.o",
+    "swift-dependencies" : "/Users/neuhendra/Developer/Milo/Milo/.codex/DerivedData/Build/Intermediates.noindex/Milo.build/Debug/Milo.build/Objects-normal/arm64/MiloStateStore.swiftdeps"
+  }
+}

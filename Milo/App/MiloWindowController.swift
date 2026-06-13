@@ -6,12 +6,20 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
 final class MiloWindowController {
     private let petState = MiloFloatingPetState()
+    private let stateStore: MiloStateStore
     private var petPanel: FloatingPetPanel?
+    private var stateCancellable: AnyCancellable?
+
+    init(stateStore: MiloStateStore) {
+        self.stateStore = stateStore
+        observeStateStore(stateStore)
+    }
 
     func showMilo() {
         if let petPanel {
@@ -45,7 +53,7 @@ final class MiloWindowController {
         ]
 
         panel.contentView = DraggableHostingView(
-            rootView: MiloRootView(state: petState)
+            rootView: MiloRootView(state: petState, stateStore: stateStore)
                 .frame(width: size.width, height: size.height)
         )
 
@@ -71,9 +79,20 @@ final class MiloWindowController {
     }
 
     func close() {
+        stateCancellable?.cancel()
+        stateCancellable = nil
         petState.clearBubble()
         petPanel?.close()
         petPanel = nil
+    }
+
+    private func observeStateStore(_ stateStore: MiloStateStore) {
+        stateCancellable = stateStore.$animationState
+            .sink { [weak self] animationState in
+                Task { @MainActor [weak self] in
+                    self?.petState.mood = animationState.miloMood
+                }
+            }
     }
 
     private func initialOrigin(for size: NSSize) -> NSPoint {

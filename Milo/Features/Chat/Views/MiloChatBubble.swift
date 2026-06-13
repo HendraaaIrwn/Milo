@@ -63,7 +63,9 @@ struct MiloChatBubble: View {
     }
 }
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
     MiloChatBubble(mood: .idle, onReply: {})
         .padding()
 }
+#endif

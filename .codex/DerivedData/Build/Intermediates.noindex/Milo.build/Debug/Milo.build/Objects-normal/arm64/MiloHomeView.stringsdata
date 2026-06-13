@@ -1,0 +1,24 @@
+{
+  "source": "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Views/MiloHomeView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Hi, I'm Milo",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your friendly assistant",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 68
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -42,13 +42,16 @@ final class MiloFloatingPetState: ObservableObject {
 
 struct MiloFloatingPetView: View {
     @ObservedObject var state: MiloFloatingPetState
+    @ObservedObject var stateStore: MiloStateStore
 
     var body: some View {
-        MiloRootView(state: state)
+        MiloRootView(state: state, stateStore: stateStore)
     }
 }
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
-    MiloFloatingPetView(state: MiloFloatingPetState())
+    MiloFloatingPetView(state: MiloFloatingPetState(), stateStore: MiloStateStore())
         .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
 }
+#endif

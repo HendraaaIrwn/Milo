@@ -1,0 +1,192 @@
+{
+  "source": "/Users/neuhendra/Developer/Milo/Milo/Milo/App/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "General",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Eye Follow Cursor",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "Appearance",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sound Enabled",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sound",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Default focus: 25 minutes",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Default break: 5 minutes",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pomodoro",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "Local reminders only",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reminders",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Break Nudges Enabled",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Break Nudges",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Mood check-ins placeholder",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 57
+        }
+      },
+      {
+        "comment": "",
+        "key": "Mood Check-ins",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Agent integrations placeholder",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Agent Integrations",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Coding metrics placeholder",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Coding Metrics",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 69
+        }
+      },
+      {
+        "comment": "",
+        "key": "Privacy",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "MILO only detects keyboard timing, not what you type.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Show Milo on Launch",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "Eye Follow Cursor",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 81
+        }
+      },
+      {
+        "comment": "",
+        "key": "Typing Reaction",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 82
+        }
+      }
+    ]
+  },
+  "version": 1
+}

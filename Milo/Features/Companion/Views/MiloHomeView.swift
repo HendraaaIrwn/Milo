@@ -21,6 +21,7 @@ struct MiloHomeView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .coordinateSpace(name: "miloHome")
         .onPreferenceChange(MiloFramePreferenceKey.self) { frame in
+            guard !frame.isEmpty else { return }
             miloFrame = frame
         }
         #if os(macOS)
@@ -126,6 +127,8 @@ private struct MiloFramePreferenceKey: PreferenceKey {
     }
 }
 
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
     MiloHomeView()
 }
+#endif
