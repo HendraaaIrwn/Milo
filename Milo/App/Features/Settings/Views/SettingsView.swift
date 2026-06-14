@@ -64,10 +64,8 @@ struct SettingsView: View {
             }
             .tabItem { Label("Agent Integrations", systemImage: "cpu") }
 
-            Form {
-                Text("Coding metrics placeholder")
-            }
-            .tabItem { Label("Coding Metrics", systemImage: "chart.bar") }
+            CodingMetricsSettingsView()
+                .tabItem { Label("Coding Metrics", systemImage: "chart.bar") }
 
             PrivacySettingsView()
                 .tabItem { Label("Privacy", systemImage: "hand.raised") }

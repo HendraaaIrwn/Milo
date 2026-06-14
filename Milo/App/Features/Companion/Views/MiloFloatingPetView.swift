@@ -45,9 +45,15 @@ struct MiloFloatingPetView: View {
     @ObservedObject var state: MiloFloatingPetState
     @ObservedObject var stateStore: MiloStateStore
     @ObservedObject var pomodoroService: PomodoroService
+    @ObservedObject var codingMetricsCoordinator: CodingMetricsCoordinator
 
     var body: some View {
-        MiloRootView(state: state, stateStore: stateStore, pomodoroService: pomodoroService)
+        MiloRootView(
+            state: state,
+            stateStore: stateStore,
+            pomodoroService: pomodoroService,
+            codingMetricsCoordinator: codingMetricsCoordinator
+        )
     }
 }
 
@@ -56,7 +62,8 @@ struct MiloFloatingPetView: View {
     MiloFloatingPetView(
         state: MiloFloatingPetState(),
         stateStore: MiloStateStore(),
-        pomodoroService: PomodoroService()
+        pomodoroService: PomodoroService(),
+        codingMetricsCoordinator: CodingMetricsCoordinator(localMetricsService: CodingMetricsService(storage: .shared))
     )
         .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
 }

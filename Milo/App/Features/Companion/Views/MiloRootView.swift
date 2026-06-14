@@ -14,6 +14,7 @@ struct MiloRootView: View {
     @ObservedObject var state: MiloFloatingPetState
     @ObservedObject var stateStore: MiloStateStore
     @ObservedObject var pomodoroService: PomodoroService
+    @ObservedObject var codingMetricsCoordinator: CodingMetricsCoordinator
 
     var onAddReminder: () -> Void = {}
     var onChatReminder: () -> Void = {}
@@ -31,9 +32,12 @@ struct MiloRootView: View {
     var onResumePomodoro: () -> Void = {}
     var onResetPomodoro: () -> Void = {}
     var onOpenPomodoroSettings: () -> Void = {}
+    var onOpenCodingMetrics: () -> Void = {}
+    var onResetCodingMetrics: () -> Void = {}
 
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
     @AppStorage(MiloStorageKeys.pomodoroShowTimerBadge) private var showPomodoroBadge = true
+    @AppStorage(MiloStorageKeys.codingMetricsShowBadge) private var showCodingMetricsBadge = true
     @State private var mouseLocation: CGPoint?
     @State private var characterFrame: CGRect = MiloRootView.defaultCharacterFrame
 
@@ -75,6 +79,13 @@ struct MiloRootView: View {
                         .transition(.scale.combined(with: .opacity))
                         .zIndex(5)
                 }
+
+                if showCodingMetricsBadge {
+                    CodingMetricsBadgeView(service: codingMetricsCoordinator.localMetricsService)
+                        .offset(y: 8)
+                        .transition(.opacity.combined(with: .scale))
+                        .zIndex(5)
+                }
             }
         }
         .frame(width: Self.windowWidth, height: Self.windowHeight)
@@ -108,10 +119,12 @@ struct MiloRootView: View {
 
     @ViewBuilder
     private var contextMenuContent: some View {
-        Button("Start Pomodoro 25/5") { onStartPomodoro(.short) }
-        Button("Start Pomodoro 50/10") { onStartPomodoro(.medium) }
-        Button("Start Pomodoro 90/15") { onStartPomodoro(.long) }
-        Button("Custom Pomodoro...") { onOpenPomodoroSettings() }
+        Menu("Start Pomodoro") {
+            Button("25/5") { onStartPomodoro(.short) }
+            Button("50/10") { onStartPomodoro(.medium) }
+            Button("90/15") { onStartPomodoro(.long) }
+            Button("Custom...") { onOpenPomodoroSettings() }
+        }
 
         Button("Pause Pomodoro") { onPausePomodoro() }
         Button("Resume Pomodoro") { onResumePomodoro() }
@@ -127,6 +140,11 @@ struct MiloRootView: View {
         Button("Add Reminder") { onAddReminder() }
         Button("Chat Reminder and Todo") { onChatReminder() }
         Button("Reminder History") { onOpenReminderHistory() }
+
+        Divider()
+
+        Button("Coding Metrics") { onOpenCodingMetrics() }
+        Button("Reset Local Coding Stats") { onResetCodingMetrics() }
 
         Divider()
 
@@ -234,7 +252,8 @@ private struct MiloRootFramePreferenceKey: PreferenceKey {
     MiloRootView(
         state: MiloFloatingPetState(),
         stateStore: MiloStateStore(),
-        pomodoroService: PomodoroService()
+        pomodoroService: PomodoroService(),
+        codingMetricsCoordinator: CodingMetricsCoordinator(localMetricsService: CodingMetricsService())
     )
 }
 #endif

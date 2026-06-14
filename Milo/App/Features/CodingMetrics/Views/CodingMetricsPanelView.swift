@@ -1,0 +1,127 @@
+//
+//  CodingMetricsPanelView.swift
+//  Milo
+//
+
+import SwiftUI
+
+struct CodingMetricsPanelView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    @ObservedObject var coordinator: CodingMetricsCoordinator
+    @ObservedObject var service: CodingMetricsService
+
+    private var snapshot: CodingMetricsSnapshot {
+        service.snapshot
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text("Coding Metrics")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                    
+                    Spacer()
+                    
+                    Text(coordinator.sourceLabel)
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.green.opacity(0.12))
+                        .clipShape(Capsule())
+                }
+                
+                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10 ) {
+                    GridRow {
+                        metricCard("Coding Today", formatSeconds(snapshot.codingSecondsToday))
+                        metricCard("Session", formatSeconds(snapshot.currentSessionSeconds))
+                    }
+                    
+                    GridRow {
+                        metricCard("Top Language", snapshot.topLanguage ?? "-")
+                        metricCard("Top Project", snapshot.topProject ?? "-")
+                    }
+                    
+                    GridRow {
+                        metricCard("Top Editor", snapshot.topEditor ?? "-")
+                        metricCard("LOC", "+\(snapshot.locToday.linesAdded) / -\(snapshot.locToday.linesDeleted)")
+                    }
+                }
+                
+                Divider()
+                
+                LOCSummaryView(loc: snapshot.locToday)
+                
+                if let waka = coordinator.wakaTimeSummary {
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("WakaTime Today")
+                            .font(.headline)
+                        
+                        Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
+                            GridRow {
+                                metricCard("Time", formatSeconds(waka.totalSeconds))
+                                metricCard("Top Language", waka.topLanguage ?? "-")
+                            }
+                            
+                            GridRow {
+                                metricCard("Top Project", waka.topProject ?? "-")
+                                metricCard("Top Editor", topEditor(from: waka.editorUsage) ?? "-")
+                            }
+                        }
+                    }
+                }
+                
+                HStack {
+                    Button("Refresh WakaTime") {
+                        coordinator.refreshWakaTime()
+                    }
+                    
+                    Button("Reset Local Stats", role: .destructive) {
+                        coordinator.localMetricsService.resetLocalStats()
+                    }
+                }
+                
+                Spacer()
+            }
+        }
+            .padding(18)
+            .frame(width: 520, height: 480)
+    }
+
+    private func metricCard(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+//                .foregroundStyle(.black)
+
+            Text(value)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+//                .foregroundStyle(.black)
+                .lineLimit(1)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(colorScheme == .dark ? Color(red: 0.231, green: 0.231, blue: 0.231) : .white)
+        )
+    }
+
+    private func topEditor(from usage: [String: Int]) -> String? {
+        usage.max(by: { $0.value < $1.value })?.key
+    }
+
+    private func formatSeconds(_ seconds: Int) -> String {
+        let hours = seconds / 3600
+        let minutes = (seconds % 3600) / 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        }
+
+        return "\(minutes)m"
+    }
+}
