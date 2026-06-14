@@ -16,16 +16,22 @@ struct CodingMetricsBadgeView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left.forwardslash.chevron.right")
+                    .foregroundStyle(.black)
                     .font(.system(size: 10, weight: .bold))
 
                 Text(formatSeconds(snapshot.codingSecondsToday))
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(.black)
+                    .font(.system(size : 11, weight: .bold, design: .rounded))
             }
+            .foregroundStyle(.primary)
 
             HStack(spacing: 6) {
                 Text(snapshot.topLanguage ?? "No language")
+                    .foregroundStyle(Color.blue)
                 Text("+\(snapshot.locToday.linesAdded)")
+                    .foregroundStyle(Color.green)
                 Text("-\(snapshot.locToday.linesDeleted)")
+                    .foregroundStyle(Color.red)
             }
             .font(.system(size: 9, weight: .medium, design: .rounded))
             .foregroundStyle(.secondary)

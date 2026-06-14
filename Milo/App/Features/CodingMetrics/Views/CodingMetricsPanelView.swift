@@ -6,6 +6,8 @@
 import SwiftUI
 
 struct CodingMetricsPanelView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     @ObservedObject var coordinator: CodingMetricsCoordinator
     @ObservedObject var service: CodingMetricsService
 
@@ -26,11 +28,11 @@ struct CodingMetricsPanelView: View {
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.blue.opacity(0.12))
+                        .background(.green.opacity(0.12))
                         .clipShape(Capsule())
                 }
                 
-                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10) {
+                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10 ) {
                     GridRow {
                         metricCard("Coding Today", formatSeconds(snapshot.codingSecondsToday))
                         metricCard("Session", formatSeconds(snapshot.currentSessionSeconds))
@@ -93,17 +95,18 @@ struct CodingMetricsPanelView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+//                .foregroundStyle(.black)
 
             Text(value)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
+//                .foregroundStyle(.black)
                 .lineLimit(1)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(.white.opacity(0.9))
+                .fill(colorScheme == .dark ? Color(red: 0.231, green: 0.231, blue: 0.231) : .white)
         )
     }
 
