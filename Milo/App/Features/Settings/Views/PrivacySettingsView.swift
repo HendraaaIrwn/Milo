@@ -68,6 +68,28 @@ struct PrivacySettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading, spacing: 12) {
+                    Label("Coding Metrics", systemImage: "chart.bar")
+                        .font(.headline)
+
+                    Text("MILO tracks active editor, approximate project folder, language estimation from file extensions, and Git LOC summaries. Source code content is never read or stored.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        bullet("Active app/editor name and bundle ID")
+                        bullet("User-selected project folder path")
+                        bullet("File extensions for language estimation")
+                        bullet("Git diff shortstat and numstat summaries")
+                        bullet("Session duration and LOC summary")
+                    }
+                    .font(.subheadline)
+                }
+                .padding(12)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading, spacing: 12) {
                     Label("Input Monitoring Permission", systemImage: "hand.raised")
                         .font(.headline)
 

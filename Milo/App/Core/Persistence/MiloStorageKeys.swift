@@ -18,4 +18,13 @@ enum MiloStorageKeys {
     static let pomodoroSoundEnabled = "Milo.Pomodoro.SoundEnabled"
     static let selectedPomodoroPreset = "Milo.Pomodoro.SelectedPreset"
     static let pomodoroShowTimerBadge = "Milo.Pomodoro.ShowTimerBadge"
+
+    // Coding Metrics
+    static let codingMetricsSnapshot = "Milo.CodingMetrics.Snapshot"
+    static let codingMetricsEnabled = "Milo.CodingMetrics.Enabled"
+    static let codingMetricsShowBadge = "Milo.CodingMetrics.ShowBadge"
+    static let localProjectPaths = "Milo.CodingMetrics.ProjectPaths"
+
+    // WakaTime
+    static let wakaTimeEnabled = "Milo.WakaTime.Enabled"
 }

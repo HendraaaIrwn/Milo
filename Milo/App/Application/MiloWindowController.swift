@@ -19,6 +19,7 @@ final class MiloWindowController {
     private let todoService: TodoService
     private let todoSchedulerService: TodoSchedulerService
     private let pomodoroService: PomodoroService
+    private let codingMetricsCoordinator: CodingMetricsCoordinator
     private var petPanel: FloatingPetPanel?
     private var stateCancellable: AnyCancellable?
     private var chatReminderWindow: NSWindow?
@@ -27,6 +28,7 @@ final class MiloWindowController {
     private var todoWindow: NSWindow?
     private var todoEditorWindow: NSWindow?
     private var pomodoroSettingsWindow: NSWindow?
+    private var codingMetricsWindow: NSWindow?
 
     init(
         stateStore: MiloStateStore,
@@ -35,7 +37,8 @@ final class MiloWindowController {
         reminderSchedulerService: ReminderSchedulerService,
         todoService: TodoService,
         todoSchedulerService: TodoSchedulerService,
-        pomodoroService: PomodoroService
+        pomodoroService: PomodoroService,
+        codingMetricsCoordinator: CodingMetricsCoordinator
     ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
@@ -44,6 +47,7 @@ final class MiloWindowController {
         self.todoService = todoService
         self.todoSchedulerService = todoSchedulerService
         self.pomodoroService = pomodoroService
+        self.codingMetricsCoordinator = codingMetricsCoordinator
         observeStateStore(stateStore)
     }
 
@@ -84,6 +88,7 @@ final class MiloWindowController {
                 state: petState,
                 stateStore: stateStore,
                 pomodoroService: pomodoroService,
+                codingMetricsCoordinator: codingMetricsCoordinator,
                 onAddReminder: { [weak self] in
                     self?.openReminderEntry(source: .rightClick)
                 },
@@ -133,6 +138,12 @@ final class MiloWindowController {
                 },
                 onOpenPomodoroSettings: { [weak self] in
                     self?.openPomodoroSettings()
+                },
+                onOpenCodingMetrics: { [weak self] in
+                    self?.openCodingMetricsPanel()
+                },
+                onResetCodingMetrics: { [weak self] in
+                    self?.codingMetricsCoordinator.localMetricsService.resetLocalStats()
                 }
             )
                 .frame(width: size.width, height: size.height)
@@ -331,6 +342,32 @@ final class MiloWindowController {
         window.makeKeyAndOrderFront(nil)
     }
 
+    func openCodingMetricsPanel() {
+        if let codingMetricsWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            codingMetricsWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 480),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "MILO Coding Metrics"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: CodingMetricsPanelView(coordinator: codingMetricsCoordinator)
+        )
+
+        codingMetricsWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     func openRescheduleReminder(_ reminder: MiloReminder) {
         if let rescheduleWindow {
             NSApp.activate(ignoringOtherApps: true)
@@ -418,8 +455,11 @@ final class MiloWindowController {
             }
 
             return
-        } catch {}
-        catch TodoCommandParserError.unsupportedFormat {}
+        } catch TodoCommandParserError.unsupportedFormat {
+            // Unsupported todo format; fall through to try parsing as a reminder
+        } catch {
+            // Other parsing errors; fall through to reminder parsing
+        }
 
         do {
             let parsed = try NaturalLanguageReminderParser.parse(text)
@@ -492,3 +532,4 @@ final class FloatingPetPanel: NSPanel {
 final class DraggableHostingView<Content: View>: NSHostingView<Content> {
     override var mouseDownCanMoveWindow: Bool { true }
 }
+

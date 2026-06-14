@@ -35,10 +35,11 @@ final class PomodoroService: ObservableObject {
         session.remainingSeconds
     }
 
-    init(storage: MiloLocalStorageService = .shared) {
-        self.storage = storage
+    init(storage: MiloLocalStorageService? = nil) {
+        let resolvedStorage = storage ?? .shared
+        self.storage = resolvedStorage
 
-        var loadedSession = storage.load(
+        var loadedSession = resolvedStorage.load(
             PomodoroSession.self,
             forKey: MiloStorageKeys.pomodoroSession,
             defaultValue: PomodoroSession()
@@ -51,7 +52,7 @@ final class PomodoroService: ObservableObject {
 
         self.session = loadedSession
 
-        let loadedStats = storage.load(
+        let loadedStats = resolvedStorage.load(
             PomodoroStats.self,
             forKey: MiloStorageKeys.pomodoroStats,
             defaultValue: PomodoroStats.empty()
@@ -182,10 +183,7 @@ final class PomodoroService: ObservableObject {
         timerTask = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
-
-                await MainActor.run {
-                    self?.tick()
-                }
+                self?.tick()
             }
         }
     }
@@ -283,3 +281,4 @@ final class PomodoroService: ObservableObject {
         timerTask?.cancel()
     }
 }
+

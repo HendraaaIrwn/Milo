@@ -16,6 +16,7 @@ final class MenuBarController: NSObject {
     private let reminderHistoryService: ReminderHistoryService
     private let reminderService: ReminderService
     private let todoService: TodoService
+    private let codingMetricsCoordinator: CodingMetricsCoordinator
 
     private let pomodoroMenuItem = NSMenuItem()
     private var settingsWindow: NSWindow?
@@ -26,7 +27,8 @@ final class MenuBarController: NSObject {
         pomodoroService: PomodoroService,
         reminderHistoryService: ReminderHistoryService,
         reminderService: ReminderService,
-        todoService: TodoService
+        todoService: TodoService,
+        codingMetricsCoordinator: CodingMetricsCoordinator
     ) {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.miloWindowController = miloWindowController
@@ -34,6 +36,7 @@ final class MenuBarController: NSObject {
         self.reminderHistoryService = reminderHistoryService
         self.reminderService = reminderService
         self.todoService = todoService
+        self.codingMetricsCoordinator = codingMetricsCoordinator
 
         super.init()
         setupStatusItem()
@@ -76,6 +79,9 @@ final class MenuBarController: NSObject {
         menu.addItem(makeMenuItem(title: "Reminder History", action: #selector(openReminderHistory)))
         menu.addItem(makeMenuItem(title: "Add Todo", action: #selector(addTodo)))
         menu.addItem(makeMenuItem(title: "Open Todos", action: #selector(openTodos)))
+        menu.addItem(.separator())
+        menu.addItem(makeMenuItem(title: "Coding Metrics", action: #selector(openCodingMetrics)))
+        menu.addItem(makeMenuItem(title: "Reset Local Coding Stats", action: #selector(resetCodingMetrics)))
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Settings", action: #selector(openSettings)))
         menu.addItem(makeMenuItem(title: "Quit", action: #selector(quitApp)))
@@ -159,6 +165,14 @@ final class MenuBarController: NSObject {
 
     @objc private func openTodos() {
         miloWindowController.openTodoList()
+    }
+
+    @objc private func openCodingMetrics() {
+        miloWindowController.openCodingMetricsPanel()
+    }
+
+    @objc private func resetCodingMetrics() {
+        codingMetricsCoordinator.localMetricsService.resetLocalStats()
     }
 
     @objc private func quitApp() {
