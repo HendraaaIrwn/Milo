@@ -49,14 +49,35 @@ struct CodingMetricsPanelView: View {
 
             LOCSummaryView(loc: snapshot.locToday)
 
-            Divider()
+            if let waka = coordinator.wakaTimeSummary {
+                Divider()
 
-            Button("Refresh WakaTime") {
-                coordinator.refreshWakaTime()
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("WakaTime Today")
+                        .font(.headline)
+
+                    Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
+                        GridRow {
+                            metricCard("Time", formatSeconds(waka.totalSeconds))
+                            metricCard("Top Language", waka.topLanguage ?? "-")
+                        }
+
+                        GridRow {
+                            metricCard("Top Project", waka.topProject ?? "-")
+                            metricCard("Top Editor", topEditor(from: waka.editorUsage) ?? "-")
+                        }
+                    }
+                }
             }
 
-            Button("Reset Local Stats", role: .destructive) {
-                coordinator.localMetricsService.resetLocalStats()
+            HStack {
+                Button("Refresh WakaTime") {
+                    coordinator.refreshWakaTime()
+                }
+
+                Button("Reset Local Stats", role: .destructive) {
+                    coordinator.localMetricsService.resetLocalStats()
+                }
             }
 
             Spacer()
@@ -81,6 +102,10 @@ struct CodingMetricsPanelView: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(.white.opacity(0.9))
         )
+    }
+
+    private func topEditor(from usage: [String: Int]) -> String? {
+        usage.max(by: { $0.value < $1.value })?.key
     }
 
     private func formatSeconds(_ seconds: Int) -> String {
