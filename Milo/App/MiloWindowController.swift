@@ -18,6 +18,7 @@ final class MiloWindowController {
     private let reminderSchedulerService: ReminderSchedulerService
     private let todoService: TodoService
     private let todoSchedulerService: TodoSchedulerService
+    private let pomodoroService: PomodoroService
     private var petPanel: FloatingPetPanel?
     private var stateCancellable: AnyCancellable?
     private var chatReminderWindow: NSWindow?
@@ -25,6 +26,7 @@ final class MiloWindowController {
     private var rescheduleWindow: NSWindow?
     private var todoWindow: NSWindow?
     private var todoEditorWindow: NSWindow?
+    private var pomodoroSettingsWindow: NSWindow?
 
     init(
         stateStore: MiloStateStore,
@@ -32,7 +34,8 @@ final class MiloWindowController {
         reminderHistoryService: ReminderHistoryService,
         reminderSchedulerService: ReminderSchedulerService,
         todoService: TodoService,
-        todoSchedulerService: TodoSchedulerService
+        todoSchedulerService: TodoSchedulerService,
+        pomodoroService: PomodoroService
     ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
@@ -40,6 +43,7 @@ final class MiloWindowController {
         self.reminderSchedulerService = reminderSchedulerService
         self.todoService = todoService
         self.todoSchedulerService = todoSchedulerService
+        self.pomodoroService = pomodoroService
         observeStateStore(stateStore)
     }
 
@@ -79,6 +83,7 @@ final class MiloWindowController {
             rootView: MiloRootView(
                 state: petState,
                 stateStore: stateStore,
+                pomodoroService: pomodoroService,
                 onAddReminder: { [weak self] in
                     self?.openReminderEntry(source: .rightClick)
                 },
@@ -113,6 +118,21 @@ final class MiloWindowController {
                 },
                 onAddTodo: { [weak self] in
                     self?.openTodoEditor()
+                },
+                onStartPomodoro: { [weak self] preset in
+                    self?.startPomodoro(preset)
+                },
+                onPausePomodoro: { [weak self] in
+                    self?.pomodoroService.pause()
+                },
+                onResumePomodoro: { [weak self] in
+                    self?.pomodoroService.resume()
+                },
+                onResetPomodoro: { [weak self] in
+                    self?.pomodoroService.reset()
+                },
+                onOpenPomodoroSettings: { [weak self] in
+                    self?.openPomodoroSettings()
                 }
             )
                 .frame(width: size.width, height: size.height)
@@ -285,6 +305,32 @@ final class MiloWindowController {
         window.makeKeyAndOrderFront(nil)
     }
 
+    func openPomodoroSettings() {
+        if let pomodoroSettingsWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            pomodoroSettingsWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 500),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "MILO Pomodoro"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: PomodoroSettingsView(pomodoroService: pomodoroService)
+        )
+
+        pomodoroSettingsWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     func openRescheduleReminder(_ reminder: MiloReminder) {
         if let rescheduleWindow {
             NSApp.activate(ignoringOtherApps: true)
@@ -337,6 +383,8 @@ final class MiloWindowController {
         todoWindow = nil
         todoEditorWindow?.close()
         todoEditorWindow = nil
+        pomodoroSettingsWindow?.close()
+        pomodoroSettingsWindow = nil
         petPanel?.close()
         petPanel = nil
         stateStore.isMiloVisible = false
@@ -408,6 +456,11 @@ final class MiloWindowController {
         showBubble("Todo converted to reminder.", mood: .reminder)
     }
 
+    func startPomodoro(_ preset: PomodoroPreset) {
+        pomodoroService.start(preset: preset)
+        showBubble("Pomodoro started. Let’s focus.", mood: .focus)
+    }
+
     private func observeStateStore(_ stateStore: MiloStateStore) {
         stateCancellable = stateStore.$animationState
             .sink { [weak self] animationState in
@@ -430,6 +483,10 @@ final class MiloWindowController {
 final class FloatingPetPanel: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
+
+    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
+        frameRect
+    }
 }
 
 final class DraggableHostingView<Content: View>: NSHostingView<Content> {

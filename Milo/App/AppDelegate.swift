@@ -58,8 +58,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             reminderHistoryService: reminderHistoryService,
             reminderSchedulerService: reminderSchedulerService,
             todoService: todoService,
-            todoSchedulerService: todoSchedulerService
+            todoSchedulerService: todoSchedulerService,
+            pomodoroService: pomodoroService
         )
+
+        pomodoroService.onFocusCompleted = { [weak stateStore, weak miloWindowController] in
+            stateStore?.animationState = .happy
+            PomodoroSoundEngine.shared.playFocusComplete()
+            miloWindowController?.showBubble("Focus complete. Break time unlocked.", mood: .happy)
+        }
+
+        pomodoroService.onBreakStarted = { [weak stateStore] in
+            stateStore?.animationState = .breakTime
+        }
+
+        pomodoroService.onBreakCompleted = { [weak stateStore, weak miloWindowController] in
+            stateStore?.animationState = .idle
+            PomodoroSoundEngine.shared.playBreakComplete()
+            miloWindowController?.showBubble("Break done. Ready for another round?", mood: .idle)
+        }
 
         self.miloWindowController = miloWindowController
         self.pomodoroService = pomodoroService
@@ -106,7 +123,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         reminderService?.save()
         todoService?.save()
         todoSchedulerService?.stop()
-        pomodoroService?.stop()
+        pomodoroService?.save()
         reminderService?.closeEntryWindow()
         miloWindowController?.close()
         menuBarController?.cleanup()

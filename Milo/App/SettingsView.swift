@@ -18,6 +18,7 @@ enum MiloSettingsKeys {
 
 struct SettingsView: View {
     @StateObject private var settingsStore = MiloSettingsStore()
+    @ObservedObject var pomodoroService: PomodoroService
 
     @AppStorage(MiloSettingsKeys.showMiloOnLaunch) private var showMiloOnLaunch = true
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
@@ -26,6 +27,8 @@ struct SettingsView: View {
     @AppStorage(MiloSettingsKeys.breakNudgesEnabled) private var breakNudgesEnabled = true
     @AppStorage(MiloStorageKeys.reminderNotificationsEnabled) private var reminderNotificationsEnabled = true
     @AppStorage(MiloStorageKeys.reminderSoundEnabled) private var reminderSoundEnabled = true
+    @AppStorage(MiloStorageKeys.pomodoroSoundEnabled) private var pomodoroSoundEnabled = true
+    @AppStorage(MiloStorageKeys.pomodoroShowTimerBadge) private var pomodoroShowTimerBadge = true
 
     var body: some View {
         TabView {
@@ -40,10 +43,7 @@ struct SettingsView: View {
             soundTab
             .tabItem { Label("Sound", systemImage: "speaker.wave.2") }
 
-            Form {
-                Text("Default focus: 25 minutes")
-                Text("Default break: 5 minutes")
-            }
+            pomodoroTab
             .tabItem { Label("Pomodoro", systemImage: "timer") }
 
             reminderTab
@@ -120,10 +120,40 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
         }
     }
+
+    private var pomodoroTab: some View {
+        Form {
+            Toggle("Pomodoro Sound Enabled", isOn: $pomodoroSoundEnabled)
+            Toggle("Show Timer Badge Under MILO", isOn: $pomodoroShowTimerBadge)
+
+            HStack {
+                Button("Start 25/5") { pomodoroService.start(preset: .short) }
+                Button("Start 50/10") { pomodoroService.start(preset: .medium) }
+                Button("Start 90/15") { pomodoroService.start(preset: .long) }
+            }
+
+            HStack {
+                Button("Pause") { pomodoroService.pause() }
+                Button("Resume") { pomodoroService.resume() }
+                Button("Reset") { pomodoroService.reset() }
+            }
+
+            Divider()
+
+            Text("Pomodoros today: \(pomodoroService.stats.pomodorosToday)")
+            Text("Focus time today: \(pomodoroService.stats.totalFocusSecondsToday / 60) min")
+            Text("Streak: \(pomodoroService.stats.streakDays) day(s)")
+            Text("Skipped breaks: \(pomodoroService.stats.skippedBreaksToday)")
+
+            Button("Reset Stats Today") {
+                pomodoroService.resetStatsToday()
+            }
+        }
+    }
 }
 
 #if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
-    SettingsView()
+    SettingsView(pomodoroService: PomodoroService())
 }
 #endif

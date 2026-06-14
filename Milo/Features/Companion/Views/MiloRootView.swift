@@ -9,10 +9,12 @@ import SwiftUI
 
 struct MiloRootView: View {
     static let windowWidth: CGFloat = 340
-    static let windowHeight: CGFloat = 240
+    static let windowHeight: CGFloat = 410
 
     @ObservedObject var state: MiloFloatingPetState
     @ObservedObject var stateStore: MiloStateStore
+    @ObservedObject var pomodoroService: PomodoroService
+
     var onAddReminder: () -> Void = {}
     var onChatReminder: () -> Void = {}
     var onOpenReminderHistory: () -> Void = {}
@@ -24,110 +26,61 @@ struct MiloRootView: View {
     var onTodoOpenList: () -> Void = {}
     var onTodoOverdueDone: (MiloTodo) -> Void = { _ in }
     var onAddTodo: () -> Void = {}
+    var onStartPomodoro: (PomodoroPreset) -> Void = { _ in }
+    var onPausePomodoro: () -> Void = {}
+    var onResumePomodoro: () -> Void = {}
+    var onResetPomodoro: () -> Void = {}
+    var onOpenPomodoroSettings: () -> Void = {}
+
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
+    @AppStorage(MiloStorageKeys.pomodoroShowTimerBadge) private var showPomodoroBadge = true
     @State private var mouseLocation: CGPoint?
     @State private var characterFrame: CGRect = MiloRootView.defaultCharacterFrame
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .top) {
             Color.clear
 
-            MiloCharacter(
-                mood: state.mood,
-                mouseLocation: eyeFollowCursor ? mouseLocation : nil,
-                characterFrame: characterFrame
-            )
-            .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
-            .background {
-                GeometryReader { proxy in
-                    Color.clear.preference(
-                        key: MiloRootFramePreferenceKey.self,
-                        value: proxy.frame(in: .named("miloRoot"))
-                    )
-                }
-            }
-            .contentShape(Rectangle())
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    withAnimation(.spring(response: 0.22, dampingFraction: 0.78)) {
-                        showRandomReaction()
+            VStack(spacing: 4) {
+                bubbleSlot
+                    .frame(height: 112, alignment: .bottom)
+                    .zIndex(30)
+
+                MiloCharacter(
+                    mood: state.mood,
+                    mouseLocation: eyeFollowCursor ? mouseLocation : nil,
+                    characterFrame: characterFrame
+                )
+                .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
+                .background {
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: MiloRootFramePreferenceKey.self,
+                            value: proxy.frame(in: .named("miloRoot"))
+                        )
                     }
                 }
-            )
-            .contextMenu {
-                Button("Add Todo") {
-                    onAddTodo()
-                }
-                Button("Todo List") {
-                    onTodoOpenList()
-                }
-
-                Divider()
-
-                Button("Add Reminder") {
-                    onAddReminder()
-                }
-
-                Button("Chat Reminder and Todo") {
-                    onChatReminder()
-                }
-
-                Button("Reminder History") {
-                    onOpenReminderHistory()
-                }
-
-                Divider()
-
-                Button("Hide Milo") {
-                    onHideMilo()
-                }
-            }
-
-            if stateStore.shouldShowTodoBubble, let todo = stateStore.activeTodoBubble {
-                MiloTodoBubbleView(
-                    todo: todo,
-                    onDone: { onTodoOverdueDone(todo) },
-                    onOpenTodoList: { onTodoOpenList() }
+                .contentShape(Rectangle())
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        withAnimation(.spring(response: 0.22, dampingFraction: 0.78)) {
+                            showRandomReaction()
+                        }
+                    }
                 )
-                    .offset(y: -MiloLayout.designHeight - 14)
-                    .transition(.opacity)
-                    .zIndex(20)
-            }
+                .contextMenu { contextMenuContent }
 
-            if stateStore.shouldShowReminderBubble, let activeReminder = stateStore.activeReminder {
-                MiloReminderBubbleView(
-                    reminder: activeReminder,
-                    onDone: { onReminderDone(activeReminder) },
-                    onSnooze5: { onReminderSnooze5(activeReminder) },
-                    onSnooze15: { onReminderSnooze15(activeReminder) },
-                    onReschedule: { onReminderReschedule(activeReminder) }
-                )
-                    .offset(y: -MiloLayout.designHeight - 14)
-                    .transition(
-                        .asymmetric(
-                            insertion: .opacity.combined(with: .move(edge: .bottom)),
-                            removal: .opacity.combined(with: .move(edge: .top))
-                        )
-                    )
-                    .zIndex(30)
-            }
-
-            if let bubbleText {
-                MiloReactionBubbleView(text: bubbleText)
-                    .offset(y: -MiloLayout.designHeight - 14)
-                    .transition(
-                        .asymmetric(
-                            insertion: .opacity.combined(with: .move(edge: .bottom)),
-                            removal: .opacity.combined(with: .move(edge: .top))
-                        )
-                    )
-                    .zIndex(10)
-                    .allowsHitTesting(false)
+                if shouldShowPomodoroBadge {
+                    MiloPomodoroTimerBadgeView(pomodoroService: pomodoroService)
+                        .transition(.scale.combined(with: .opacity))
+                        .zIndex(5)
+                }
             }
         }
         .frame(width: Self.windowWidth, height: Self.windowHeight)
         .coordinateSpace(name: "miloRoot")
         .background(Color.clear)
+        .animation(.spring(response: 0.28, dampingFraction: 0.85), value: pomodoroService.session.runState)
         .onPreferenceChange(MiloRootFramePreferenceKey.self) { frame in
             guard !frame.isEmpty else { return }
             characterFrame = frame
@@ -153,13 +106,77 @@ struct MiloRootView: View {
         }
     }
 
+    @ViewBuilder
+    private var contextMenuContent: some View {
+        Button("Start Pomodoro 25/5") { onStartPomodoro(.short) }
+        Button("Start Pomodoro 50/10") { onStartPomodoro(.medium) }
+        Button("Start Pomodoro 90/15") { onStartPomodoro(.long) }
+        Button("Custom Pomodoro...") { onOpenPomodoroSettings() }
+
+        Button("Pause Pomodoro") { onPausePomodoro() }
+        Button("Resume Pomodoro") { onResumePomodoro() }
+        Button("Reset Pomodoro") { onResetPomodoro() }
+
+        Divider()
+
+        Button("Add Todo") { onAddTodo() }
+        Button("Todo List") { onTodoOpenList() }
+
+        Divider()
+
+        Button("Add Reminder") { onAddReminder() }
+        Button("Chat Reminder and Todo") { onChatReminder() }
+        Button("Reminder History") { onOpenReminderHistory() }
+
+        Divider()
+
+        Button("Hide Milo") { onHideMilo() }
+    }
+
     private static var defaultCharacterFrame: CGRect {
         CGRect(
             x: (windowWidth - MiloLayout.designWidth) * 0.5,
-            y: windowHeight - MiloLayout.designHeight,
+            y: 116,
             width: MiloLayout.designWidth,
             height: MiloLayout.designHeight
         )
+    }
+
+    @ViewBuilder
+    private var bubbleSlot: some View {
+        if stateStore.shouldShowReminderBubble, let activeReminder = stateStore.activeReminder {
+            MiloReminderBubbleView(
+                reminder: activeReminder,
+                onDone: { onReminderDone(activeReminder) },
+                onSnooze5: { onReminderSnooze5(activeReminder) },
+                onSnooze15: { onReminderSnooze15(activeReminder) },
+                onReschedule: { onReminderReschedule(activeReminder) }
+            )
+            .transition(
+                .asymmetric(
+                    insertion: .opacity.combined(with: .move(edge: .bottom)),
+                    removal: .opacity.combined(with: .move(edge: .top))
+                )
+            )
+        } else if stateStore.shouldShowTodoBubble, let todo = stateStore.activeTodoBubble {
+            MiloTodoBubbleView(
+                todo: todo,
+                onDone: { onTodoOverdueDone(todo) },
+                onOpenTodoList: { onTodoOpenList() }
+            )
+            .transition(.opacity)
+        } else if let bubbleText {
+            MiloReactionBubbleView(text: bubbleText)
+                .transition(
+                    .asymmetric(
+                        insertion: .opacity.combined(with: .move(edge: .bottom)),
+                        removal: .opacity.combined(with: .move(edge: .top))
+                    )
+                )
+                .allowsHitTesting(false)
+        } else {
+            Color.clear
+        }
     }
 
     private var bubbleText: String? {
@@ -172,6 +189,13 @@ struct MiloRootView: View {
         }
 
         return state.reactionText
+    }
+
+    private var shouldShowPomodoroBadge: Bool {
+        showPomodoroBadge && (
+            pomodoroService.session.runState == .running ||
+            pomodoroService.session.runState == .paused
+        )
     }
 
     private func showRandomReaction() {
@@ -207,6 +231,10 @@ private struct MiloRootFramePreferenceKey: PreferenceKey {
 
 #if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
-    MiloRootView(state: MiloFloatingPetState(), stateStore: MiloStateStore())
+    MiloRootView(
+        state: MiloFloatingPetState(),
+        stateStore: MiloStateStore(),
+        pomodoroService: PomodoroService()
+    )
 }
 #endif

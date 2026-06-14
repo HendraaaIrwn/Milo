@@ -44,15 +44,20 @@ final class MiloFloatingPetState: ObservableObject {
 struct MiloFloatingPetView: View {
     @ObservedObject var state: MiloFloatingPetState
     @ObservedObject var stateStore: MiloStateStore
+    @ObservedObject var pomodoroService: PomodoroService
 
     var body: some View {
-        MiloRootView(state: state, stateStore: stateStore)
+        MiloRootView(state: state, stateStore: stateStore, pomodoroService: pomodoroService)
     }
 }
 
 #if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
-    MiloFloatingPetView(state: MiloFloatingPetState(), stateStore: MiloStateStore())
+    MiloFloatingPetView(
+        state: MiloFloatingPetState(),
+        stateStore: MiloStateStore(),
+        pomodoroService: PomodoroService()
+    )
         .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
 }
 #endif

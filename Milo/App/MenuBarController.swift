@@ -67,9 +67,9 @@ final class MenuBarController: NSObject {
         menu.addItem(.separator())
 
         pomodoroMenuItem.title = "Start Pomodoro"
-        pomodoroMenuItem.target = self
-        pomodoroMenuItem.action = #selector(togglePomodoro)
+        pomodoroMenuItem.submenu = makePomodoroMenu()
         menu.addItem(pomodoroMenuItem)
+        menu.addItem(makeMenuItem(title: "Pomodoro Settings", action: #selector(openPomodoroSettings)))
 
         menu.addItem(makeMenuItem(title: "Add Reminder", action: #selector(addReminder)))
         menu.addItem(makeMenuItem(title: "Chat Reminder", action: #selector(chatReminder)))
@@ -97,19 +97,39 @@ final class MenuBarController: NSObject {
         miloWindowController.hideMilo()
     }
 
-    @objc private func togglePomodoro() {
-        if pomodoroService.isRunning, !pomodoroService.isPaused {
-            pomodoroService.pause()
-            updatePomodoroMenuTitle()
-            return
-        }
+    @objc private func startPomodoroShort() {
+        startPomodoro(.short)
+    }
 
-        if pomodoroService.isRunning, pomodoroService.isPaused {
-            pomodoroService.resume()
-        } else {
-            pomodoroService.startDefaultPomodoro()
-        }
+    @objc private func startPomodoroMedium() {
+        startPomodoro(.medium)
+    }
 
+    @objc private func startPomodoroLong() {
+        startPomodoro(.long)
+    }
+
+    @objc private func pausePomodoro() {
+        pomodoroService.pause()
+        updatePomodoroMenuTitle()
+    }
+
+    @objc private func resumePomodoro() {
+        pomodoroService.resume()
+        updatePomodoroMenuTitle()
+    }
+
+    @objc private func resetPomodoro() {
+        pomodoroService.reset()
+        updatePomodoroMenuTitle()
+    }
+
+    @objc private func openPomodoroSettings() {
+        miloWindowController.openPomodoroSettings()
+    }
+
+    private func startPomodoro(_ preset: PomodoroPreset) {
+        pomodoroService.start(preset: preset)
         miloWindowController.showBubble("Pomodoro started. Let’s focus.", mood: .focus)
         updatePomodoroMenuTitle()
     }
@@ -152,11 +172,27 @@ final class MenuBarController: NSObject {
     }
 
     private func updatePomodoroMenuTitle() {
-        if pomodoroService.isRunning, !pomodoroService.isPaused {
-            pomodoroMenuItem.title = "Pause Pomodoro"
+        if pomodoroService.isRunning, pomodoroService.isPaused {
+            pomodoroMenuItem.title = "Pomodoro Paused"
+        } else if pomodoroService.isRunning {
+            pomodoroMenuItem.title = "Pomodoro Running"
         } else {
             pomodoroMenuItem.title = "Start Pomodoro"
         }
+        pomodoroMenuItem.submenu = makePomodoroMenu()
+    }
+
+    private func makePomodoroMenu() -> NSMenu {
+        let menu = NSMenu()
+        menu.addItem(makeMenuItem(title: "25/5", action: #selector(startPomodoroShort)))
+        menu.addItem(makeMenuItem(title: "50/10", action: #selector(startPomodoroMedium)))
+        menu.addItem(makeMenuItem(title: "90/15", action: #selector(startPomodoroLong)))
+        menu.addItem(makeMenuItem(title: "Custom...", action: #selector(openPomodoroSettings)))
+        menu.addItem(.separator())
+        menu.addItem(makeMenuItem(title: "Pause", action: #selector(pausePomodoro)))
+        menu.addItem(makeMenuItem(title: "Resume", action: #selector(resumePomodoro)))
+        menu.addItem(makeMenuItem(title: "Reset", action: #selector(resetPomodoro)))
+        return menu
     }
 
     private func makeSettingsWindow() -> NSWindow {
@@ -170,7 +206,7 @@ final class MenuBarController: NSObject {
         window.title = "MILO Settings"
         window.isReleasedWhenClosed = false
         window.center()
-        window.contentViewController = NSHostingController(rootView: SettingsView())
+        window.contentViewController = NSHostingController(rootView: SettingsView(pomodoroService: pomodoroService))
         return window
     }
 

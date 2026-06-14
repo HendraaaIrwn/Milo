@@ -15,6 +15,7 @@ enum MiloAnimationState: Equatable {
     case happy
     case thinking
     case reminder
+    case breakTime
 }
 
 enum TypingIntensity: String, Codable, Equatable {
@@ -32,6 +33,7 @@ extension MiloAnimationState {
         case .happy:                    .happy
         case .thinking:                 .focus
         case .reminder:                 .reminder
+        case .breakTime:                .sleepy
         }
     }
 }
