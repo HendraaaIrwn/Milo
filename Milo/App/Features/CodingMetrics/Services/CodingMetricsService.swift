@@ -9,6 +9,7 @@
 
 import Combine
 import Foundation
+import OSLog
 
 @MainActor
 final class CodingMetricsService: ObservableObject {
@@ -19,6 +20,11 @@ final class CodingMetricsService: ObservableObject {
 
     private var currentSession = CodingSession()
     private var lastTickAt: Date?
+
+    private let logger = Logger(
+        subsystem: "com.milo",
+        category: "CodingMetrics"
+    )
 
     init(storage: MiloLocalStorageService) {
         self.storage = storage
@@ -41,10 +47,7 @@ final class CodingMetricsService: ObservableObject {
 
         timerTask = Task { [weak self] in
             while !Task.isCancelled {
-                await MainActor.run {
-                    self?.tick()
-                }
-
+                await self?.tick()
                 try? await Task.sleep(nanoseconds: 5_000_000_000)
             }
         }
@@ -55,15 +58,17 @@ final class CodingMetricsService: ObservableObject {
         timerTask = nil
         save()
     }
-
     func resetLocalStats() {
         snapshot = CodingMetricsSnapshot.empty()
         currentSession = CodingSession()
         save()
     }
 
-    private func tick() {
-        guard isEnabled else { return }
+    private func tick() async {
+        guard isEnabled else {
+            logger.debug("CodingMetrics: disabled, skipping tick")
+            return
+        }
 
         let now = Date()
 
@@ -75,30 +80,46 @@ final class CodingMetricsService: ObservableObject {
         }
 
         let delta = calculateDelta(now: now)
-        guard delta > 0 else { return }
-
         let projectPaths = loadProjectPaths()
+
+        logger.debug("CodingMetrics tick: app=\(app.name), bundle=\(app.bundleIdentifier ?? "nil"), delta=\(delta)s, projectPaths=\(projectPaths.count)")
+
         let project = ActiveProjectDetector.detectProject(from: projectPaths)
 
-        let changedFiles = project.map {
-            GitLOCTracker.changedFiles(projectPath: $0.path)
-        } ?? []
+        let changedFiles: [String]
+        let loc: LOCSummary
+
+        if let project {
+            async let changedFilesTask = GitLOCTracker.changedFiles(projectPath: project.path)
+            async let locTask = GitLOCTracker.totalLOCToday(projectPath: project.path)
+            (changedFiles, loc) = await (changedFilesTask, locTask)
+        } else {
+            changedFiles = []
+            loc = .empty
+        }
 
         let topLanguage = LanguageEstimator.estimateTopLanguage(
             fromChangedFiles: changedFiles
         )
 
-        let loc = project.map {
-            GitLOCTracker.totalLOCToday(projectPath: $0.path)
-        } ?? .empty
+        logger.debug("CodingMetrics git result: project=\(project?.name ?? "nil"), language=\(topLanguage ?? "nil"), files=\(changedFiles.count), loc=+\(loc.linesAdded)/-\(loc.linesDeleted)")
 
-        updateSnapshot(
-            delta: delta,
-            app: app,
-            project: project,
-            topLanguage: topLanguage,
-            loc: loc
-        )
+        if delta > 0 {
+            updateSnapshot(
+                delta: delta,
+                app: app,
+                project: project,
+                topLanguage: topLanguage,
+                loc: loc
+            )
+        } else if project != nil || topLanguage != nil || loc != .empty {
+            // First tick: update language/LOC/project even with delta=0
+            snapshot.topEditor = app.name
+            snapshot.topProject = project?.name ?? snapshot.topProject
+            snapshot.topLanguage = topLanguage ?? snapshot.topLanguage
+            snapshot.locToday = loc
+            snapshot.lastUpdatedAt = Date()
+        }
 
         save()
     }

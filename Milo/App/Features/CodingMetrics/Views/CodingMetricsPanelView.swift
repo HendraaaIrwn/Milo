@@ -7,83 +7,86 @@ import SwiftUI
 
 struct CodingMetricsPanelView: View {
     @ObservedObject var coordinator: CodingMetricsCoordinator
+    @ObservedObject var service: CodingMetricsService
 
     private var snapshot: CodingMetricsSnapshot {
-        coordinator.localMetricsService.snapshot
+        service.snapshot
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Coding Metrics")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-
-                Spacer()
-
-                Text(coordinator.sourceLabel)
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.blue.opacity(0.12))
-                    .clipShape(Capsule())
-            }
-
-            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10) {
-                GridRow {
-                    metricCard("Coding Today", formatSeconds(snapshot.codingSecondsToday))
-                    metricCard("Session", formatSeconds(snapshot.currentSessionSeconds))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text("Coding Metrics")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                    
+                    Spacer()
+                    
+                    Text(coordinator.sourceLabel)
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.blue.opacity(0.12))
+                        .clipShape(Capsule())
                 }
-
-                GridRow {
-                    metricCard("Top Language", snapshot.topLanguage ?? "-")
-                    metricCard("Top Project", snapshot.topProject ?? "-")
+                
+                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10) {
+                    GridRow {
+                        metricCard("Coding Today", formatSeconds(snapshot.codingSecondsToday))
+                        metricCard("Session", formatSeconds(snapshot.currentSessionSeconds))
+                    }
+                    
+                    GridRow {
+                        metricCard("Top Language", snapshot.topLanguage ?? "-")
+                        metricCard("Top Project", snapshot.topProject ?? "-")
+                    }
+                    
+                    GridRow {
+                        metricCard("Top Editor", snapshot.topEditor ?? "-")
+                        metricCard("LOC", "+\(snapshot.locToday.linesAdded) / -\(snapshot.locToday.linesDeleted)")
+                    }
                 }
-
-                GridRow {
-                    metricCard("Top Editor", snapshot.topEditor ?? "-")
-                    metricCard("LOC", "+\(snapshot.locToday.linesAdded) / -\(snapshot.locToday.linesDeleted)")
-                }
-            }
-
-            Divider()
-
-            LOCSummaryView(loc: snapshot.locToday)
-
-            if let waka = coordinator.wakaTimeSummary {
+                
                 Divider()
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("WakaTime Today")
-                        .font(.headline)
-
-                    Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
-                        GridRow {
-                            metricCard("Time", formatSeconds(waka.totalSeconds))
-                            metricCard("Top Language", waka.topLanguage ?? "-")
-                        }
-
-                        GridRow {
-                            metricCard("Top Project", waka.topProject ?? "-")
-                            metricCard("Top Editor", topEditor(from: waka.editorUsage) ?? "-")
+                
+                LOCSummaryView(loc: snapshot.locToday)
+                
+                if let waka = coordinator.wakaTimeSummary {
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("WakaTime Today")
+                            .font(.headline)
+                        
+                        Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
+                            GridRow {
+                                metricCard("Time", formatSeconds(waka.totalSeconds))
+                                metricCard("Top Language", waka.topLanguage ?? "-")
+                            }
+                            
+                            GridRow {
+                                metricCard("Top Project", waka.topProject ?? "-")
+                                metricCard("Top Editor", topEditor(from: waka.editorUsage) ?? "-")
+                            }
                         }
                     }
                 }
-            }
-
-            HStack {
-                Button("Refresh WakaTime") {
-                    coordinator.refreshWakaTime()
+                
+                HStack {
+                    Button("Refresh WakaTime") {
+                        coordinator.refreshWakaTime()
+                    }
+                    
+                    Button("Reset Local Stats", role: .destructive) {
+                        coordinator.localMetricsService.resetLocalStats()
+                    }
                 }
-
-                Button("Reset Local Stats", role: .destructive) {
-                    coordinator.localMetricsService.resetLocalStats()
-                }
+                
+                Spacer()
             }
-
-            Spacer()
         }
-        .padding(18)
-        .frame(width: 520, height: 480)
+            .padding(18)
+            .frame(width: 520, height: 480)
     }
 
     private func metricCard(_ title: String, _ value: String) -> some View {

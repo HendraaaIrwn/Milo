@@ -81,7 +81,7 @@ struct MiloRootView: View {
                 }
 
                 if showCodingMetricsBadge {
-                    CodingMetricsBadgeView(coordinator: codingMetricsCoordinator)
+                    CodingMetricsBadgeView(service: codingMetricsCoordinator.localMetricsService)
                         .offset(y: 8)
                         .transition(.opacity.combined(with: .scale))
                         .zIndex(5)

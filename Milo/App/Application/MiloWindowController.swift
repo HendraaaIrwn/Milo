@@ -360,7 +360,10 @@ final class MiloWindowController {
         window.isReleasedWhenClosed = false
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: CodingMetricsPanelView(coordinator: codingMetricsCoordinator)
+            rootView: CodingMetricsPanelView(
+                coordinator: codingMetricsCoordinator,
+                service: codingMetricsCoordinator.localMetricsService
+            )
         )
 
         codingMetricsWindow = window

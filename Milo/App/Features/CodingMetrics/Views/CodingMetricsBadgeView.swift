@@ -6,10 +6,10 @@
 import SwiftUI
 
 struct CodingMetricsBadgeView: View {
-    @ObservedObject var coordinator: CodingMetricsCoordinator
+    @ObservedObject var service: CodingMetricsService
 
     private var snapshot: CodingMetricsSnapshot {
-        coordinator.localMetricsService.snapshot
+        service.snapshot
     }
 
     var body: some View {

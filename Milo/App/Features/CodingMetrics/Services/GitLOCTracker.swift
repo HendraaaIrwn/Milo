@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 struct GitLOCTracker {
     static let ignoredPathFragments = [
@@ -32,8 +33,13 @@ struct GitLOCTracker {
         ".pbxproj"
     ]
 
-    static func workingTreeLOC(projectPath: String) -> LOCSummary {
-        let output = runGit(
+    private static nonisolated let logger = Logger(
+        subsystem: "com.milo",
+        category: "GitLOC"
+    )
+
+    static func workingTreeLOC(projectPath: String) async -> LOCSummary {
+        let output = await runGit(
             arguments: ["diff", "--shortstat"],
             projectPath: projectPath
         )
@@ -41,8 +47,8 @@ struct GitLOCTracker {
         return parseShortstat(output)
     }
 
-    static func changedFiles(projectPath: String) -> [String] {
-        let output = runGit(
+    static func changedFiles(projectPath: String) async -> [String] {
+        let output = await runGit(
             arguments: ["diff", "--name-only"],
             projectPath: projectPath
         )
@@ -53,8 +59,8 @@ struct GitLOCTracker {
             .filter { !shouldIgnore(path: $0) }
     }
 
-    static func committedLOCToday(projectPath: String) -> LOCSummary {
-        let output = runGit(
+    static func committedLOCToday(projectPath: String) async -> LOCSummary {
+        let output = await runGit(
             arguments: [
                 "log",
                 "--since=midnight",
@@ -67,17 +73,28 @@ struct GitLOCTracker {
         return parseNumstat(output)
     }
 
-    static func totalLOCToday(projectPath: String) -> LOCSummary {
-        let working = workingTreeLOC(projectPath: projectPath)
-        let committed = committedLOCToday(projectPath: projectPath)
+    static func totalLOCToday(projectPath: String) async -> LOCSummary {
+        async let working = workingTreeLOC(projectPath: projectPath)
+        async let committed = committedLOCToday(projectPath: projectPath)
+
+        let (w, c) = await (working, committed)
 
         return LOCSummary(
-            linesAdded: working.linesAdded + committed.linesAdded,
-            linesDeleted: working.linesDeleted + committed.linesDeleted
+            linesAdded: w.linesAdded + c.linesAdded,
+            linesDeleted: w.linesDeleted + c.linesDeleted
         )
     }
 
     private static func runGit(
+        arguments: [String],
+        projectPath: String
+    ) async -> String {
+        await Task.detached(priority: .utility) {
+            runGitSync(arguments: arguments, projectPath: projectPath)
+        }.value
+    }
+
+    private static nonisolated func runGitSync(
         arguments: [String],
         projectPath: String
     ) -> String {
@@ -94,7 +111,12 @@ struct GitLOCTracker {
             try process.run()
             process.waitUntilExit()
         } catch {
+            logger.error("GitLOC: failed to run git: \(error.localizedDescription)")
             return ""
+        }
+
+        if process.terminationStatus != 0 {
+            logger.debug("GitLOC: git \(arguments.joined(separator: " ")) exited with status \(process.terminationStatus) in \(projectPath)")
         }
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
