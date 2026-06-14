@@ -1,156 +1,304 @@
-# MILO
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)">
+    <img src="docs/assets/milo-banner.png" width="600" alt="MILO — Tiny Coding Companion">
+  </picture>
+</p>
 
-MILO is a tiny macOS desktop companion for developers. It lives as a floating pet on your desktop, reacts with small animations, follows your cursor, gives playful encouragement, and stays out of the way while you work.
+<p align="center">
+  <strong>🐾 A tiny floating desktop companion for developers.</strong>
+  <br>
+  <em>Reacts to your coding, keeps you focused, reminds you to breathe —</em>
+  <br>
+  <em>all offline, all local, all privacy-first.</em>
+</p>
 
-The project is built with SwiftUI + AppKit and is designed around a local-first, privacy-first desktop experience.
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-26.5%2B-white?logo=apple" alt="macOS 26.5+">
+  <img src="https://img.shields.io/badge/Swift-5.0-FA7343?logo=swift" alt="Swift 5.0">
+  <img src="https://img.shields.io/badge/platform-desktop-lightgrey" alt="Platform Desktop">
+  <img src="https://img.shields.io/badge/privacy-first-green" alt="Privacy First">
+  <img src="https://img.shields.io/badge/local--only-blue" alt="Local Only">
+</p>
 
-## Status
+---
 
-MILO is an early prototype. The current app includes the floating companion, menu bar controls, mood animations, cursor eye-following, Pomodoro controls, local reminder entry, settings, and playful reaction bubbles.
+## ✨ What is MILO?
 
-Some larger PRD items, such as AI-agent status integrations, coding metrics, reaction history, and global typing detection, are planned or partially designed but not fully shipped in the current codebase.
+MILO is a tiny desktop pet that **lives on your screen** while you code. It animates, blinks, follows your cursor, responds to your typing intensity, and quietly helps you with Pomodoro timers, reminders, todos, and now — **WakaTime-style coding metrics**.
 
-## Features
+Built with **SwiftUI + AppKit** for macOS. No cloud. No login. No telemetry. Just a small friend on your desktop.
 
-- **Floating desktop pet** — borderless transparent `NSPanel`, always on top, draggable, and hidden from the Dock.
-- **Menu bar controller** — show/hide MILO, start/pause/resume Pomodoro, add reminders, open settings, or quit.
-- **Cursor eye follow** — MILO's pupils track mouse movement using an AppKit-backed SwiftUI tracking view.
-- **Mood animations** — idle, typing, happy, confused, sleepy, reminder, and focus animation states.
-- **Blink system** — randomized blinking with open, half-closed, and closed eye assets.
-- **Reaction bubbles** — click MILO to show short developer-themed encouragement or soft roast lines.
-- **Pomodoro helper** — local 25-minute focus timer with pause/resume behavior.
-- **Local reminders** — add reminder text and due time from a small AppKit-hosted SwiftUI window.
-- **Local todos** — add, toggle, delete, and persist lightweight todos locally.
-- **Local storage MVP** — reminders and todos persist through `UserDefaults` via a small storage service.
-- **Settings window** — toggles for launch behavior, eye follow, typing reaction flag, sound flag, and break nudges.
-- **Privacy-first direction** — no cloud login or telemetry in current implementation.
+<table>
+<tr>
+<td width="50%">
 
-## Screens and Controls
+**🐾 Companion**
+- Floating, borderless, draggable pet
+- Eye tracking follows your cursor
+- Mood animations (idle, typing, happy, sleepy, focus…)
+- Random blink engine
+- Click to get developer reactor lines
+
+</td>
+<td width="50%">
+
+**⏱️ Productivity**
+- Pomodoro timer (25/5, 50/10, 90/15)
+- Timer badge under MILO
+- Local reminders with snooze & reschedule
+- Local todo list with overdue detection
+- Break nudge system
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**📊 Coding Metrics** <sup><code>new</code></sup>
+- Tracks active coding time
+- Detects editor (Xcode, VS Code, Cursor, Terminal…)
+- Estimates top language from file extensions
+- Git LOC: lines added/deleted from diff + commits
+- Ignores `node_modules`, `.git`, `build`, `dist`, etc.
+- Optional WakaTime enrichment
+
+</td>
+<td width="50%">
+
+**🔒 Privacy**
+- Zero cloud / zero telemetry
+- Keyboard activity: timing & intensity only
+- Never reads typed characters or source code
+- Git LOC from summary stats, not file content
+- WakaTime API key in macOS Keychain
+- All data stays on your Mac
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🖥️ Screens & Controls
 
 ### Menu Bar
 
-MILO runs as a menu bar utility app. The menu includes:
+| Menu Item | Action |
+|---|---|
+| `Show Milo` / `Hide Milo` | Toggle the floating companion |
+| `Start Pomodoro ▸` | Pick timer preset |
+| `Pomodoro Settings` | Custom duration config |
+| `Add Reminder` | Quick reminder entry |
+| `Chat Reminder` | Natural-language reminder input |
+| `Reminder History` | View past reminders |
+| `Add Todo` | Quick todo entry |
+| `Open Todos` | Full todo list |
+| `Coding Metrics` | Open metrics dashboard |
+| `Reset Local Coding Stats` | Wipe today's stats |
+| `Settings` | Full settings window |
+| `Quit` | Exit MILO |
 
-- `Show Milo`
-- `Hide Milo`
-- `Start Pomodoro` / `Pause Pomodoro` / `Resume Pomodoro`
-- `Add Reminder`
-- `Settings`
-- `Quit`
+### Right-Click MILO
 
-### Floating Window
+Right-click the floating pet for quick access to Pomodoro, Todos, Reminders, Coding Metrics, and Hide.
 
-The companion window uses a non-activating floating panel so MILO can stay visible without stealing focus from IDEs or terminal windows.
+### Badges
 
-### Settings
+Two compact badges appear below MILO when active:
 
-Settings are stored with `@AppStorage` / `UserDefaults` and currently include:
+- **🍅 Pomodoro badge** — timer countdown during focus/break
+- **📊 Coding Metrics badge** — coding time today, top language, LOC
 
-- `Show Milo on Launch`
-- `Eye Follow Cursor`
-- `Typing Reaction`
-- `Sound Enabled`
-- `Break Nudges Enabled`
+### Windows
 
-## Project Structure
+| Window | Description |
+|---|---|
+| `MILO Settings` | 10-tab settings: General, Appearance, Sound, Pomodoro, Reminders, Break Nudges, Mood Check-ins, Agent Integrations, Coding Metrics, Privacy |
+| `MILO Coding Metrics` | Full dashboard: coding time, language, project, editor usage, LOC breakdown, WakaTime enrichment |
+| `MILO Todo List` | Full todo list with edit, delete, done, convert-to-reminder |
+| `MILO Reminder History` | Past reminders with timeline |
+| `MILO Chat` | Natural-language reminder/todo input |
 
-```text
+---
+
+## 📊 Coding Metrics
+
+> **New in this release** — local WakaTime-style tracking with optional WakaTime API enrichment.
+
+### Local Tracking (no API key required)
+
+| Metric | Source |
+|---|---|
+| ⏱️ Coding time today | Active editor detection, 5-second tick |
+| 🖥️ Active editor | `NSWorkspace.frontmostApplication` |
+| 📁 Active project | User-configured folders (most recently modified) |
+| 🗣️ Top language | File extension frequency from `git diff --name-only` |
+| ➕ Lines added | `git diff --shortstat` + `git log --numstat` |
+| ➖ Lines deleted | `git diff --shortstat` + `git log --numstat` |
+| 📈 Net LOC | Added minus deleted |
+
+### Ignored Paths
+
+```
+node_modules / .git / build / dist / DerivedData / vendor
+.next / .nuxt / .svelte-kit / coverage / Pods / Carthage / .swiftpm
+*.generated.* / *.min.js / *.min.css / *.pbxproj
+```
+
+### WakaTime Integration (optional)
+
+1. Add your WakaTime API key in **Settings → Coding Metrics**
+2. Key stored in macOS Keychain (not UserDefaults)
+3. Fetch today's summary: time, top language, top project, editor usage
+4. Displayed alongside local metrics with source label
+5. Local metrics always available regardless of WakaTime status
+
+---
+
+## 🏗️ Project Structure
+
+```
 Milo/
 ├── Milo.xcodeproj
 ├── MILO_PRD.md
 ├── README.md
+├── script/
+│   └── build_and_run.sh
+├── docs/
+│   └── superpowers/plans/
 └── Milo/
     ├── App/
-    │   ├── AppDelegate.swift
-    │   ├── MenuBarController.swift
-    │   ├── MiloApp.swift
-    │   ├── MiloWindowController.swift
-    │   ├── PomodoroService.swift
-    │   ├── ReminderEntryView.swift
-    │   ├── ReminderService.swift
-    │   └── SettingsView.swift
-    ├── Core/
-    │   └── AppState.swift
+    │   ├── Application/
+    │   │   ├── AppDelegate.swift          # Composition root
+    │   │   ├── MainApp.swift              # @main entry
+    │   │   ├── MenuBarController.swift    # NSStatusItem & menu
+    │   │   └── MiloWindowController.swift # Floating panel & child windows
+    │   └── Core/
+    │       ├── Models/
+    │       │   └── AppState.swift
+    │       ├── Persistence/
+    │       │   ├── MiloLocalStorageService.swift  # JSON-over-UserDefaults
+    │       │   ├── MiloStorageKeys.swift          # All storage keys
+    │       │   └── KeychainService.swift          # WakaTime API key
+    │       └── Services/
+    │           └── MiloMumbleEngine.swift  # Procedural voice
+    │
     ├── Features/
     │   ├── Chat/
-    │   ├── Companion/
-    │   │   ├── Animations/
-    │   │   ├── Blink/
-    │   │   ├── Character/
+    │   │   ├── Models/        # Mood ↔ dialogue mapping
+    │   │   ├── Services/      # Text normalization
+    │   │   └── Views/         # Chat input & bubbles
+    │   ├── CodingMetrics/     # ✨ New feature module
     │   │   ├── Models/
+    │   │   │   ├── LOCSummary.swift
+    │   │   │   ├── CodingLanguageMetric.swift
+    │   │   │   ├── CodingProjectMetric.swift
+    │   │   │   ├── EditorUsageMetric.swift
+    │   │   │   ├── CodingSession.swift
+    │   │   │   ├── CodingMetricsSnapshot.swift
+    │   │   │   └── WakaTimeSummary.swift
+    │   │   ├── Services/
+    │   │   │   ├── ActiveAppDetector.swift
+    │   │   │   ├── ActiveProjectDetector.swift
+    │   │   │   ├── LanguageEstimator.swift
+    │   │   │   ├── GitLOCTracker.swift
+    │   │   │   ├── CodingMetricsService.swift
+    │   │   │   ├── WakaTimeClient.swift
+    │   │   │   └── CodingMetricsCoordinator.swift
     │   │   └── Views/
-    │   └── MouseTracking/
-    └── Resources/
-        └── Assets.xcassets/
+    │   │       ├── CodingMetricsBadgeView.swift
+    │   │       ├── CodingMetricsPanelView.swift
+    │   │       ├── LOCSummaryView.swift
+    │   │       └── CodingMetricsSettingsView.swift
+    │   ├── Companion/
+    │   │   ├── Animations/    # Per-mood animation configs
+    │   │   ├── Blink/         # Blink timing engine
+    │   │   ├── Character/     # Pet body, eyes, pupils, mouth
+    │   │   ├── Models/        # Animation state, mood, reaction lines
+    │   │   ├── Services/      # State store, keyboard, typing bubble
+    │   │   └── Views/         # Root view, floating pet, home view
+    │   ├── MouseTracking/
+    │   │   └── Views/         # NSViewRepresentable cursor tracker
+    │   ├── Pomodoro/
+    │   │   ├── Models/        # Session, preset, stats
+    │   │   ├── Services/      # Timer, sound, break nudge
+    │   │   └── Views/         # Settings, control, ring, badge
+    │   ├── Reminder/
+    │   │   ├── Models/        # Reminder, history event
+    │   │   ├── Services/      # CRUD, scheduler, notifications, NL parser
+    │   │   └── Views/         # Entry, history, reschedule, bubble
+    │   ├── Settings/
+    │   │   ├── Models/        # Legacy audio keys
+    │   │   ├── ViewModels/    # Audio settings store
+    │   │   └── Views/         # Settings, privacy
+    │   └── Todo/
+    │       ├── Models/        # Todo
+    │       ├── Services/      # CRUD, scheduler, command parser, date parser
+    │       └── Views/         # List, editor, row, bubble
+    │
+    ├── UI/
+    │   ├── Assets.xcassets/   # Character assets, icons
+    │   └── Components/
+    │       ├── Bubbles/       # Reaction bubble views
+    │       └── Rows/          # Reminder history row
 ```
 
-## Architecture Notes
+---
 
-### AppKit shell
+## 🔧 Architecture Notes
 
-`AppDelegate` starts MILO as an accessory app and owns the menu bar, floating window, Pomodoro service, and reminder service.
+### AppKit Shell + SwiftUI Content
 
-`MiloWindowController` creates a transparent `NSPanel` configured as:
+MILO uses AppKit for window management and SwiftUI for all content:
 
-- borderless,
-- non-activating,
-- floating level,
-- clear background,
-- all-spaces capable,
-- draggable through the hosting view.
+- **`AppDelegate`** — composition root. Creates all services and wires them.
+- **`MenuBarController`** — `NSStatusItem` with full menu.
+- **`MiloWindowController`** — manages the floating `NSPanel` (borderless, non-activating, floating level, all-spaces, clear background) plus child windows for Settings, Todos, Chat, Reminder History, Pomodoro Settings, and Coding Metrics.
 
-### SwiftUI companion
+### Dependency Injection
 
-`MiloRootView` renders the live floating character. It combines:
+All services are created in `AppDelegate.applicationDidFinishLaunching(_:)` and passed explicitly into controllers and views. No `@EnvironmentObject` — just `@ObservedObject` and manual constructor injection.
 
-- `MiloCharacter` for the pet body, eyes, pupils, and mouth,
-- `TrackingMouseView` for cursor tracking,
-- `MiloReactionBubbleView` for short chat bubbles.
+### Data Storage
 
-### Character animation
+| Backend | Used For |
+|---|---|
+| `MiloLocalStorageService` (JSON → UserDefaults) | Reminders, todos, Pomodoro state, coding metrics snapshot |
+| `@AppStorage` (UserDefaults) | Toggles: showMiloOnLaunch, eyeFollowCursor, typingReaction, sounds, badges |
+| `KeychainService` (macOS Keychain) | WakaTime API key |
 
-Mood-specific animation configuration lives under `Features/Companion/Animations`. Each mood maps to a resting and active `MiloAnimationFrame`, controlling body movement, rotation, mouth scale, and pupil offset.
+### Concurrency
 
-### Mouse tracking
+- All services are `@MainActor` and `ObservableObject`
+- Timer-based services (Pomodoro, coding metrics) use `Task { while !isCancelled }` loops
+- Git LOC tracking uses `async` methods with `Task.detached` for non-blocking subprocess execution
+- WakaTime API uses `async/await` URLSession
 
-`TrackingMouseView` is an `NSViewRepresentable` wrapper around `NSView`. It uses mouse tracking areas plus a lightweight 60 FPS timer to report cursor position while keeping hit testing disabled.
+---
 
-### Data storage
+## 🚀 Build & Run
 
-Current local persistence uses `UserDefaults` for settings, reminders, and todos. Reminder and todo data is encoded locally as JSON through `MiloLocalStorageService` so it can later move to SQLite or Core Data.
+### Prerequisites
 
-## Manual Storage Test
+- macOS 26.5+
+- Xcode 26+ with Swift 5.0
 
-1. Launch app.
-2. Add todo: `Fix Milo typing animation`.
-3. Add reminder: `Take a break` due in 2 minutes.
-4. Quit app.
-5. Launch app again.
-6. Confirm todo still exists.
-7. Confirm reminder still exists.
-8. Mark todo done.
-9. Quit and relaunch.
-10. Confirm done state persists.
-
-## Requirements
-
-- macOS target from project settings: `26.5`
-- Xcode with SwiftUI and AppKit support
-- Swift language version from project settings: `5.0`
-
-> The deployment target is currently set very high for local development. Lower it in Xcode project settings if you want wider macOS compatibility.
-
-## Build and Run
-
-Open the project in Xcode:
+### Quick Start
 
 ```bash
+# Clone
+git clone https://github.com/hendrairawan/Milo.git
+cd Milo
+
+# Build & Run
+bash script/build_and_run.sh
+
+# Or open in Xcode
 open Milo.xcodeproj
 ```
 
-Then choose the `Milo` scheme and run the macOS app.
-
-CLI build example:
+### CLI Build
 
 ```bash
 xcodebuild \
@@ -160,52 +308,84 @@ xcodebuild \
   build
 ```
 
-In restricted environments, use a writable DerivedData path:
+### Custom DerivedData
 
 ```bash
 xcodebuild \
   -project Milo.xcodeproj \
   -scheme Milo \
-  -derivedDataPath /private/tmp/MiloDerivedData \
+  -derivedDataPath /tmp/MiloDerivedData \
   -destination 'platform=macOS,arch=arm64' \
   build
 ```
 
-## Privacy
+---
 
-MILO's current prototype is local-first:
+## 🔒 Privacy
 
-- no login,
-- no cloud backend,
-- no analytics SDK,
-- no telemetry pipeline,
-- no network sync.
+MILO is **local-first by design**:
 
-Planned activity-detection features should follow the same privacy rule: derive animation state from high-level activity signals, not from source code content, typed characters, clipboard data, or private user text.
+| ✅ Stored Locally | ❌ Never Stored / Sent |
+|---|---|
+| Keyboard activity timing & intensity | Typed characters or key values |
+| Active app name & bundle ID | Source code content |
+| File extensions (language estimation) | Clipboard content |
+| Git diff/numstat summaries | Keyboard history or per-key logs |
+| User-configured project folder paths | File contents |
+| Pomodoro sessions & stats | Any data to cloud |
+| Reminders & todos | Telemetry or analytics |
+| WakaTime API key (Keychain) | WakaTime API key (UserDefaults) |
 
-## Roadmap
+> **WakaTime is read-only.** MILO fetches your summary — it never uploads local metrics to WakaTime.
 
-Based on `MILO_PRD.md`, planned areas include:
+---
 
-- global keyboard activity detection for typing/kneading animation,
-- typing bubble dialogs based only on timing and intensity,
-- reaction log with local history,
-- roast tone settings,
-- AI coding agent status indicators,
-- break nudges,
-- mood check-ins,
-- natural-language reminders,
-- coding metrics,
-- richer animation and sound states.
+## 🗺️ Roadmap
 
-## Design Principles
+**✅ Done**
 
-- Stay tiny and ambient.
-- Never steal focus from the developer's active app.
-- Prefer local-first state.
-- Keep reactions playful, not noisy.
-- Treat privacy as a product feature, not a disclaimer.
+- [x] Floating desktop pet with cursor tracking
+- [x] Mood animations & blink engine
+- [x] Pomodoro timer with presets
+- [x] Local reminders (NL parser, notifications, snooze, reschedule)
+- [x] Local todos (overdue detection, chat input)
+- [x] Global keyboard activity detection
+- [x] Typing reaction bubbles
+- [x] Settings (10 tabs)
+- [x] **Coding metrics — local + WakaTime** ✨
+- [x] **Git LOC tracking** ✨
+- [x] **Keychain for WakaTime API key** ✨
 
-## License
+**🚧 Planned**
 
-No license file is included yet. Add one before distributing or accepting external contributions.
+- [ ] AI coding agent status indicators
+- [ ] Reaction log with local history
+- [ ] Mood check-ins
+- [ ] Richer sound & animation states
+- [ ] File watcher for real-time project activity
+- [ ] Weekly coding metrics summary
+- [ ] SQLite migration for local storage
+
+---
+
+## 🎨 Design Principles
+
+> Stay tiny. Stay ambient. Never steal focus. Keep it playful.
+
+- **Tiny & Ambient** — MILO is a small presence, not a full app window
+- **Never Steals Focus** — uses `nonActivatingPanel`, floats above but passes clicks through
+- **Local-First State** — everything stored on your Mac, not in the cloud
+- **Playful, Not Noisy** — reactions are quick, cute, and skippable
+- **Privacy as a Feature** — no login, no cloud, no telemetry, no tracking
+
+---
+
+## 📝 License
+
+MIT — see [LICENSE](LICENSE) file.
+
+---
+
+<p align="center">
+  <sub>Made with ☕️ for developers who code solo.</sub>
+</p>
