@@ -9,56 +9,53 @@ import SwiftUI
 
 struct TodoListView: View {
     @ObservedObject var todoService: TodoService
-    @State private var newTodoTitle = ""
+    let onEditTodo: (MiloTodo) -> Void
+    let onConvertToReminder: (MiloTodo) -> Void
+
+    private var visibleTodos: [MiloTodo] {
+        todoService.todos.filter { $0.status != .deleted }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("MILO Todos")
-                .font(.headline)
-
             HStack {
-                TextField("New todo", text: $newTodoTitle)
-                    .textFieldStyle(.roundedBorder)
+                Text("MILO Todos")
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
 
-                Button("Add") {
-                    let title = newTodoTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !title.isEmpty else { return }
+                Spacer()
 
-                    todoService.addTodo(title: title)
-                    newTodoTitle = ""
-                }
-                .keyboardShortcut(.defaultAction)
+                Text("\(todoService.activeTodoCount()) active")
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.blue.opacity(0.14))
+                    .clipShape(Capsule())
             }
 
-            List {
-                ForEach(todoService.todos) { todo in
-                    HStack {
-                        Button(todo.isDone ? "✓" : "○") {
-                            todoService.toggleDone(id: todo.id)
-                        }
-                        .buttonStyle(.plain)
-
-                        Text(todo.title)
-                            .strikethrough(todo.isDone)
-                            .foregroundStyle(todo.isDone ? .secondary : .primary)
-
-                        Spacer()
-                    }
+            if visibleTodos.isEmpty {
+                VStack(spacing: 8) {
+                    Text("No todos yet.")
+                        .font(.headline)
+                    Text("Try: add todo: fix login bug")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .onDelete { indexSet in
-                    for index in indexSet {
-                        todoService.deleteTodo(id: todoService.todos[index].id)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List {
+                    ForEach(visibleTodos) { todo in
+                        TodoRowView(
+                            todo: todo,
+                            onDone: { todoService.markDone(id: todo.id) },
+                            onEdit: { onEditTodo(todo) },
+                            onDelete: { todoService.deleteTodo(id: todo.id) },
+                            onConvertToReminder: { onConvertToReminder(todo) }
+                        )
                     }
                 }
             }
         }
-        .padding()
-        .frame(width: 360, height: 420)
+        .padding(16)
+        .frame(width: 480, height: 520)
     }
 }
-
-#if ENABLE_SWIFTUI_PREVIEWS
-#Preview {
-    TodoListView(todoService: TodoService())
-}
-#endif

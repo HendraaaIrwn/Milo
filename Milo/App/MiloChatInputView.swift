@@ -19,17 +19,25 @@ struct MiloChatInputView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Chat Reminder")
+            Text("Chat Reminder and Todo")
                 .font(.title2.weight(.semibold))
-
-            Text("Try: remind me in 30 min to take a break")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            TextField("Type reminder", text: $text)
-                .textFieldStyle(.roundedBorder)
-                .onSubmit(submit)
-
+            
+            VStack(alignment: .leading) {
+                Text("Try:")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("remind me in 30 min to take a break")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("remind todo deploy jam 7 am")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                TextField("Type reminder", text: $text)
+                    .textFieldStyle(.roundedBorder)
+                    .onSubmit(submit)
+            }
+            
             HStack {
                 Spacer()
 

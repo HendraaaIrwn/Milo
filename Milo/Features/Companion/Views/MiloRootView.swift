@@ -21,6 +21,9 @@ struct MiloRootView: View {
     var onReminderSnooze5: (MiloReminder) -> Void = { _ in }
     var onReminderSnooze15: (MiloReminder) -> Void = { _ in }
     var onReminderReschedule: (MiloReminder) -> Void = { _ in }
+    var onTodoOpenList: () -> Void = {}
+    var onTodoOverdueDone: (MiloTodo) -> Void = { _ in }
+    var onAddTodo: () -> Void = {}
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
     @State private var mouseLocation: CGPoint?
     @State private var characterFrame: CGRect = MiloRootView.defaultCharacterFrame
@@ -52,11 +55,20 @@ struct MiloRootView: View {
                 }
             )
             .contextMenu {
+                Button("Add Todo") {
+                    onAddTodo()
+                }
+                Button("Todo List") {
+                    onTodoOpenList()
+                }
+
+                Divider()
+
                 Button("Add Reminder") {
                     onAddReminder()
                 }
 
-                Button("Chat Reminder") {
+                Button("Chat Reminder and Todo") {
                     onChatReminder()
                 }
 
@@ -69,6 +81,17 @@ struct MiloRootView: View {
                 Button("Hide Milo") {
                     onHideMilo()
                 }
+            }
+
+            if stateStore.shouldShowTodoBubble, let todo = stateStore.activeTodoBubble {
+                MiloTodoBubbleView(
+                    todo: todo,
+                    onDone: { onTodoOverdueDone(todo) },
+                    onOpenTodoList: { onTodoOpenList() }
+                )
+                    .offset(y: -MiloLayout.designHeight - 14)
+                    .transition(.opacity)
+                    .zIndex(20)
             }
 
             if stateStore.shouldShowReminderBubble, let activeReminder = stateStore.activeReminder {
@@ -123,6 +146,11 @@ struct MiloRootView: View {
             .frame(width: Self.windowWidth, height: Self.windowHeight)
         }
         #endif
+        .overlay(alignment: .topTrailing) {
+            if state.reactionText == nil && !stateStore.shouldShowReminderBubble && !stateStore.shouldShowTodoBubble {
+                TodoCountBadge(stateStore: stateStore)
+            }
+        }
     }
 
     private static var defaultCharacterFrame: CGRect {
@@ -135,7 +163,7 @@ struct MiloRootView: View {
     }
 
     private var bubbleText: String? {
-        if stateStore.shouldShowReminderBubble {
+        if stateStore.shouldShowReminderBubble || stateStore.shouldShowTodoBubble {
             return nil
         }
 
@@ -152,9 +180,26 @@ struct MiloRootView: View {
     }
 }
 
+struct TodoCountBadge: View {
+    @ObservedObject var stateStore: MiloStateStore
+
+    var body: some View {
+        if stateStore.activeTodoCount > 0 {
+            Text("\(stateStore.activeTodoCount)")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(Color.red)
+                .clipShape(Capsule())
+                .offset(x: -12, y: 8)
+                .zIndex(20)
+        }
+    }
+}
+
 private struct MiloRootFramePreferenceKey: PreferenceKey {
     static let defaultValue: CGRect = .zero
-
     static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
         value = nextValue()
     }

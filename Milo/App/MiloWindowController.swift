@@ -16,22 +16,30 @@ final class MiloWindowController {
     private let reminderService: ReminderService
     private let reminderHistoryService: ReminderHistoryService
     private let reminderSchedulerService: ReminderSchedulerService
+    private let todoService: TodoService
+    private let todoSchedulerService: TodoSchedulerService
     private var petPanel: FloatingPetPanel?
     private var stateCancellable: AnyCancellable?
     private var chatReminderWindow: NSWindow?
     private var historyWindow: NSWindow?
     private var rescheduleWindow: NSWindow?
+    private var todoWindow: NSWindow?
+    private var todoEditorWindow: NSWindow?
 
     init(
         stateStore: MiloStateStore,
         reminderService: ReminderService,
         reminderHistoryService: ReminderHistoryService,
-        reminderSchedulerService: ReminderSchedulerService
+        reminderSchedulerService: ReminderSchedulerService,
+        todoService: TodoService,
+        todoSchedulerService: TodoSchedulerService
     ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
         self.reminderHistoryService = reminderHistoryService
         self.reminderSchedulerService = reminderSchedulerService
+        self.todoService = todoService
+        self.todoSchedulerService = todoSchedulerService
         observeStateStore(stateStore)
     }
 
@@ -96,6 +104,15 @@ final class MiloWindowController {
                 },
                 onReminderReschedule: { [weak self] reminder in
                     self?.openRescheduleReminder(reminder)
+                },
+                onTodoOpenList: { [weak self] in
+                    self?.openTodoList()
+                },
+                onTodoOverdueDone: { [weak self] todo in
+                    self?.todoSchedulerService.markDone(todo)
+                },
+                onAddTodo: { [weak self] in
+                    self?.openTodoEditor()
                 }
             )
                 .frame(width: size.width, height: size.height)
@@ -139,19 +156,19 @@ final class MiloWindowController {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 180),
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 200),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
         )
 
-        window.title = "MILO Chat Reminder"
+        window.title = "MILO Chat"
         window.isReleasedWhenClosed = false
         window.center()
         window.contentViewController = NSHostingController(
             rootView: MiloChatInputView(
                 onSubmit: { [weak self, weak window] text in
-                    self?.handleChatReminder(text)
+                    self?.handleChatInput(text)
                     self?.chatReminderWindow = nil
                     window?.close()
                 },
@@ -163,6 +180,81 @@ final class MiloWindowController {
         )
 
         chatReminderWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    func openTodoList() {
+        if let todoWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            todoWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 480, height: 520),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "MILO Todo List"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: TodoListView(
+                todoService: todoService,
+                onEditTodo: { [weak self, weak window] todo in
+                    self?.openTodoEditor(existingTodo: todo)
+                    window?.close()
+                },
+                onConvertToReminder: { [weak self] todo in
+                    self?.convertTodoToReminder(todo)
+                }
+            )
+        )
+
+        todoWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    func openTodoEditor(existingTodo: MiloTodo? = nil) {
+        if let todoEditorWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            todoEditorWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 380, height: 300),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = existingTodo == nil ? "Add Todo" : "Edit Todo"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: TodoEditorView(
+                todoService: todoService,
+                reminderService: reminderService,
+                existingTodo: existingTodo,
+                source: existingTodo != nil ? existingTodo!.createdSource : .rightClick,
+                onSave: { [weak self, weak window] _ in
+                    self?.showBubble("Todo saved.", mood: .focus)
+                    self?.todoEditorWindow = nil
+                    window?.close()
+                },
+                onCancel: { [weak self, weak window] in
+                    self?.todoEditorWindow = nil
+                    window?.close()
+                }
+            )
+        )
+
+        todoEditorWindow = window
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
@@ -241,12 +333,46 @@ final class MiloWindowController {
         historyWindow = nil
         rescheduleWindow?.close()
         rescheduleWindow = nil
+        todoWindow?.close()
+        todoWindow = nil
+        todoEditorWindow?.close()
+        todoEditorWindow = nil
         petPanel?.close()
         petPanel = nil
         stateStore.isMiloVisible = false
     }
 
-    private func handleChatReminder(_ text: String) {
+    private func handleChatInput(_ text: String) {
+        do {
+            let parsed = try TodoCommandParser.parse(text)
+            let todo = todoService.addTodo(
+                title: parsed.title,
+                notes: parsed.notes,
+                dueDate: parsed.dueDate,
+                priority: parsed.priority,
+                createdSource: .chat
+            )
+
+            if parsed.shouldCreateReminder, let dueDate = parsed.dueDate {
+                let reminder = reminderService.addReminder(
+                    title: parsed.title,
+                    message: parsed.title,
+                    dueDate: dueDate,
+                    createdSource: .todo
+                )
+
+                todoService.attachReminder(todoID: todo.id, reminderID: reminder.id)
+                ReminderNotificationService.shared.scheduleNotification(for: reminder)
+
+                showBubble("Todo added with reminder.", mood: .reminder)
+            } else {
+                showBubble("Todo added.", mood: .focus)
+            }
+
+            return
+        } catch {}
+        catch TodoCommandParserError.unsupportedFormat {}
+
         do {
             let parsed = try NaturalLanguageReminderParser.parse(text)
             let reminder = reminderService.addReminder(
@@ -259,8 +385,27 @@ final class MiloWindowController {
             ReminderNotificationService.shared.scheduleNotification(for: reminder)
             showBubble("Reminder set: \(parsed.message)", mood: .reminder)
         } catch {
-            showBubble("Failed to add Reminder, Try another format", mood: .idle)
+            showBubble("Try: buat todo update README besok jam 10", mood: .idle)
         }
+    }
+
+    private func convertTodoToReminder(_ todo: MiloTodo) {
+        guard let dueDate = todo.dueDate else {
+            openTodoEditor(existingTodo: todo)
+            return
+        }
+
+        let reminder = reminderService.addReminder(
+            title: todo.title,
+            message: todo.title,
+            dueDate: dueDate,
+            createdSource: .todo
+        )
+
+        todoService.attachReminder(todoID: todo.id, reminderID: reminder.id)
+        ReminderNotificationService.shared.scheduleNotification(for: reminder)
+
+        showBubble("Todo converted to reminder.", mood: .reminder)
     }
 
     private func observeStateStore(_ stateStore: MiloStateStore) {

@@ -29,6 +29,7 @@ final class TodoService: ObservableObject {
             forKey: MiloStorageKeys.todos,
             defaultValue: []
         )
+        refreshOverdueStatus()
         sortTodos()
     }
 
@@ -36,22 +37,28 @@ final class TodoService: ObservableObject {
         storage.save(todos, forKey: MiloStorageKeys.todos)
     }
 
+    @discardableResult
     func addTodo(
         title: String,
         notes: String? = nil,
         dueDate: Date? = nil,
-        priority: TodoPriority = .normal
-    ) {
+        priority: TodoPriority = .normal,
+        createdSource: TodoCreatedSource = .chat
+    ) -> MiloTodo {
         let todo = MiloTodo(
             title: title,
             notes: notes,
             dueDate: dueDate,
-            priority: priority
+            priority: priority,
+            createdSource: createdSource
         )
 
         todos.append(todo)
+        refreshOverdueStatus()
         sortTodos()
         save()
+
+        return todo
     }
 
     func updateTodo(_ todo: MiloTodo) {
@@ -59,7 +66,9 @@ final class TodoService: ObservableObject {
 
         var updated = todo
         updated.updatedAt = Date()
+
         todos[index] = updated
+        refreshOverdueStatus()
         sortTodos()
         save()
     }
@@ -67,7 +76,7 @@ final class TodoService: ObservableObject {
     func markDone(id: UUID) {
         guard let index = todos.firstIndex(where: { $0.id == id }) else { return }
 
-        todos[index].isDone = true
+        todos[index].status = .done
         todos[index].updatedAt = Date()
         save()
     }
@@ -75,9 +84,28 @@ final class TodoService: ObservableObject {
     func toggleDone(id: UUID) {
         guard let index = todos.firstIndex(where: { $0.id == id }) else { return }
 
-        todos[index].isDone.toggle()
+        if todos[index].status == .done {
+            todos[index].status = .active
+        } else {
+            todos[index].status = .done
+        }
+
         todos[index].updatedAt = Date()
+        refreshOverdueStatus()
         sortTodos()
+        save()
+    }
+
+    func deleteTodo(id: UUID) {
+        guard let index = todos.firstIndex(where: { $0.id == id }) else { return }
+
+        todos[index].status = .deleted
+        todos[index].updatedAt = Date()
+        save()
+    }
+
+    func permanentlyRemoveDeleted() {
+        todos.removeAll { $0.status == .deleted }
         save()
     }
 
@@ -89,26 +117,46 @@ final class TodoService: ObservableObject {
         save()
     }
 
-    func deleteTodo(id: UUID) {
-        todos.removeAll { $0.id == id }
-        save()
+    func activeTodos() -> [MiloTodo] {
+        todos.filter { $0.status == .active || $0.status == .overdue }
     }
 
-    func deleteCompleted() {
-        todos.removeAll { $0.isDone }
-        save()
+    func activeTodoCount() -> Int {
+        activeTodos().count
+    }
+
+    func overdueTodos(now: Date = Date()) -> [MiloTodo] {
+        todos.filter { todo in
+            guard let dueDate = todo.dueDate else { return false }
+            return todo.status != .done &&
+                todo.status != .deleted &&
+                dueDate <= now
+        }
+    }
+
+    func refreshOverdueStatus(now: Date = Date()) {
+        for index in todos.indices {
+            guard todos[index].status != .done,
+                  todos[index].status != .deleted,
+                  let dueDate = todos[index].dueDate
+            else { continue }
+
+            if dueDate <= now {
+                todos[index].status = .overdue
+            } else if todos[index].status == .overdue {
+                todos[index].status = .active
+            }
+        }
     }
 
     private func sortTodos() {
         todos.sort { lhs, rhs in
-            switch (lhs.isDone, rhs.isDone) {
-            case (false, true):
-                return true
-            case (true, false):
-                return false
-            default:
-                return (lhs.dueDate ?? .distantFuture) < (rhs.dueDate ?? .distantFuture)
-            }
+            if lhs.status == .done && rhs.status != .done { return false }
+            if lhs.status != .done && rhs.status == .done { return true }
+
+            let lhsDate = lhs.dueDate ?? .distantFuture
+            let rhsDate = rhs.dueDate ?? .distantFuture
+            return lhsDate < rhsDate
         }
     }
 }

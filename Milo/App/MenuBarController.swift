@@ -74,6 +74,7 @@ final class MenuBarController: NSObject {
         menu.addItem(makeMenuItem(title: "Add Reminder", action: #selector(addReminder)))
         menu.addItem(makeMenuItem(title: "Chat Reminder", action: #selector(chatReminder)))
         menu.addItem(makeMenuItem(title: "Reminder History", action: #selector(openReminderHistory)))
+        menu.addItem(makeMenuItem(title: "Add Todo", action: #selector(addTodo)))
         menu.addItem(makeMenuItem(title: "Open Todos", action: #selector(openTodos)))
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Settings", action: #selector(openSettings)))
@@ -125,6 +126,10 @@ final class MenuBarController: NSObject {
         miloWindowController.openReminderHistory()
     }
 
+    @objc private func addTodo() {
+        miloWindowController.openTodoEditor()
+    }
+
     @objc private func openSettings() {
         let window = settingsWindow ?? makeSettingsWindow()
         settingsWindow = window
@@ -133,10 +138,7 @@ final class MenuBarController: NSObject {
     }
 
     @objc private func openTodos() {
-        let window = todoWindow ?? makeTodoWindow()
-        todoWindow = window
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
+        miloWindowController.openTodoList()
     }
 
     @objc private func quitApp() {
@@ -183,7 +185,22 @@ final class MenuBarController: NSObject {
         window.title = "MILO Todos"
         window.isReleasedWhenClosed = false
         window.center()
-        window.contentViewController = NSHostingController(rootView: TodoListView(todoService: todoService))
+        window.contentViewController = NSHostingController(rootView: TodoListView(
+            todoService: todoService,
+            onEditTodo: { [weak self, weak window] todo in
+                self?.miloWindowController.openTodoEditor(existingTodo: todo)
+                window?.close()
+            },
+            onConvertToReminder: { [weak self, weak window] todo in
+                guard let dueDate = todo.dueDate else {
+                    self?.miloWindowController.openTodoEditor(existingTodo: todo)
+                    return
+                }
+                let reminder = self?.reminderService ?? ReminderService()
+                let _ = reminder.addReminder(title: todo.title, message: todo.title, dueDate: dueDate, createdSource: .todo)
+                window?.close()
+            }
+        ))
         return window
     }
 }
