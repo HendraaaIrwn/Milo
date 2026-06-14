@@ -1,0 +1,40 @@
+{
+  "source": "/Users/neuhendra/Developer/Milo/Milo/Milo/UI/ReminderHistoryView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Completed, snoozed, rescheduled, and due reminders will appear here.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "No reminder history yet.",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reminder History",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld items",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 34
+        }
+      }
+    ]
+  },
+  "version": 1
+}

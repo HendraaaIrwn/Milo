@@ -20,6 +20,8 @@ Some larger PRD items, such as AI-agent status integrations, coding metrics, rea
 - **Reaction bubbles** — click MILO to show short developer-themed encouragement or soft roast lines.
 - **Pomodoro helper** — local 25-minute focus timer with pause/resume behavior.
 - **Local reminders** — add reminder text and due time from a small AppKit-hosted SwiftUI window.
+- **Local todos** — add, toggle, delete, and persist lightweight todos locally.
+- **Local storage MVP** — reminders and todos persist through `UserDefaults` via a small storage service.
 - **Settings window** — toggles for launch behavior, eye follow, typing reaction flag, sound flag, and break nudges.
 - **Privacy-first direction** — no cloud login or telemetry in current implementation.
 
@@ -115,7 +117,20 @@ Mood-specific animation configuration lives under `Features/Companion/Animations
 
 ### Data storage
 
-Current local persistence uses `UserDefaults` for settings and reminders. Reminder data is encoded locally as JSON.
+Current local persistence uses `UserDefaults` for settings, reminders, and todos. Reminder and todo data is encoded locally as JSON through `MiloLocalStorageService` so it can later move to SQLite or Core Data.
+
+## Manual Storage Test
+
+1. Launch app.
+2. Add todo: `Fix Milo typing animation`.
+3. Add reminder: `Take a break` due in 2 minutes.
+4. Quit app.
+5. Launch app again.
+6. Confirm todo still exists.
+7. Confirm reminder still exists.
+8. Mark todo done.
+9. Quit and relaunch.
+10. Confirm done state persists.
 
 ## Requirements
 
@@ -179,7 +194,7 @@ Based on `MILO_PRD.md`, planned areas include:
 - AI coding agent status indicators,
 - break nudges,
 - mood check-ins,
-- local todo and natural-language reminders,
+- natural-language reminders,
 - coding metrics,
 - richer animation and sound states.
 

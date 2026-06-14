@@ -7,7 +7,7 @@
         "key": "General",
         "location": {
           "startingColumn": 34,
-          "startingLine": 28
+          "startingLine": 33
         }
       },
       {
@@ -15,7 +15,7 @@
         "key": "Eye Follow Cursor",
         "location": {
           "startingColumn": 24,
-          "startingLine": 31
+          "startingLine": 36
         }
       },
       {
@@ -23,15 +23,7 @@
         "key": "Appearance",
         "location": {
           "startingColumn": 30,
-          "startingLine": 33
-        }
-      },
-      {
-        "comment": "",
-        "key": "Sound Enabled",
-        "location": {
-          "startingColumn": 24,
-          "startingLine": 36
+          "startingLine": 38
         }
       },
       {
@@ -39,7 +31,7 @@
         "key": "Sound",
         "location": {
           "startingColumn": 30,
-          "startingLine": 38
+          "startingLine": 41
         }
       },
       {
@@ -47,7 +39,7 @@
         "key": "Default focus: 25 minutes",
         "location": {
           "startingColumn": 22,
-          "startingLine": 41
+          "startingLine": 44
         }
       },
       {
@@ -55,7 +47,7 @@
         "key": "Default break: 5 minutes",
         "location": {
           "startingColumn": 22,
-          "startingLine": 42
+          "startingLine": 45
         }
       },
       {
@@ -63,14 +55,6 @@
         "key": "Pomodoro",
         "location": {
           "startingColumn": 30,
-          "startingLine": 44
-        }
-      },
-      {
-        "comment": "",
-        "key": "Local reminders only",
-        "location": {
-          "startingColumn": 22,
           "startingLine": 47
         }
       },
@@ -79,7 +63,7 @@
         "key": "Reminders",
         "location": {
           "startingColumn": 30,
-          "startingLine": 49
+          "startingLine": 50
         }
       },
       {
@@ -87,7 +71,7 @@
         "key": "Break Nudges Enabled",
         "location": {
           "startingColumn": 24,
-          "startingLine": 52
+          "startingLine": 53
         }
       },
       {
@@ -95,7 +79,7 @@
         "key": "Break Nudges",
         "location": {
           "startingColumn": 30,
-          "startingLine": 54
+          "startingLine": 55
         }
       },
       {
@@ -103,7 +87,7 @@
         "key": "Mood check-ins placeholder",
         "location": {
           "startingColumn": 22,
-          "startingLine": 57
+          "startingLine": 58
         }
       },
       {
@@ -111,7 +95,7 @@
         "key": "Mood Check-ins",
         "location": {
           "startingColumn": 30,
-          "startingLine": 59
+          "startingLine": 60
         }
       },
       {
@@ -119,7 +103,7 @@
         "key": "Agent integrations placeholder",
         "location": {
           "startingColumn": 22,
-          "startingLine": 62
+          "startingLine": 63
         }
       },
       {
@@ -127,7 +111,7 @@
         "key": "Agent Integrations",
         "location": {
           "startingColumn": 30,
-          "startingLine": 64
+          "startingLine": 65
         }
       },
       {
@@ -135,7 +119,7 @@
         "key": "Coding metrics placeholder",
         "location": {
           "startingColumn": 22,
-          "startingLine": 67
+          "startingLine": 68
         }
       },
       {
@@ -143,7 +127,7 @@
         "key": "Coding Metrics",
         "location": {
           "startingColumn": 30,
-          "startingLine": 69
+          "startingLine": 70
         }
       },
       {
@@ -151,7 +135,7 @@
         "key": "Privacy",
         "location": {
           "startingColumn": 34,
-          "startingLine": 72
+          "startingLine": 73
         }
       },
       {
@@ -159,7 +143,7 @@
         "key": "MILO only detects keyboard timing, not what you type.",
         "location": {
           "startingColumn": 18,
-          "startingLine": 83
+          "startingLine": 85
         }
       },
       {
@@ -167,7 +151,7 @@
         "key": "Show Milo on Launch",
         "location": {
           "startingColumn": 20,
-          "startingLine": 80
+          "startingLine": 81
         }
       },
       {
@@ -175,7 +159,7 @@
         "key": "Eye Follow Cursor",
         "location": {
           "startingColumn": 20,
-          "startingLine": 81
+          "startingLine": 82
         }
       },
       {
@@ -183,7 +167,87 @@
         "key": "Typing Reaction",
         "location": {
           "startingColumn": 20,
-          "startingLine": 82
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Typing Bubble Dialogs",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sound Effects",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 93
+        }
+      },
+      {
+        "comment": "",
+        "key": "MILO Mumble Voice",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "Mute All",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Volume",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "Test MILO Voice",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "Say Milo",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reminders stay local and are saved on this Mac only.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 118
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reminder Notifications Enabled",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reminder Sound Enabled",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 117
         }
       }
     ]

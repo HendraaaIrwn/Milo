@@ -1,5 +1,40 @@
 {
   "source": "/Users/neuhendra/Developer/Milo/Milo/Milo/Features/Companion/Views/MiloRootView.swift",
-  "tables": {},
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Add Reminder",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Chat Reminder",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reminder History",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "Hide Milo",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 69
+        }
+      }
+    ]
+  },
   "version": 1
 }
