@@ -14,14 +14,20 @@ final class ReminderService: ObservableObject {
     @Published private(set) var reminders: [MiloReminder] = []
 
     private let storage: MiloLocalStorageService
+    private let historyService: ReminderHistoryService
     private var entryWindow: NSWindow?
 
     convenience init() {
-        self.init(storage: .shared)
+        self.init(storage: .shared, historyService: ReminderHistoryService())
     }
 
-    init(storage: MiloLocalStorageService) {
+    convenience init(historyService: ReminderHistoryService) {
+        self.init(storage: .shared, historyService: historyService)
+    }
+
+    init(storage: MiloLocalStorageService, historyService: ReminderHistoryService) {
         self.storage = storage
+        self.historyService = historyService
         load()
     }
 
@@ -59,6 +65,7 @@ final class ReminderService: ObservableObject {
         reminders.append(reminder)
         sortReminders()
         save()
+        historyService.recordCreated(reminder)
         return reminder
     }
 
@@ -86,37 +93,58 @@ final class ReminderService: ObservableObject {
         guard let index = reminders.firstIndex(where: { $0.id == id }) else { return }
 
         reminders[index].isCompleted = true
+        reminders[index].status = .completed
         reminders[index].updatedAt = Date()
         save()
+        historyService.recordCompleted(reminders[index])
+    }
+
+    func markDue(id: UUID) -> MiloReminder? {
+        guard let index = reminders.firstIndex(where: { $0.id == id }) else { return nil }
+
+        reminders[index].status = .due
+        reminders[index].updatedAt = Date()
+        save()
+        historyService.recordDueTriggered(reminders[index])
+        return reminders[index]
     }
 
     func snooze(id: UUID, minutes: Int) -> MiloReminder? {
         guard let index = reminders.firstIndex(where: { $0.id == id }) else { return nil }
 
-        reminders[index].dueDate = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        let newDueDate = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        reminders[index].dueDate = newDueDate
         reminders[index].isCompleted = false
+        reminders[index].status = .snoozed
         reminders[index].updatedAt = Date()
         reminders[index].localNotificationID = UUID().uuidString
         sortReminders()
         save()
-        return reminders.first { $0.id == id }
+        guard let updated = reminders.first(where: { $0.id == id }) else { return nil }
+        historyService.recordSnoozed(updated, minutes: minutes, newDueDate: newDueDate)
+        return updated
     }
 
     func reschedule(id: UUID, newDate: Date) -> MiloReminder? {
         guard let index = reminders.firstIndex(where: { $0.id == id }) else { return nil }
 
+        let oldDueDate = reminders[index].dueDate
         reminders[index].dueDate = newDate
         reminders[index].isCompleted = false
+        reminders[index].status = .rescheduled
         reminders[index].updatedAt = Date()
         reminders[index].localNotificationID = UUID().uuidString
         sortReminders()
         save()
-        return reminders.first { $0.id == id }
+        guard let updated = reminders.first(where: { $0.id == id }) else { return nil }
+        historyService.recordRescheduled(updated, oldDueDate: oldDueDate, newDueDate: newDate)
+        return updated
     }
 
     func deleteReminder(id: UUID) {
         if let reminder = reminders.first(where: { $0.id == id }) {
             ReminderNotificationService.shared.cancelNotification(id: reminder.localNotificationID)
+            historyService.recordDeleted(reminder)
         }
 
         reminders.removeAll { $0.id == id }
@@ -126,6 +154,7 @@ final class ReminderService: ObservableObject {
     func deleteCompleted() {
         let completed = reminders.filter(\.isCompleted)
         completed.forEach { ReminderNotificationService.shared.cancelNotification(id: $0.localNotificationID) }
+        completed.forEach { historyService.recordDeleted($0) }
         reminders.removeAll { $0.isCompleted }
         save()
     }

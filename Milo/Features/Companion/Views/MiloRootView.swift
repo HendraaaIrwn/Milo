@@ -15,6 +15,7 @@ struct MiloRootView: View {
     @ObservedObject var stateStore: MiloStateStore
     var onAddReminder: () -> Void = {}
     var onChatReminder: () -> Void = {}
+    var onOpenReminderHistory: () -> Void = {}
     var onHideMilo: () -> Void = {}
     var onReminderDone: (MiloReminder) -> Void = { _ in }
     var onReminderSnooze5: (MiloReminder) -> Void = { _ in }
@@ -57,6 +58,10 @@ struct MiloRootView: View {
 
                 Button("Chat Reminder") {
                     onChatReminder()
+                }
+
+                Button("Reminder History") {
+                    onOpenReminderHistory()
                 }
 
                 Divider()

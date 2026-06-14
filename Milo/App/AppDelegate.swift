@@ -13,6 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
     private var miloWindowController: MiloWindowController?
     private var pomodoroService: PomodoroService?
+    private var reminderHistoryService: ReminderHistoryService?
     private var reminderService: ReminderService?
     private var reminderSchedulerService: ReminderSchedulerService?
     private var todoService: TodoService?
@@ -38,26 +39,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.keyboardActivityService = keyboardService
 
         let pomodoroService = PomodoroService()
-        let reminderService = ReminderService()
+        let reminderHistoryService = ReminderHistoryService()
+        let reminderService = ReminderService(historyService: reminderHistoryService)
         let todoService = TodoService()
         let reminderSchedulerService = ReminderSchedulerService(
             reminderService: reminderService,
+            historyService: reminderHistoryService,
             miloStateStore: stateStore
         )
         let miloWindowController = MiloWindowController(
             stateStore: stateStore,
             reminderService: reminderService,
+            reminderHistoryService: reminderHistoryService,
             reminderSchedulerService: reminderSchedulerService
         )
 
         self.miloWindowController = miloWindowController
         self.pomodoroService = pomodoroService
+        self.reminderHistoryService = reminderHistoryService
         self.reminderService = reminderService
         self.reminderSchedulerService = reminderSchedulerService
         self.todoService = todoService
         self.menuBarController = MenuBarController(
             miloWindowController: miloWindowController,
             pomodoroService: pomodoroService,
+            reminderHistoryService: reminderHistoryService,
             reminderService: reminderService,
             todoService: todoService
         )
@@ -86,6 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         MiloMumbleEngine.shared.stop()
         keyboardActivityService?.stop()
         reminderSchedulerService?.stop()
+        reminderHistoryService?.save()
         reminderService?.save()
         todoService?.save()
         pomodoroService?.stop()

@@ -13,6 +13,7 @@ final class MenuBarController: NSObject {
     private let statusItem: NSStatusItem
     private let miloWindowController: MiloWindowController
     private let pomodoroService: PomodoroService
+    private let reminderHistoryService: ReminderHistoryService
     private let reminderService: ReminderService
     private let todoService: TodoService
 
@@ -23,12 +24,14 @@ final class MenuBarController: NSObject {
     init(
         miloWindowController: MiloWindowController,
         pomodoroService: PomodoroService,
+        reminderHistoryService: ReminderHistoryService,
         reminderService: ReminderService,
         todoService: TodoService
     ) {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.miloWindowController = miloWindowController
         self.pomodoroService = pomodoroService
+        self.reminderHistoryService = reminderHistoryService
         self.reminderService = reminderService
         self.todoService = todoService
 
@@ -70,6 +73,7 @@ final class MenuBarController: NSObject {
 
         menu.addItem(makeMenuItem(title: "Add Reminder", action: #selector(addReminder)))
         menu.addItem(makeMenuItem(title: "Chat Reminder", action: #selector(chatReminder)))
+        menu.addItem(makeMenuItem(title: "Reminder History", action: #selector(openReminderHistory)))
         menu.addItem(makeMenuItem(title: "Open Todos", action: #selector(openTodos)))
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Settings", action: #selector(openSettings)))
@@ -117,6 +121,10 @@ final class MenuBarController: NSObject {
         miloWindowController.openChatReminder()
     }
 
+    @objc private func openReminderHistory() {
+        miloWindowController.openReminderHistory()
+    }
+
     @objc private func openSettings() {
         let window = settingsWindow ?? makeSettingsWindow()
         settingsWindow = window
@@ -133,6 +141,7 @@ final class MenuBarController: NSObject {
 
     @objc private func quitApp() {
         reminderService.save()
+        reminderHistoryService.save()
         todoService.save()
         pomodoroService.stop()
         reminderService.closeEntryWindow()

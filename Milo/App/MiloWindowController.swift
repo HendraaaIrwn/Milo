@@ -14,19 +14,23 @@ final class MiloWindowController {
     private let petState = MiloFloatingPetState()
     private let stateStore: MiloStateStore
     private let reminderService: ReminderService
+    private let reminderHistoryService: ReminderHistoryService
     private let reminderSchedulerService: ReminderSchedulerService
     private var petPanel: FloatingPetPanel?
     private var stateCancellable: AnyCancellable?
     private var chatReminderWindow: NSWindow?
+    private var historyWindow: NSWindow?
     private var rescheduleWindow: NSWindow?
 
     init(
         stateStore: MiloStateStore,
         reminderService: ReminderService,
+        reminderHistoryService: ReminderHistoryService,
         reminderSchedulerService: ReminderSchedulerService
     ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
+        self.reminderHistoryService = reminderHistoryService
         self.reminderSchedulerService = reminderSchedulerService
         observeStateStore(stateStore)
     }
@@ -72,6 +76,9 @@ final class MiloWindowController {
                 },
                 onChatReminder: { [weak self] in
                     self?.openChatReminder()
+                },
+                onOpenReminderHistory: { [weak self] in
+                    self?.openReminderHistory()
                 },
                 onHideMilo: { [weak self] in
                     self?.hideMilo()
@@ -160,6 +167,32 @@ final class MiloWindowController {
         window.makeKeyAndOrderFront(nil)
     }
 
+    func openReminderHistory() {
+        if let historyWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            historyWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 680, height: 520),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "MILO Reminder History"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: ReminderHistoryView(historyService: reminderHistoryService)
+        )
+
+        historyWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     func openRescheduleReminder(_ reminder: MiloReminder) {
         if let rescheduleWindow {
             NSApp.activate(ignoringOtherApps: true)
@@ -204,6 +237,8 @@ final class MiloWindowController {
         petState.clearBubble()
         chatReminderWindow?.close()
         chatReminderWindow = nil
+        historyWindow?.close()
+        historyWindow = nil
         rescheduleWindow?.close()
         rescheduleWindow = nil
         petPanel?.close()

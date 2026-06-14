@@ -14,6 +14,7 @@ struct MiloReminder: Codable, Identifiable, Equatable {
     var dueDate: Date
     var repeatRule: ReminderRepeatRule?
     var soundMode: ReminderSoundMode
+    var status: ReminderStatus
     var isCompleted: Bool
     var createdSource: ReminderCreatedSource
     var localNotificationID: String
@@ -27,6 +28,7 @@ struct MiloReminder: Codable, Identifiable, Equatable {
         dueDate: Date,
         repeatRule: ReminderRepeatRule? = nil,
         soundMode: ReminderSoundMode = .mumble,
+        status: ReminderStatus = .pending,
         isCompleted: Bool = false,
         createdSource: ReminderCreatedSource,
         localNotificationID: String = UUID().uuidString,
@@ -39,6 +41,7 @@ struct MiloReminder: Codable, Identifiable, Equatable {
         self.dueDate = dueDate
         self.repeatRule = repeatRule
         self.soundMode = soundMode
+        self.status = status
         self.isCompleted = isCompleted
         self.createdSource = createdSource
         self.localNotificationID = localNotificationID
@@ -64,6 +67,7 @@ struct MiloReminder: Codable, Identifiable, Equatable {
             dueDate: dueDate,
             repeatRule: repeatRule,
             soundMode: soundMode,
+            status: isDone ? .completed : .pending,
             isCompleted: isDone,
             createdSource: source,
             createdAt: createdAt,
@@ -78,6 +82,7 @@ struct MiloReminder: Codable, Identifiable, Equatable {
         case dueDate
         case repeatRule
         case soundMode
+        case status
         case isCompleted
         case isDone
         case createdSource
@@ -99,6 +104,8 @@ struct MiloReminder: Codable, Identifiable, Equatable {
         isCompleted = try container.decodeIfPresent(Bool.self, forKey: .isCompleted)
             ?? container.decodeIfPresent(Bool.self, forKey: .isDone)
             ?? false
+        status = try container.decodeIfPresent(ReminderStatus.self, forKey: .status)
+            ?? (isCompleted ? .completed : .pending)
         createdSource = try container.decodeIfPresent(ReminderCreatedSource.self, forKey: .createdSource)
             ?? container.decodeIfPresent(ReminderCreatedSource.self, forKey: .source)
             ?? .rightClick
@@ -115,12 +122,22 @@ struct MiloReminder: Codable, Identifiable, Equatable {
         try container.encode(dueDate, forKey: .dueDate)
         try container.encodeIfPresent(repeatRule, forKey: .repeatRule)
         try container.encode(soundMode, forKey: .soundMode)
+        try container.encode(status, forKey: .status)
         try container.encode(isCompleted, forKey: .isCompleted)
         try container.encode(createdSource, forKey: .createdSource)
         try container.encode(localNotificationID, forKey: .localNotificationID)
         try container.encode(createdAt, forKey: .createdAt)
         try container.encode(updatedAt, forKey: .updatedAt)
     }
+}
+
+enum ReminderStatus: String, Codable, Equatable {
+    case pending
+    case due
+    case completed
+    case snoozed
+    case rescheduled
+    case cancelled
 }
 
 enum ReminderRepeatRule: String, Codable, Equatable {

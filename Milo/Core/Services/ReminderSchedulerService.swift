@@ -10,13 +10,19 @@ import Foundation
 @MainActor
 final class ReminderSchedulerService {
     private let reminderService: ReminderService
+    private let historyService: ReminderHistoryService
     private let miloStateStore: MiloStateStore
 
     private var timerTask: Task<Void, Never>?
     private var triggeredReminderIDs: Set<UUID> = []
 
-    init(reminderService: ReminderService, miloStateStore: MiloStateStore) {
+    init(
+        reminderService: ReminderService,
+        historyService: ReminderHistoryService,
+        miloStateStore: MiloStateStore
+    ) {
         self.reminderService = reminderService
+        self.historyService = historyService
         self.miloStateStore = miloStateStore
     }
 
@@ -78,7 +84,7 @@ final class ReminderSchedulerService {
         guard !triggeredReminderIDs.contains(reminder.id) else { return }
 
         triggeredReminderIDs.insert(reminder.id)
-        triggerReminder(reminder)
+        triggerReminder(reminderService.markDue(id: reminder.id) ?? reminder)
     }
 
     private func triggerReminder(_ reminder: MiloReminder) {

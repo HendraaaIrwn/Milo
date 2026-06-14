@@ -7,7 +7,7 @@
         "key": "Hi, I'm Milo",
         "location": {
           "startingColumn": 22,
-          "startingLine": 64
+          "startingLine": 65
         }
       },
       {
@@ -15,7 +15,7 @@
         "key": "Your friendly assistant",
         "location": {
           "startingColumn": 22,
-          "startingLine": 68
+          "startingLine": 69
         }
       }
     ]
