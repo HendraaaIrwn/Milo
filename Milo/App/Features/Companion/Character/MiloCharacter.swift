@@ -259,10 +259,10 @@ struct MiloCharacter: View {
 }
 #endif
 
-//#if ENABLE_SWIFTUI_PREVIEWS
+#if ENABLE_SWIFTUI_PREVIEWS
 #Preview("Milo · Focus") {
     MiloCharacter(mood: .focus)
         .padding()
         .background(.background)
 }
-//#endif
+#endif

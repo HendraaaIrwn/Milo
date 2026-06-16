@@ -127,16 +127,7 @@ final class CodingMetricsService: ObservableObject {
 
         logger.debug("CodingMetrics tick: app=\(app.name), bundle=\(app.bundleIdentifier ?? "nil"), delta=\(delta)s, watchedProjects=\(watchedProjects.count)")
 
-        let project: WatchedProject?
-        let activeInfo: ActiveProjectInfo?
-
-        if let activeProject = ActiveProjectDetector.detectProject(from: watchedProjects.map(\.path)) {
-            activeInfo = activeProject
-            project = watchedProjects.first(where: { $0.path == activeProject.path })
-        } else {
-            activeInfo = nil
-            project = nil
-        }
+        let (project, activeInfo) = findActiveProjectWithBookmarks(from: watchedProjects)
 
         let changedFiles: [String]
         let loc: LOCSummary
@@ -154,6 +145,7 @@ final class CodingMetricsService: ObservableObject {
         )
 
         logger.debug("CodingMetrics git result: project=\(activeInfo?.name ?? "nil"), language=\(topLanguage ?? "nil"), files=\(changedFiles.count), loc=+\(loc.linesAdded)/-\(loc.linesDeleted) status=\(loc.status.title)")
+        print("[CodingMetrics] tick result: project=\(activeInfo?.name ?? "nil") lang=\(topLanguage ?? "nil") loc=+\(loc.linesAdded)/-\(loc.linesDeleted) status=\(loc.status.title)")
 
         if delta > 0 {
             updateSnapshot(
@@ -289,6 +281,32 @@ final class CodingMetricsService: ObservableObject {
             defaultValue: []
         )
         .filter(\.isEnabled)
+    }
+
+    private func findActiveProjectWithBookmarks(
+        from projects: [WatchedProject]
+    ) -> (project: WatchedProject?, info: ActiveProjectInfo?) {
+        let accessibleWithDates: [(WatchedProject, Date?)] = projects.compactMap { project in
+            guard gitLOCTracker.canAccess(project) else {
+                print("[CodingMetrics] canAccess FAILED for: \(project.name) path=\(project.path)")
+                return nil
+            }
+            let date = gitLOCTracker.modificationDate(for: project)
+            print("[CodingMetrics] canAccess OK for: \(project.name) modDate=\(date?.description ?? "nil")")
+            return (project, date)
+        }
+
+        guard let selected = accessibleWithDates
+            .sorted(by: { ($0.1 ?? .distantPast) > ($1.1 ?? .distantPast) })
+            .first
+        else {
+            print("[CodingMetrics] findActiveProject: NO accessible projects found (total: \(projects.count))")
+            return (nil, nil)
+        }
+
+        print("[CodingMetrics] findActiveProject: selected \(selected.0.name)")
+        let info = ActiveProjectInfo(name: selected.0.name, path: selected.0.path)
+        return (selected.0, info)
     }
 
     private var isEnabled: Bool {

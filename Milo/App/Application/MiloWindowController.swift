@@ -178,18 +178,10 @@ final class MiloWindowController {
             .stationary
         ]
 
-        let characterFrame = CGRect(
-            x: 0,
-            y: 0,
-            width: MiloLayout.designWidth,
-            height: MiloLayout.designHeight
-        )
-
         panel.contentView = DraggableHostingView(
             rootView: MiloRootView(
-                mood: petState.mood,
-                mouseLocation: nil,
-                characterFrame: characterFrame,
+                state: petState,
+                stateStore: stateStore,
                 contextMenuController: contextMenuController,
                 onLeftClick: { [weak self] in
                     let text = MiloReactionLineProvider.randomLine(excluding: self?.petState.reactionText)
