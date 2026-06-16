@@ -5,6 +5,10 @@
 
 import AppKit
 
+extension Notification.Name {
+    static let miloCharacterWindowDidMove = Notification.Name("miloCharacterWindowDidMove")
+}
+
 final class MiloRightClickHitView: NSView {
     var contextMenuController: MiloContextMenuController?
     var onLeftClick: (() -> Void)?
@@ -64,9 +68,7 @@ final class MiloRightClickHitView: NSView {
         guard let window,
               let initialWindowOrigin,
               let initialMouseScreenPoint
-        else {
-            return
-        }
+        else { return }
 
         let currentMouseScreen = NSEvent.mouseLocation
         let deltaX = currentMouseScreen.x - initialMouseScreenPoint.x
@@ -76,12 +78,13 @@ final class MiloRightClickHitView: NSView {
         newOrigin.x += deltaX
         newOrigin.y += deltaY
 
-        if let screen = window.screen ?? NSScreen.main {
-            let topLimit = screen.frame.maxY + MiloRootView.topAccessoryHeight - window.frame.height
-            newOrigin.y = min(newOrigin.y, topLimit)
-        }
-
         window.setFrameOrigin(newOrigin)
+
+        NotificationCenter.default.post(
+            name: .miloCharacterWindowDidMove,
+            object: window,
+            userInfo: ["frame": NSValue(rect: window.frame)]
+        )
     }
 
     private func showContextMenu(event: NSEvent) {
@@ -97,7 +100,6 @@ final class MiloRightClickHitView: NSView {
 
     private func shouldStartDrag(with event: NSEvent) -> Bool {
         guard let mouseDownPoint else { return true }
-
         let deltaX = abs(event.locationInWindow.x - mouseDownPoint.x)
         let deltaY = abs(event.locationInWindow.y - mouseDownPoint.y)
         return deltaX >= dragThreshold || deltaY >= dragThreshold

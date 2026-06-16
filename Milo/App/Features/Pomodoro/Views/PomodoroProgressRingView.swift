@@ -17,7 +17,6 @@ struct PomodoroProgressRingView: View {
         ZStack {
             Circle()
                 .fill(Color(red: 1.0, green: 0.98, blue: 0.91).opacity(0.96))
-                .shadow(color: .black.opacity(0.10), radius: 12, x: 0, y: 6)
 
             Circle()
                 .stroke(Color.yellow.opacity(0.18), lineWidth: 10)
