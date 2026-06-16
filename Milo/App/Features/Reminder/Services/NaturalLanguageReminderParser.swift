@@ -51,7 +51,7 @@ struct NaturalLanguageReminderParser {
         normalized: String,
         now: Date
     ) throws -> ParsedReminderRequest {
-        let pattern = #"(?:\b(?:in|dalam)\s+)?(\d+)\s*(m|menit|min|mins|minute|minutes|j|jam|h|hr|hrs|hour|hours)\b"#
+        let pattern = #"(?:\b(?:in|dalam)\s+)?(\d+)\s*(minutes|minute|mins|min|menit|hours|hour|hrs|hr|jam|j|m|h)\b"#
 
         guard let match = firstMatch(pattern: pattern, in: normalized),
               let numberText = group(1, from: match, in: normalized),

@@ -42,8 +42,14 @@ struct FileWatcherStatusCardView: View {
                     .onChange(of: isGlobalEnabled) { _, newValue in onToggleGlobal(newValue) }
                 Spacer()
                 Button("Pause") { onPause() }.disabled(!isGlobalEnabled)
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
                 Button("Resume") { onResume() }.disabled(!isGlobalEnabled)
+                    .buttonStyle(.borderedProminent)
+                    .tint(.blue)
                 Button("Reset Activity", role: .destructive) { onReset() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
             }
         }
         .padding(16)

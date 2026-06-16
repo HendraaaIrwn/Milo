@@ -130,3 +130,8 @@ struct ReminderHistoryRowView: View {
         }
     }
 }
+
+
+//#Preview {
+//    ReminderHistoryRowView(event: MiloReminderHistoryEvent)
+//}

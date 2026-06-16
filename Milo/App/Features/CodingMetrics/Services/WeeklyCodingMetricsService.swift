@@ -162,7 +162,10 @@ final class WeeklyCodingMetricsService: ObservableObject {
             topEditor: topEditor,
             totalLOC: LOCSummary(
                 linesAdded: totalAdded,
-                linesDeleted: totalDeleted
+                linesDeleted: totalDeleted,
+                filesChanged: 0,
+                status: .ready,
+                lastUpdatedAt: Date()
             ),
             totalSessions: totalSessions,
             dailyRecords: records,

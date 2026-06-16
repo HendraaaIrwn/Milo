@@ -30,13 +30,16 @@ struct MiloReminderBubbleView: View {
 
                 HStack(spacing: 6) {
                     Button("Done", action: onDone)
+                        .buttonStyle(.borderedProminent)
+                        .tint(.blue)
                     Button("+5", action: onSnooze5)
+                        .buttonStyle(.borderedProminent)
+                        .tint(Color(.orange))
                     Button("+15", action: onSnooze15)
                     Button("Reschedule", action: onReschedule)
                 }
                 .font(.system(size: 10, weight: .semibold, design: .rounded))
                 .controlSize(.small)
-                .buttonStyle(.borderedProminent)
             }
             .foregroundStyle(.black.opacity(0.9))
             .padding(10)

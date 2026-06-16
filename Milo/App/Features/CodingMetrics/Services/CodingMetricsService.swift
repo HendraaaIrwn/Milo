@@ -16,6 +16,7 @@ final class CodingMetricsService: ObservableObject {
     @Published private(set) var snapshot: CodingMetricsSnapshot
 
     private let storage: MiloLocalStorageService
+    private let gitLOCTracker: GitLOCTracker
     private var timerTask: Task<Void, Never>?
 
     private var currentSession = CodingSession()
@@ -26,8 +27,12 @@ final class CodingMetricsService: ObservableObject {
         category: "CodingMetrics"
     )
 
-    init(storage: MiloLocalStorageService) {
+    init(
+        storage: MiloLocalStorageService = .shared,
+        gitLOCTracker: GitLOCTracker = GitLOCTracker()
+    ) {
         self.storage = storage
+        self.gitLOCTracker = gitLOCTracker
 
         let loaded = storage.load(
             CodingMetricsSnapshot.self,
@@ -81,6 +86,27 @@ final class CodingMetricsService: ObservableObject {
         save()
     }
 
+    func applyWakaTimeFallback(_ summary: WakaTimeSummary) {
+        if snapshot.codingSecondsToday <= 0 {
+            snapshot.codingSecondsToday = summary.totalSeconds
+        }
+
+        if snapshot.topProject == nil {
+            snapshot.topProject = summary.topProject
+        }
+
+        if snapshot.topLanguage == nil {
+            snapshot.topLanguage = summary.topLanguage
+        }
+
+        if snapshot.topEditor == nil {
+            snapshot.topEditor = summary.editorUsage.max(by: { $0.value < $1.value })?.key
+        }
+
+        snapshot.lastUpdatedAt = Date()
+        save()
+    }
+
     private func tick() async {
         guard isEnabled else {
             logger.debug("CodingMetrics: disabled, skipping tick")
@@ -97,19 +123,27 @@ final class CodingMetricsService: ObservableObject {
         }
 
         let delta = calculateDelta(now: now)
-        let projectPaths = loadProjectPaths()
+        let watchedProjects = loadWatchedProjects()
 
-        logger.debug("CodingMetrics tick: app=\(app.name), bundle=\(app.bundleIdentifier ?? "nil"), delta=\(delta)s, projectPaths=\(projectPaths.count)")
+        logger.debug("CodingMetrics tick: app=\(app.name), bundle=\(app.bundleIdentifier ?? "nil"), delta=\(delta)s, watchedProjects=\(watchedProjects.count)")
 
-        let project = ActiveProjectDetector.detectProject(from: projectPaths)
+        let project: WatchedProject?
+        let activeInfo: ActiveProjectInfo?
+
+        if let activeProject = ActiveProjectDetector.detectProject(from: watchedProjects.map(\.path)) {
+            activeInfo = activeProject
+            project = watchedProjects.first(where: { $0.path == activeProject.path })
+        } else {
+            activeInfo = nil
+            project = nil
+        }
 
         let changedFiles: [String]
         let loc: LOCSummary
 
         if let project {
-            async let changedFilesTask = GitLOCTracker.changedFiles(projectPath: project.path)
-            async let locTask = GitLOCTracker.totalLOCToday(projectPath: project.path)
-            (changedFiles, loc) = await (changedFilesTask, locTask)
+            changedFiles = gitLOCTracker.changedFiles(for: project)
+            loc = gitLOCTracker.totalLOC(for: project)
         } else {
             changedFiles = []
             loc = .empty
@@ -119,20 +153,19 @@ final class CodingMetricsService: ObservableObject {
             fromChangedFiles: changedFiles
         )
 
-        logger.debug("CodingMetrics git result: project=\(project?.name ?? "nil"), language=\(topLanguage ?? "nil"), files=\(changedFiles.count), loc=+\(loc.linesAdded)/-\(loc.linesDeleted)")
+        logger.debug("CodingMetrics git result: project=\(activeInfo?.name ?? "nil"), language=\(topLanguage ?? "nil"), files=\(changedFiles.count), loc=+\(loc.linesAdded)/-\(loc.linesDeleted) status=\(loc.status.title)")
 
         if delta > 0 {
             updateSnapshot(
                 delta: delta,
                 app: app,
-                project: project,
+                project: activeInfo,
                 topLanguage: topLanguage,
                 loc: loc
             )
-        } else if project != nil || topLanguage != nil || loc != .empty {
-            // First tick: update language/LOC/project even with delta=0
+        } else if project != nil || topLanguage != nil || loc.status != .unknown {
             snapshot.topEditor = app.name
-            snapshot.topProject = project?.name ?? snapshot.topProject
+            snapshot.topProject = activeInfo?.name ?? snapshot.topProject
             snapshot.topLanguage = topLanguage ?? snapshot.topLanguage
             snapshot.locToday = loc
             snapshot.lastUpdatedAt = Date()
@@ -249,12 +282,13 @@ final class CodingMetricsService: ObservableObject {
         lastTickAt = nil
     }
 
-    private func loadProjectPaths() -> [String] {
+    private func loadWatchedProjects() -> [WatchedProject] {
         storage.load(
-            [String].self,
-            forKey: MiloStorageKeys.localProjectPaths,
+            [WatchedProject].self,
+            forKey: MiloStorageKeys.watchedProjects,
             defaultValue: []
         )
+        .filter(\.isEnabled)
     }
 
     private var isEnabled: Bool {

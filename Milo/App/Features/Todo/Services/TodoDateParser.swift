@@ -70,7 +70,7 @@ struct TodoDateParser {
         _ input: String, _ now: Date, _ calendar: Calendar
     ) -> TodoDateParseResult? {
         let lower = input.lowercased()
-        let pattern = #"(.*?)\s+in\s+(\d+)\s*(m|min|mins|minute|minutes)\s*(.*)"#
+        let pattern = #"(.*?)\s+in\s+(\d+)\s*(minutes|minute|mins|min|m)\s*(.*)"#
         guard let match = firstMatch(pattern: pattern, in: lower),
               let before = group(1, from: match, in: input),
               let numText = group(2, from: match, in: lower),
@@ -88,7 +88,7 @@ struct TodoDateParser {
         _ input: String, _ now: Date, _ calendar: Calendar
     ) -> TodoDateParseResult? {
         let lower = input.lowercased()
-        let pattern = #"(.*?)\s+in\s+(\d+)\s*(h|hr|hrs|hour|hours)\s*(.*)"#
+        let pattern = #"(.*?)\s+in\s+(\d+)\s*(hours|hour|hrs|hr|h)\s*(.*)"#
         guard let match = firstMatch(pattern: pattern, in: lower),
               let before = group(1, from: match, in: input),
               let numText = group(2, from: match, in: lower),
@@ -339,7 +339,7 @@ struct TodoDateParser {
         _ input: String, _ now: Date, _ calendar: Calendar
     ) -> TodoDateParseResult? {
         let lower = input.lowercased()
-        let pattern = #"(.*?)\s+dalam\s+(\d+)\s*(m|menit|min|mins|minute|minutes)\s*(.*)"#
+        let pattern = #"(.*?)\s+dalam\s+(\d+)\s*(minutes|minute|mins|min|menit|m)\s*(.*)"#
         guard let match = firstMatch(pattern: pattern, in: lower),
               let before = group(1, from: match, in: input),
               let numText = group(2, from: match, in: lower),
@@ -357,7 +357,7 @@ struct TodoDateParser {
         _ input: String, _ now: Date, _ calendar: Calendar
     ) -> TodoDateParseResult? {
         let lower = input.lowercased()
-        let pattern = #"(.*?)\s+dalam\s+(\d+)\s*(j|jam|h|hr|hrs|hour|hours)\s*(.*)"#
+        let pattern = #"(.*?)\s+dalam\s+(\d+)\s*(hours|hour|hrs|hr|jam|j|h)\s*(.*)"#
         guard let match = firstMatch(pattern: pattern, in: lower),
               let before = group(1, from: match, in: input),
               let numText = group(2, from: match, in: lower),
@@ -375,7 +375,7 @@ struct TodoDateParser {
         _ input: String, _ now: Date, _ calendar: Calendar
     ) -> TodoDateParseResult? {
         let lower = input.lowercased()
-        let pattern = #"(.*?)\s+(\d+)\s+(m|menit|min|mins|minute|minutes)\s+lagi\s*(.*)"#
+        let pattern = #"(.*?)\s+(\d+)\s+(minutes|minute|mins|min|menit|m)\s+lagi\s*(.*)"#
         guard let match = firstMatch(pattern: pattern, in: lower),
               let before = group(1, from: match, in: input),
               let numText = group(2, from: match, in: lower),
@@ -393,7 +393,7 @@ struct TodoDateParser {
         _ input: String, _ now: Date, _ calendar: Calendar
     ) -> TodoDateParseResult? {
         let lower = input.lowercased()
-        let pattern = #"(.*?)\s+(\d+)\s+(j|jam|h|hr|hrs|hour|hours)\s+lagi\s*(.*)"#
+        let pattern = #"(.*?)\s+(\d+)\s+(hours|hour|hrs|hr|jam|j|h)\s+lagi\s*(.*)"#
         guard let match = firstMatch(pattern: pattern, in: lower),
               let before = group(1, from: match, in: input),
               let numText = group(2, from: match, in: lower),

@@ -11,69 +11,47 @@ struct CodingMetricsSettingsView: View {
     @AppStorage(MiloStorageKeys.codingMetricsEnabled) private var metricsEnabled = true
     @AppStorage(MiloStorageKeys.codingMetricsShowBadge) private var showBadge = true
 
-    @State private var projectPaths: [String] = []
+    var onOpenFileWatcherSettings: () -> Void = {}
 
     var body: some View {
-        Form {
-            Section {
-                Toggle("Enable Coding Metrics", isOn: $metricsEnabled)
-                Toggle("Show Metrics Badge Under MILO", isOn: $showBadge)
-            }
-
-            Section("WakaTime Connection") {
-                WakaTimeConnectionView()
-                    .padding(-18)
-            }
-
-            Section("Project Folders") {
-                List(projectPaths, id: \.self) { path in
-                    HStack {
-                        Text(path)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                        Spacer()
-                        Button("Remove") {
-                            projectPaths.removeAll { $0 == path }
-                            saveProjectPaths()
-                        }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Form {
+                    Section {
+                        Toggle("Enable Coding Metrics", isOn: $metricsEnabled)
+                        Toggle("Show Metrics Badge Under MILO", isOn: $showBadge)
                     }
                 }
+                .formStyle(.grouped)
 
-                Button("Add Project Folder") {
-                    selectProjectFolder()
+                Form {
+                    Section("LOC Tracking") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Project folders are managed in File Watcher Settings.", systemImage: "folder.badge.gearshape")
+                                .font(.system(size: 13))
+                                .foregroundStyle(.secondary)
+
+                            Label("LOC tracking uses Git. Install Git CLI tools and make sure your project folder is a Git repository.", systemImage: "info.circle")
+                                .font(.system(size: 12))
+                                .foregroundStyle(.secondary)
+
+                            Button("Open File Watcher Settings") {
+                                onOpenFileWatcherSettings()
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
-            }
-        }
-        .formStyle(.grouped)
-        .padding()
-        .onAppear {
-            loadProjectPaths()
-        }
-    }
+                .formStyle(.grouped)
 
-    private func loadProjectPaths() {
-        projectPaths = MiloLocalStorageService.shared.load(
-            [String].self,
-            forKey: MiloStorageKeys.localProjectPaths,
-            defaultValue: []
-        )
-    }
+                Text("WakaTime Connection")
+                    .font(.system(size: 13, weight: .semibold))
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
 
-    private func saveProjectPaths() {
-        MiloLocalStorageService.shared.save(projectPaths, forKey: MiloStorageKeys.localProjectPaths)
-    }
-
-    private func selectProjectFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        panel.begin { result in
-            guard result == .OK, let url = panel.url else { return }
-            let path = url.path
-            if !projectPaths.contains(path) {
-                projectPaths.append(path)
-                saveProjectPaths()
+                WakaTimeConnectionView()
             }
         }
     }
