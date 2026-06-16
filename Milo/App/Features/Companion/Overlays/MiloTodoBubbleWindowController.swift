@@ -36,6 +36,7 @@ private struct MiloTodoBubbleWrapperView: View {
                 onDone: onDone,
                 onOpenTodoList: onOpenTodoList
             )
+            .environment(\.controlActiveState, .active)
             .frame(width: 280, height: 110)
         } else {
             Color.clear.frame(width: 280, height: 110)

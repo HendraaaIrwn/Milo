@@ -46,6 +46,7 @@ private struct MiloReminderBubbleWrapperView: View {
                 onSnooze15: onSnooze15,
                 onReschedule: onReschedule
             )
+            .environment(\.controlActiveState, .active)
             .frame(width: 320, height: 130)
         } else {
             Color.clear.frame(width: 320, height: 130)

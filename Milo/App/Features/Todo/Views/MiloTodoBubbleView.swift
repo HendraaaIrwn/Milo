@@ -30,7 +30,7 @@ struct MiloTodoBubbleView: View {
                         .tint(.green)
                     Button("Open List") { onOpenTodoList() }
                         .buttonStyle(.borderedProminent)
-                        .tint(.cyan)
+                        .tint(.yellow)
                 }
             .font(.system(size: 10, weight: .semibold, design: .rounded))
         }
