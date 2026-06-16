@@ -26,8 +26,15 @@ final class MiloStateStore: ObservableObject {
     @Published var activeTodoBubble: MiloTodo?
     @Published var shouldShowTodoBubble: Bool = false
     @Published var activeTodoCount: Int = 0
+    @Published var isContextMenuOpen: Bool = false
+
+    func setContextMenuOpen(_ isOpen: Bool) {
+        isContextMenuOpen = isOpen
+    }
 
     func setTyping(intensity: TypingIntensity) {
+        guard !isContextMenuOpen else { return }
+
         let wasTyping = isTyping
 
         isTyping = true
@@ -42,6 +49,8 @@ final class MiloStateStore: ObservableObject {
     }
 
     func setIdle() {
+        guard !isContextMenuOpen else { return }
+
         isTyping = false
         typingIntensity = .inactive
         typingStartedAt = nil
@@ -51,6 +60,8 @@ final class MiloStateStore: ObservableObject {
     }
 
     func showTypingBubble(_ text: String) {
+        guard !isContextMenuOpen else { return }
+
         typingBubbleText = text
         shouldShowTypingBubble = true
     }

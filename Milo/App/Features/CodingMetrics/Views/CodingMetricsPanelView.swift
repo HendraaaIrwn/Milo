@@ -6,108 +6,142 @@
 import SwiftUI
 
 struct CodingMetricsPanelView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     @ObservedObject var coordinator: CodingMetricsCoordinator
     @ObservedObject var service: CodingMetricsService
+
+    var onOpenWeeklySummary: () -> Void = {}
+    var onOpenFileWatcherSettings: () -> Void = {}
 
     private var snapshot: CodingMetricsSnapshot {
         service.snapshot
     }
 
+    private var hasWakaTime: Bool {
+        coordinator.wakaTimeSummary != nil
+    }
+
+    private var isTracking: Bool {
+        snapshot.currentSessionSeconds > 0
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Text("Coding Metrics")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                    
-                    Spacer()
-                    
-                    Text(coordinator.sourceLabel)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(.green.opacity(0.12))
-                        .clipShape(Capsule())
+        MiloPanelScaffoldView(
+            title: "Coding Metrics",
+            subtitle: "Track local coding activity, editor usage, project time, and LOC.",
+            systemImage: "chart.bar.xaxis",
+            primaryActionTitle: "Weekly Summary",
+            primaryActionSystemImage: "calendar.badge.clock",
+            primaryAction: onOpenWeeklySummary
+        ) {
+            MiloPanelCardView(
+                title: "Today Overview",
+                subtitle: "Your active coding snapshot for today.",
+                trailing: AnyView(
+                    MiloStatusPillView(
+                        title: hasWakaTime ? "Local + WakaTime" : "Local",
+                        systemImage: "circle.fill",
+                        tone: hasWakaTime ? .success : .neutral
+                    )
+                )
+            ) {
+                LazyVGrid(columns: metricColumns, spacing: 16) {
+                    MiloMetricCardView(title: "Coding Today", value: formatSeconds(snapshot.codingSecondsToday), systemImage: "clock")
+                    MiloMetricCardView(title: "Session", value: formatSeconds(snapshot.currentSessionSeconds), systemImage: "timer")
+                    MiloMetricCardView(title: "Top Editor", value: snapshot.topEditor ?? "-", systemImage: "macwindow")
+                    MiloMetricCardView(title: "Top Project", value: snapshot.topProject ?? "-", systemImage: "folder")
+                    MiloMetricCardView(title: "Top Language", value: snapshot.topLanguage ?? "-", systemImage: "chevron.left.forwardslash.chevron.right")
+                    MiloMetricCardView(title: "LOC Net", value: "\(snapshot.locToday.netLines)", systemImage: "plus.forwardslash.minus")
                 }
-                
-                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10 ) {
-                    GridRow {
-                        metricCard("Coding Today", formatSeconds(snapshot.codingSecondsToday))
-                        metricCard("Session", formatSeconds(snapshot.currentSessionSeconds))
-                    }
-                    
-                    GridRow {
-                        metricCard("Top Language", snapshot.topLanguage ?? "-")
-                        metricCard("Top Project", snapshot.topProject ?? "-")
-                    }
-                    
-                    GridRow {
-                        metricCard("Top Editor", snapshot.topEditor ?? "-")
-                        metricCard("LOC", "+\(snapshot.locToday.linesAdded) / -\(snapshot.locToday.linesDeleted)")
-                    }
+            }
+
+            MiloPanelCardView(
+                title: "Lines of Code",
+                subtitle: "Git-based added, deleted, and net line changes."
+            ) {
+                HStack(spacing: 14) {
+                    MiloStatusPillView(title: "+\(snapshot.locToday.linesAdded)", systemImage: "plus.circle.fill", tone: .success)
+                    MiloStatusPillView(title: "-\(snapshot.locToday.linesDeleted)", systemImage: "minus.circle.fill", tone: .danger)
+                    MiloStatusPillView(title: "Net \(snapshot.locToday.netLines)", systemImage: "equal.circle.fill", tone: .info)
                 }
-                
-                Divider()
-                
-                LOCSummaryView(loc: snapshot.locToday)
-                
+            }
+
+            MiloPanelCardView(
+                title: "WakaTime",
+                subtitle: "Optional external enrichment. Local metrics still work without it.",
+                trailing: AnyView(
+                    MiloStatusPillView(
+                        title: hasWakaTime ? "Connected" : "Not Connected",
+                        systemImage: "circle.fill",
+                        tone: hasWakaTime ? .success : .warning
+                    )
+                )
+            ) {
                 if let waka = coordinator.wakaTimeSummary {
-                    Divider()
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("WakaTime Today")
-                            .font(.headline)
-                        
-                        Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
-                            GridRow {
-                                metricCard("Time", formatSeconds(waka.totalSeconds))
-                                metricCard("Top Language", waka.topLanguage ?? "-")
-                            }
-                            
-                            GridRow {
-                                metricCard("Top Project", waka.topProject ?? "-")
-                                metricCard("Top Editor", topEditor(from: waka.editorUsage) ?? "-")
-                            }
-                        }
+                    LazyVGrid(columns: metricColumnsWaka, spacing: 16) {
+                        MiloMetricCardView(title: "Time", value: formatSeconds(waka.totalSeconds), systemImage: "clock.badge.checkmark")
+                        MiloMetricCardView(title: "Top Language", value: waka.topLanguage ?? "-", systemImage: "chevron.left.forwardslash.chevron.right")
+                        MiloMetricCardView(title: "Top Project", value: waka.topProject ?? "-", systemImage: "folder.fill")
+                        MiloMetricCardView(title: "Top Editor", value: topEditor(from: waka.editorUsage) ?? "-", systemImage: "macwindow")
                     }
+                } else {
+                    MiloEmptyStateView(
+                        systemImage: "bolt.horizontal.circle",
+                        title: "WakaTime not connected",
+                        message: "Connect WakaTime from settings when you want external coding summaries. MILO keeps local metrics working without it.",
+                        buttonTitle: "Refresh WakaTime",
+                        buttonSystemImage: "arrow.clockwise",
+                        action: coordinator.refreshWakaTime
+                    )
                 }
-                
-                HStack {
+            }
+
+            MiloPanelCardView(
+                title: "Quick Actions",
+                subtitle: "Manage local metrics and project activity."
+            ) {
+                HStack(spacing: 12) {
                     Button("Refresh WakaTime") {
                         coordinator.refreshWakaTime()
                     }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.blue)
                     
+
+                    Button("File Watcher") {
+                        onOpenFileWatcherSettings()
+                    }
+
+                    Spacer()
+
                     Button("Reset Local Stats", role: .destructive) {
                         coordinator.localMetricsService.resetLocalStats()
                     }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
                 }
-                
-                Spacer()
             }
+        } footer: {
+            MiloPanelFooterView(
+                message: "Local coding metrics stay on your Mac.",
+                statusTitle: isTracking ? "Tracking" : coordinator.sourceLabel,
+                statusTone: isTracking ? .success : .neutral
+            )
         }
-            .padding(18)
-            .frame(width: 520, height: 480)
     }
 
-    private func metricCard(_ title: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-//                .foregroundStyle(.black)
-
-            Text(value)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-//                .foregroundStyle(.black)
-                .lineLimit(1)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(colorScheme == .dark ? Color(red: 0.231, green: 0.231, blue: 0.231) : .white)
-        )
+    private var metricColumns: [GridItem] {
+        [
+            GridItem(.flexible(), spacing: 16),
+            GridItem(.flexible(), spacing: 16),
+            GridItem(.flexible(), spacing: 16)
+        ]
+    }
+    
+    private var metricColumnsWaka: [GridItem] {
+        [
+            GridItem(.flexible(), spacing: 16),
+            GridItem(.flexible(), spacing: 16),
+        ]
     }
 
     private func topEditor(from usage: [String: Int]) -> String? {

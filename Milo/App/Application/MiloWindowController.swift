@@ -20,6 +20,7 @@ final class MiloWindowController {
     private let todoSchedulerService: TodoSchedulerService
     private let pomodoroService: PomodoroService
     private let codingMetricsCoordinator: CodingMetricsCoordinator
+    private let fileWatcherService: ProjectFileWatcherService
     private var petPanel: FloatingPetPanel?
     private var stateCancellable: AnyCancellable?
     private var chatReminderWindow: NSWindow?
@@ -27,8 +28,38 @@ final class MiloWindowController {
     private var rescheduleWindow: NSWindow?
     private var todoWindow: NSWindow?
     private var todoEditorWindow: NSWindow?
-    private var pomodoroSettingsWindow: NSWindow?
     private var codingMetricsWindow: NSWindow?
+    private var weeklyCodingSummaryWindow: NSWindow?
+    private lazy var fileWatcherSettingsWindowController = FileWatcherSettingsWindowController(
+        fileWatcherService: fileWatcherService
+    )
+    private lazy var settingsWindowController = SettingsWindowController(
+        dependencies: SettingsDependencies(
+            reminderService: reminderService,
+            todoService: todoService,
+            pomodoroService: pomodoroService,
+            codingMetricsCoordinator: codingMetricsCoordinator,
+            fileWatcherService: fileWatcherService
+        )
+    )
+    private(set) lazy var panelRouter = MiloPanelRouter(
+        dependencies: MiloPanelDependencies(
+            miloStateStore: stateStore,
+            reminderService: reminderService,
+            reminderHistoryService: reminderHistoryService,
+            reminderSchedulerService: reminderSchedulerService,
+            todoService: todoService,
+            todoSchedulerService: todoSchedulerService,
+            pomodoroService: pomodoroService,
+            codingMetricsCoordinator: codingMetricsCoordinator,
+            showBubble: { [weak self] text in self?.showBubble(text) }
+        )
+    )
+    private lazy var contextMenuController = MiloContextMenuController(
+        panelRouter: panelRouter,
+        miloStateStore: stateStore,
+        pomodoroService: pomodoroService
+    )
 
     init(
         stateStore: MiloStateStore,
@@ -38,7 +69,8 @@ final class MiloWindowController {
         todoService: TodoService,
         todoSchedulerService: TodoSchedulerService,
         pomodoroService: PomodoroService,
-        codingMetricsCoordinator: CodingMetricsCoordinator
+        codingMetricsCoordinator: CodingMetricsCoordinator,
+        fileWatcherService: ProjectFileWatcherService
     ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
@@ -48,10 +80,14 @@ final class MiloWindowController {
         self.todoSchedulerService = todoSchedulerService
         self.pomodoroService = pomodoroService
         self.codingMetricsCoordinator = codingMetricsCoordinator
+        self.fileWatcherService = fileWatcherService
         observeStateStore(stateStore)
     }
 
     func showMilo() {
+        panelRouter.onOpenSettings = { [weak self] in self?.openSettings() }
+        panelRouter.onHideMilo = { [weak self] in self?.hideMilo() }
+
         if let petPanel {
             petPanel.orderFrontRegardless()
             stateStore.isMiloVisible = true
@@ -69,6 +105,8 @@ final class MiloWindowController {
         panel.level = .floating
         panel.backgroundColor = .clear
         panel.isOpaque = false
+        panel.ignoresMouseEvents = false
+        print("MILO ignoresMouseEvents:", panel.ignoresMouseEvents)
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
         panel.isMovableByWindowBackground = true
@@ -89,14 +127,48 @@ final class MiloWindowController {
                 stateStore: stateStore,
                 pomodoroService: pomodoroService,
                 codingMetricsCoordinator: codingMetricsCoordinator,
+                contextMenuController: contextMenuController,
                 onAddReminder: { [weak self] in
-                    self?.openReminderEntry(source: .rightClick)
+                    self?.panelRouter.openAddReminder()
                 },
-                onChatReminder: { [weak self] in
-                    self?.openChatReminder()
+                onChatCommand: { [weak self] in
+                    self?.panelRouter.openChatCommand()
                 },
                 onOpenReminderHistory: { [weak self] in
-                    self?.openReminderHistory()
+                    self?.panelRouter.openReminderHistory()
+                },
+                onOpenTodoList: { [weak self] in
+                    self?.panelRouter.openTodoList()
+                },
+                onTodoOverdueDone: { [weak self] todo in
+                    self?.todoSchedulerService.markDone(todo)
+                },
+                onAddTodo: { [weak self] in
+                    self?.panelRouter.openAddTodo()
+                },
+                onStartPomodoro: { [weak self] preset in
+                    self?.startPomodoro(preset)
+                },
+                onPausePomodoro: { [weak self] in
+                    self?.pomodoroService.pause()
+                },
+                onResumePomodoro: { [weak self] in
+                    self?.pomodoroService.resume()
+                },
+                onResetPomodoro: { [weak self] in
+                    self?.pomodoroService.reset()
+                },
+                onOpenPomodoroSettings: { [weak self] in
+                    self?.panelRouter.openPomodoroSettings()
+                },
+                onOpenCodingMetrics: { [weak self] in
+                    self?.panelRouter.openCodingMetrics()
+                },
+                onOpenWeeklyCodingSummary: { [weak self] in
+                    self?.panelRouter.openWeeklyCodingSummary()
+                },
+                onOpenSettings: { [weak self] in
+                    self?.openSettings()
                 },
                 onHideMilo: { [weak self] in
                     self?.hideMilo()
@@ -114,36 +186,6 @@ final class MiloWindowController {
                 },
                 onReminderReschedule: { [weak self] reminder in
                     self?.openRescheduleReminder(reminder)
-                },
-                onTodoOpenList: { [weak self] in
-                    self?.openTodoList()
-                },
-                onTodoOverdueDone: { [weak self] todo in
-                    self?.todoSchedulerService.markDone(todo)
-                },
-                onAddTodo: { [weak self] in
-                    self?.openTodoEditor()
-                },
-                onStartPomodoro: { [weak self] preset in
-                    self?.startPomodoro(preset)
-                },
-                onPausePomodoro: { [weak self] in
-                    self?.pomodoroService.pause()
-                },
-                onResumePomodoro: { [weak self] in
-                    self?.pomodoroService.resume()
-                },
-                onResetPomodoro: { [weak self] in
-                    self?.pomodoroService.reset()
-                },
-                onOpenPomodoroSettings: { [weak self] in
-                    self?.openPomodoroSettings()
-                },
-                onOpenCodingMetrics: { [weak self] in
-                    self?.openCodingMetricsPanel()
-                },
-                onResetCodingMetrics: { [weak self] in
-                    self?.codingMetricsCoordinator.localMetricsService.resetLocalStats()
                 }
             )
                 .frame(width: size.width, height: size.height)
@@ -317,29 +359,7 @@ final class MiloWindowController {
     }
 
     func openPomodoroSettings() {
-        if let pomodoroSettingsWindow {
-            NSApp.activate(ignoringOtherApps: true)
-            pomodoroSettingsWindow.makeKeyAndOrderFront(nil)
-            return
-        }
-
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 500),
-            styleMask: [.titled, .closable, .miniaturizable],
-            backing: .buffered,
-            defer: false
-        )
-
-        window.title = "MILO Pomodoro"
-        window.isReleasedWhenClosed = false
-        window.center()
-        window.contentViewController = NSHostingController(
-            rootView: PomodoroSettingsView(pomodoroService: pomodoroService)
-        )
-
-        pomodoroSettingsWindow = window
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
+        panelRouter.openPomodoroSettings()
     }
 
     func openCodingMetricsPanel() {
@@ -362,13 +382,61 @@ final class MiloWindowController {
         window.contentViewController = NSHostingController(
             rootView: CodingMetricsPanelView(
                 coordinator: codingMetricsCoordinator,
-                service: codingMetricsCoordinator.localMetricsService
+                service: codingMetricsCoordinator.localMetricsService,
+                onOpenWeeklySummary: { [weak self] in
+                    self?.openWeeklyCodingSummary()
+                },
+                onOpenFileWatcherSettings: { [weak self] in
+                    self?.openFileWatcherSettings()
+                }
             )
         )
 
         codingMetricsWindow = window
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+    }
+
+    func openWeeklyCodingSummary() {
+        if let weeklyCodingSummaryWindow {
+            NSApp.activate(ignoringOtherApps: true)
+            weeklyCodingSummaryWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 620),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = "MILO Weekly Coding Summary"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentViewController = NSHostingController(
+            rootView: WeeklyCodingSummaryView(
+                weeklyService: codingMetricsCoordinator.weeklyMetricsService
+            )
+        )
+
+        weeklyCodingSummaryWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+
+        // Show bubble summary
+        let total = codingMetricsCoordinator.weeklyMetricsService.weeklySummary.totalCodingSeconds
+        let topLanguage = codingMetricsCoordinator.weeklyMetricsService.weeklySummary.topLanguage ?? "your code"
+        let message = "This week: \(formatSeconds(total)) coding. Top language: \(topLanguage)."
+        showBubble(message)
+    }
+
+    func openFileWatcherSettings() {
+        fileWatcherSettingsWindowController.show()
+    }
+
+    func openSettings() {
+        settingsWindowController.show()
     }
 
     func openRescheduleReminder(_ reminder: MiloReminder) {
@@ -423,10 +491,13 @@ final class MiloWindowController {
         todoWindow = nil
         todoEditorWindow?.close()
         todoEditorWindow = nil
-        pomodoroSettingsWindow?.close()
-        pomodoroSettingsWindow = nil
+        codingMetricsWindow?.close()
+        codingMetricsWindow = nil
+        weeklyCodingSummaryWindow?.close()
+        weeklyCodingSummaryWindow = nil
         petPanel?.close()
         petPanel = nil
+        panelRouter.cleanup()
         stateStore.isMiloVisible = false
     }
 
@@ -441,7 +512,9 @@ final class MiloWindowController {
                 createdSource: .chat
             )
 
-            if parsed.shouldCreateReminder, let dueDate = parsed.dueDate {
+            // Always create a reminder when there's a due date — if user sets a deadline,
+            // they almost certainly want to be reminded.
+            if let dueDate = parsed.dueDate {
                 let reminder = reminderService.addReminder(
                     title: parsed.title,
                     message: parsed.title,
@@ -521,6 +594,17 @@ final class MiloWindowController {
             y: visibleFrame.midY - size.height * 0.5
         )
     }
+
+    private func formatSeconds(_ seconds: Int) -> String {
+        let hours = seconds / 3600
+        let minutes = (seconds % 3600) / 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        }
+
+        return "\(minutes)m"
+    }
 }
 
 final class FloatingPetPanel: NSPanel {
@@ -535,4 +619,3 @@ final class FloatingPetPanel: NSPanel {
 final class DraggableHostingView<Content: View>: NSHostingView<Content> {
     override var mouseDownCanMoveWindow: Bool { true }
 }
-

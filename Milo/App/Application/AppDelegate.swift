@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var todoSchedulerService: TodoSchedulerService?
     private var codingMetricsService: CodingMetricsService?
     private var codingMetricsCoordinator: CodingMetricsCoordinator?
+    private var projectFileWatcherService: ProjectFileWatcherService?
 
     private(set) var miloStateStore: MiloStateStore?
     private var keyboardActivityService: KeyboardActivityService?
@@ -55,10 +56,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             miloStateStore: stateStore
         )
         let codingMetricsService = CodingMetricsService(storage: .shared)
+        let weeklyCodingMetricsService = WeeklyCodingMetricsService(storage: .shared)
         let codingMetricsCoordinator = CodingMetricsCoordinator(
             localMetricsService: codingMetricsService,
+            weeklyMetricsService: weeklyCodingMetricsService,
             wakaTimeClient: WakaTimeClient()
         )
+
+        let fileWatcherService = ProjectFileWatcherService(storage: .shared, bookmarkStore: .shared)
+        self.projectFileWatcherService = fileWatcherService
+
+        fileWatcherService.onProjectActivity = { [weak codingMetricsService] activitySnapshot in
+            Task { @MainActor in
+                codingMetricsService?.applyProjectActivitySnapshot(activitySnapshot)
+            }
+        }
+
         let miloWindowController = MiloWindowController(
             stateStore: stateStore,
             reminderService: reminderService,
@@ -67,7 +80,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             todoService: todoService,
             todoSchedulerService: todoSchedulerService,
             pomodoroService: pomodoroService,
-            codingMetricsCoordinator: codingMetricsCoordinator
+            codingMetricsCoordinator: codingMetricsCoordinator,
+            fileWatcherService: fileWatcherService
         )
 
         pomodoroService.onFocusCompleted = { [weak stateStore, weak miloWindowController] in
@@ -97,11 +111,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.codingMetricsCoordinator = codingMetricsCoordinator
         self.menuBarController = MenuBarController(
             miloWindowController: miloWindowController,
+            panelRouter: miloWindowController.panelRouter,
             pomodoroService: pomodoroService,
             reminderHistoryService: reminderHistoryService,
             reminderService: reminderService,
             todoService: todoService,
-            codingMetricsCoordinator: codingMetricsCoordinator
+            codingMetricsCoordinator: codingMetricsCoordinator,
+            fileWatcherService: fileWatcherService
         )
 
         ReminderNotificationService.shared.requestAuthorizationIfNeeded()
@@ -109,6 +125,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         reminderSchedulerService.start()
         todoSchedulerService.start()
         codingMetricsCoordinator.start()
+        fileWatcherService.start()
 
         if UserDefaults.standard.object(forKey: MiloSettingsKeys.showMiloOnLaunch) as? Bool ?? true {
             miloWindowController.showMilo()
@@ -133,6 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         reminderSchedulerService?.stop()
         codingMetricsCoordinator?.stop()
         codingMetricsService?.save()
+        projectFileWatcherService?.stop()
         reminderHistoryService?.save()
         reminderService?.save()
         todoService?.save()

@@ -29,7 +29,7 @@ struct MiloChatInputView: View {
                 Text("remind me in 30 min to take a break")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("remind todo deploy jam 7 am")
+                Text("buat todo reminder untuk deploy jam 7 am")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 

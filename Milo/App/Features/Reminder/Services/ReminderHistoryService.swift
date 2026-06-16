@@ -36,6 +36,11 @@ final class ReminderHistoryService: ObservableObject {
         storage.save(events, forKey: MiloStorageKeys.reminderHistoryEvents)
     }
 
+    func clearHistory() {
+        events.removeAll()
+        save()
+    }
+
     func recordCreated(_ reminder: MiloReminder) {
         record(reminder, eventType: .created)
     }

@@ -64,6 +64,23 @@ final class CodingMetricsService: ObservableObject {
         save()
     }
 
+    func applyProjectActivitySnapshot(_ projectSnapshot: ProjectActivitySnapshot) {
+        snapshot.topProject = projectSnapshot.activeProjectName ?? snapshot.topProject
+        snapshot.topLanguage = projectSnapshot.topLanguageToday ?? snapshot.topLanguage
+        snapshot.locToday = projectSnapshot.locSummary
+        snapshot.lastUpdatedAt = Date()
+
+        if let name = projectSnapshot.activeProjectName {
+            currentSession.projectName = name
+        }
+
+        if let path = projectSnapshot.activeProjectPath {
+            currentSession.projectPath = path
+        }
+
+        save()
+    }
+
     private func tick() async {
         guard isEnabled else {
             logger.debug("CodingMetrics: disabled, skipping tick")
@@ -250,5 +267,56 @@ final class CodingMetricsService: ObservableObject {
 
     func save() {
         storage.save(snapshot, forKey: MiloStorageKeys.codingMetricsSnapshot)
+        saveTodayRecord()
+    }
+
+    private func saveTodayRecord() {
+        let todayKey = CodingMetricsSnapshot.makeDateKey(Date())
+
+        var records = storage.load(
+            [DailyCodingMetricsRecord].self,
+            forKey: MiloStorageKeys.dailyCodingMetricsRecords,
+            defaultValue: []
+        )
+
+        let record = DailyCodingMetricsRecord(
+            dateKey: todayKey,
+            date: Date(),
+            codingSeconds: snapshot.codingSecondsToday,
+            sessionCount: snapshot.sessions.count,
+            topLanguage: snapshot.topLanguage,
+            topProject: snapshot.topProject,
+            topEditor: snapshot.topEditor,
+            locSummary: snapshot.locToday,
+            languageSeconds: Dictionary(
+                uniqueKeysWithValues: snapshot.languageMetrics.map {
+                    ($0.language, $0.seconds)
+                }
+            ),
+            projectSeconds: Dictionary(
+                uniqueKeysWithValues: snapshot.projectMetrics.map {
+                    ($0.projectName, $0.seconds)
+                }
+            ),
+            editorSeconds: Dictionary(
+                uniqueKeysWithValues: snapshot.editorMetrics.map {
+                    ($0.editorName, $0.seconds)
+                }
+            ),
+            lastUpdatedAt: Date()
+        )
+
+        if let index = records.firstIndex(where: { $0.dateKey == todayKey }) {
+            records[index] = record
+        } else {
+            records.append(record)
+        }
+
+        records = records.sorted { $0.date > $1.date }
+
+        // Keep recent history only for MVP, e.g. 60 days.
+        records = Array(records.prefix(60))
+
+        storage.save(records, forKey: MiloStorageKeys.dailyCodingMetricsRecords)
     }
 }
