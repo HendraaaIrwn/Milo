@@ -23,8 +23,19 @@ enum MiloStorageKeys {
     static let codingMetricsSnapshot = "Milo.CodingMetrics.Snapshot"
     static let codingMetricsEnabled = "Milo.CodingMetrics.Enabled"
     static let codingMetricsShowBadge = "Milo.CodingMetrics.ShowBadge"
+    static let codingMetricsShowWeeklySummary = "Milo.CodingMetrics.ShowWeeklySummary"
     static let localProjectPaths = "Milo.CodingMetrics.ProjectPaths"
+    static let dailyCodingMetricsRecords = "Milo.CodingMetrics.DailyRecords"
+    static let weeklyCodingSummaryCache = "Milo.CodingMetrics.WeeklySummaryCache"
 
     // WakaTime
     static let wakaTimeEnabled = "Milo.WakaTime.Enabled"
+    static let wakaTimeLastTestedAt = "Milo.WakaTime.LastTestedAt"
+    static let wakaTimeLastConnectedUsername = "Milo.WakaTime.LastConnectedUsername"
+    static let wakaTimeLastConnectedEmail = "Milo.WakaTime.LastConnectedEmail"
+
+    // File Watcher
+    static let fileWatcherEnabled = "Milo.FileWatcher.Enabled"
+    static let watchedProjects = "Milo.FileWatcher.WatchedProjects"
+    static let projectActivitySnapshot = "Milo.FileWatcher.ProjectActivitySnapshot"
 }

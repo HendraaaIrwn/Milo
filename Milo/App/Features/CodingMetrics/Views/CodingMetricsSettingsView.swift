@@ -10,12 +10,8 @@ import SwiftUI
 struct CodingMetricsSettingsView: View {
     @AppStorage(MiloStorageKeys.codingMetricsEnabled) private var metricsEnabled = true
     @AppStorage(MiloStorageKeys.codingMetricsShowBadge) private var showBadge = true
-    @AppStorage(MiloStorageKeys.wakaTimeEnabled) private var wakaTimeEnabled = false
 
-    @State private var apiKey: String = ""
     @State private var projectPaths: [String] = []
-
-    private let client = WakaTimeClient()
 
     var body: some View {
         Form {
@@ -24,34 +20,9 @@ struct CodingMetricsSettingsView: View {
                 Toggle("Show Metrics Badge Under MILO", isOn: $showBadge)
             }
 
-            Section("WakaTime Integration") {
-                Toggle("Enable WakaTime", isOn: $wakaTimeEnabled)
-
-                SecureField("WakaTime API Key", text: $apiKey)
-
-                HStack {
-                    Button("Save API Key") {
-                        do {
-                            try client.saveAPIKey(apiKey)
-                            apiKey = ""
-                        } catch {
-                            // Silently fail; avoid logging sensitive data.
-                        }
-                    }
-
-                    Button("Remove API Key", role: .destructive) {
-                        client.deleteAPIKey()
-                        apiKey = ""
-                    }
-                }
-
-                Text("MILO uses local coding metrics even without a WakaTime API key.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Text("Your API key is stored in macOS Keychain, not UserDefaults.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            Section("WakaTime Connection") {
+                WakaTimeConnectionView()
+                    .padding(-18)
             }
 
             Section("Project Folders") {
@@ -77,7 +48,6 @@ struct CodingMetricsSettingsView: View {
         .padding()
         .onAppear {
             loadProjectPaths()
-            loadAPIKey()
         }
     }
 
@@ -91,10 +61,6 @@ struct CodingMetricsSettingsView: View {
 
     private func saveProjectPaths() {
         MiloLocalStorageService.shared.save(projectPaths, forKey: MiloStorageKeys.localProjectPaths)
-    }
-
-    private func loadAPIKey() {
-        apiKey = (try? client.loadAPIKey()) ?? ""
     }
 
     private func selectProjectFolder() {

@@ -30,6 +30,7 @@ final class TypingBubbleService {
     func handleTypingActivity(intensity: TypingIntensity) {
         guard UserDefaults.standard.object(forKey: MiloSettingsKeys.typingBubbleDialogs) as? Bool ?? true else { return }
         guard let miloStateStore else { return }
+        guard !miloStateStore.isContextMenuOpen else { return }
         guard miloStateStore.isTyping else { return }
         guard canShowBubble else { return }
 
@@ -49,6 +50,7 @@ final class TypingBubbleService {
 
         canShowBubble = true
         activeBubbleID = UUID()
+        guard !(miloStateStore?.isContextMenuOpen ?? false) else { return }
         miloStateStore?.hideTypingBubble()
     }
 
@@ -58,11 +60,13 @@ final class TypingBubbleService {
         hideBubbleTask = nil
         soundTask = nil
         activeBubbleID = UUID()
+        guard !(miloStateStore?.isContextMenuOpen ?? false) else { return }
         miloStateStore?.hideTypingBubble()
     }
 
     private func showBubble(for intensity: TypingIntensity) {
         guard let miloStateStore else { return }
+        guard !miloStateStore.isContextMenuOpen else { return }
 
         canShowBubble = false
         let line = MiloTypingDialogProvider.randomLine(for: intensity)
@@ -85,6 +89,7 @@ final class TypingBubbleService {
 
             await MainActor.run {
                 guard let self, let miloStateStore = self.miloStateStore else { return }
+                guard !miloStateStore.isContextMenuOpen else { return }
                 guard self.activeBubbleID == bubbleID else { return }
                 guard miloStateStore.isMiloVisible else { return }
                 guard miloStateStore.shouldShowTypingBubble else { return }
@@ -106,6 +111,7 @@ final class TypingBubbleService {
             await MainActor.run {
                 self?.soundTask?.cancel()
                 self?.soundTask = nil
+                guard !(self?.miloStateStore?.isContextMenuOpen ?? false) else { return }
                 self?.miloStateStore?.hideTypingBubble()
             }
         }

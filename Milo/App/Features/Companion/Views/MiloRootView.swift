@@ -15,16 +15,12 @@ struct MiloRootView: View {
     @ObservedObject var stateStore: MiloStateStore
     @ObservedObject var pomodoroService: PomodoroService
     @ObservedObject var codingMetricsCoordinator: CodingMetricsCoordinator
+    var contextMenuController: MiloContextMenuController?
 
     var onAddReminder: () -> Void = {}
-    var onChatReminder: () -> Void = {}
+    var onChatCommand: () -> Void = {}
     var onOpenReminderHistory: () -> Void = {}
-    var onHideMilo: () -> Void = {}
-    var onReminderDone: (MiloReminder) -> Void = { _ in }
-    var onReminderSnooze5: (MiloReminder) -> Void = { _ in }
-    var onReminderSnooze15: (MiloReminder) -> Void = { _ in }
-    var onReminderReschedule: (MiloReminder) -> Void = { _ in }
-    var onTodoOpenList: () -> Void = {}
+    var onOpenTodoList: () -> Void = {}
     var onTodoOverdueDone: (MiloTodo) -> Void = { _ in }
     var onAddTodo: () -> Void = {}
     var onStartPomodoro: (PomodoroPreset) -> Void = { _ in }
@@ -33,7 +29,13 @@ struct MiloRootView: View {
     var onResetPomodoro: () -> Void = {}
     var onOpenPomodoroSettings: () -> Void = {}
     var onOpenCodingMetrics: () -> Void = {}
-    var onResetCodingMetrics: () -> Void = {}
+    var onOpenWeeklyCodingSummary: () -> Void = {}
+    var onOpenSettings: () -> Void = {}
+    var onHideMilo: () -> Void = {}
+    var onReminderDone: (MiloReminder) -> Void = { _ in }
+    var onReminderSnooze5: (MiloReminder) -> Void = { _ in }
+    var onReminderSnooze15: (MiloReminder) -> Void = { _ in }
+    var onReminderReschedule: (MiloReminder) -> Void = { _ in }
 
     @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
     @AppStorage(MiloStorageKeys.pomodoroShowTimerBadge) private var showPomodoroBadge = true
@@ -50,29 +52,32 @@ struct MiloRootView: View {
                     .frame(height: 112, alignment: .bottom)
                     .zIndex(30)
 
-                MiloCharacter(
-                    mood: state.mood,
-                    mouseLocation: eyeFollowCursor ? mouseLocation : nil,
-                    characterFrame: characterFrame
-                )
-                .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
-                .background {
-                    GeometryReader { proxy in
-                        Color.clear.preference(
-                            key: MiloRootFramePreferenceKey.self,
-                            value: proxy.frame(in: .named("miloRoot"))
-                        )
-                    }
-                }
-                .contentShape(Rectangle())
-                .simultaneousGesture(
-                    TapGesture().onEnded {
-                        withAnimation(.spring(response: 0.22, dampingFraction: 0.78)) {
-                            showRandomReaction()
+                ZStack {
+                    MiloCharacter(
+                        mood: state.mood,
+                        mouseLocation: eyeFollowCursor && !stateStore.isContextMenuOpen ? mouseLocation : nil,
+                        characterFrame: characterFrame
+                    )
+                    .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
+                    .background {
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: MiloRootFramePreferenceKey.self,
+                                value: proxy.frame(in: .named("miloRoot"))
+                            )
                         }
                     }
-                )
-                .contextMenu { contextMenuContent }
+                    .allowsHitTesting(false)
+
+                    if let contextMenuController {
+                        MiloRightClickMenuRepresentable(
+                            contextMenuController: contextMenuController,
+                            onLeftClick: showRandomReaction
+                        )
+                        .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
+                    }
+                }
+                .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
 
                 if shouldShowPomodoroBadge {
                     MiloPomodoroTimerBadgeView(pomodoroService: pomodoroService)
@@ -104,8 +109,14 @@ struct MiloRootView: View {
         #if os(macOS)
         .overlay {
             TrackingMouseView(
-                onMove: { mouseLocation = $0 },
-                onExit: { mouseLocation = nil }
+                onMove: { point in
+                    guard !stateStore.isContextMenuOpen else { return }
+                    mouseLocation = point
+                },
+                onExit: {
+                    guard !stateStore.isContextMenuOpen else { return }
+                    mouseLocation = nil
+                }
             )
             .frame(width: Self.windowWidth, height: Self.windowHeight)
         }
@@ -115,40 +126,6 @@ struct MiloRootView: View {
                 TodoCountBadge(stateStore: stateStore)
             }
         }
-    }
-
-    @ViewBuilder
-    private var contextMenuContent: some View {
-        Menu("Start Pomodoro") {
-            Button("25/5") { onStartPomodoro(.short) }
-            Button("50/10") { onStartPomodoro(.medium) }
-            Button("90/15") { onStartPomodoro(.long) }
-            Button("Custom...") { onOpenPomodoroSettings() }
-        }
-
-        Button("Pause Pomodoro") { onPausePomodoro() }
-        Button("Resume Pomodoro") { onResumePomodoro() }
-        Button("Reset Pomodoro") { onResetPomodoro() }
-
-        Divider()
-
-        Button("Add Todo") { onAddTodo() }
-        Button("Todo List") { onTodoOpenList() }
-
-        Divider()
-
-        Button("Add Reminder") { onAddReminder() }
-        Button("Chat Reminder and Todo") { onChatReminder() }
-        Button("Reminder History") { onOpenReminderHistory() }
-
-        Divider()
-
-        Button("Coding Metrics") { onOpenCodingMetrics() }
-        Button("Reset Local Coding Stats") { onResetCodingMetrics() }
-
-        Divider()
-
-        Button("Hide Milo") { onHideMilo() }
     }
 
     private static var defaultCharacterFrame: CGRect {
@@ -180,7 +157,7 @@ struct MiloRootView: View {
             MiloTodoBubbleView(
                 todo: todo,
                 onDone: { onTodoOverdueDone(todo) },
-                onOpenTodoList: { onTodoOpenList() }
+                onOpenTodoList: { onOpenTodoList() }
             )
             .transition(.opacity)
         } else if let bubbleText {
@@ -218,7 +195,9 @@ struct MiloRootView: View {
 
     private func showRandomReaction() {
         let text = MiloReactionLineProvider.randomLine(excluding: state.reactionText)
-        state.showBubble(text)
+        withAnimation(.spring(response: 0.22, dampingFraction: 0.78)) {
+            state.showBubble(text)
+        }
     }
 }
 
@@ -253,7 +232,11 @@ private struct MiloRootFramePreferenceKey: PreferenceKey {
         state: MiloFloatingPetState(),
         stateStore: MiloStateStore(),
         pomodoroService: PomodoroService(),
-        codingMetricsCoordinator: CodingMetricsCoordinator(localMetricsService: CodingMetricsService())
+        codingMetricsCoordinator: CodingMetricsCoordinator(
+            localMetricsService: CodingMetricsService(storage: .shared),
+            weeklyMetricsService: WeeklyCodingMetricsService(storage: .shared),
+            wakaTimeClient: WakaTimeClient()
+        )
     )
 }
 #endif

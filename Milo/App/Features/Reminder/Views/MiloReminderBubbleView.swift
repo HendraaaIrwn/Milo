@@ -36,7 +36,7 @@ struct MiloReminderBubbleView: View {
                 }
                 .font(.system(size: 10, weight: .semibold, design: .rounded))
                 .controlSize(.small)
-                .buttonStyle(.glass)
+                .buttonStyle(.borderedProminent)
             }
             .foregroundStyle(.black.opacity(0.9))
             .padding(10)
@@ -59,7 +59,6 @@ struct MiloReminderBubbleView: View {
     }
 }
 
-//#if ENABLE_SWIFTUI_PREVIEWS
 #if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
     MiloReminderBubbleView(

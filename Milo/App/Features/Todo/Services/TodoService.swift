@@ -109,6 +109,11 @@ final class TodoService: ObservableObject {
         save()
     }
 
+    func clearCompletedTodos() {
+        todos.removeAll { $0.status == .done }
+        save()
+    }
+
     func attachReminder(todoID: UUID, reminderID: UUID) {
         guard let index = todos.firstIndex(where: { $0.id == todoID }) else { return }
 

@@ -14,15 +14,18 @@ final class CodingMetricsCoordinator: ObservableObject {
     @Published private(set) var sourceLabel: String = "Local"
 
     let localMetricsService: CodingMetricsService
+    let weeklyMetricsService: WeeklyCodingMetricsService
     private let wakaTimeClient: WakaTimeClient
 
     private var refreshTask: Task<Void, Never>?
 
     init(
         localMetricsService: CodingMetricsService,
+        weeklyMetricsService: WeeklyCodingMetricsService,
         wakaTimeClient: WakaTimeClient
     ) {
         self.localMetricsService = localMetricsService
+        self.weeklyMetricsService = weeklyMetricsService
         self.wakaTimeClient = wakaTimeClient
     }
 
