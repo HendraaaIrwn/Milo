@@ -41,7 +41,7 @@ struct CodingMetricsBadgeView: View {
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.92))
-                .shadow(color: .black.opacity(0.12), radius: 6, x: 0, y: 3)
+//                .shadow(color: .black.opacity(0.12), radius: 6, x: 0, y: 3)
         )
     }
 

@@ -12,19 +12,15 @@ struct WakaTimeConnectionView: View {
     @StateObject private var store = WakaTimeConnectionStore.shared
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                header
-                connectionCard
-                apiKeyForm
-                actionButtons
-                detailInfo
-                debugPanel
-                footerInfo
-            }
-            .padding(18)
+        VStack(alignment: .leading, spacing: 16) {
+            header
+            connectionCard
+            apiKeyForm
+            actionButtons
+            detailInfo
+            debugPanel
+            footerInfo
         }
-        .frame(minWidth: 460)
         .onAppear {
             store.refreshSavedKeyState()
             store.autoTestIfKeyExists()
@@ -54,6 +50,7 @@ struct WakaTimeConnectionView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(store.status.userMessage)
                         .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .fixedSize(horizontal: false, vertical: true)
                     if let lastTestedAt = store.lastTestedAt {
                         Text("Last tested: \(lastTestedAt.formatted(date: .abbreviated, time: .shortened))")
                             .font(.caption2).foregroundStyle(.secondary)
@@ -112,7 +109,7 @@ struct WakaTimeConnectionView: View {
     }
 
     private var actionButtons: some View {
-        HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             Button {
                 store.saveAndTest()
             } label: {
@@ -120,17 +117,18 @@ struct WakaTimeConnectionView: View {
                     if store.isTesting { ProgressView().scaleEffect(0.7) }
                     Text("Save & Test Connection")
                 }
+                .frame(maxWidth: 268)
             }
             .buttonStyle(.borderedProminent)
             .disabled(store.isTesting || store.apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
-            Button("Test Connection") { store.testConnection() }
-                .disabled(store.isTesting || !store.hasSavedAPIKey)
+            HStack(spacing: 8) {
+                Button("Test Connection") { store.testConnection() }
+                    .disabled(store.isTesting || !store.hasSavedAPIKey)
 
-            Spacer()
-
-            Button("Disconnect WakaTime", role: .destructive) { store.disconnect() }
-                .disabled(store.isTesting || !store.hasSavedAPIKey)
+                Button("Disconnect WakaTime", role: .destructive) { store.disconnect() }
+                    .disabled(store.isTesting || !store.hasSavedAPIKey)
+            }
         }
     }
 

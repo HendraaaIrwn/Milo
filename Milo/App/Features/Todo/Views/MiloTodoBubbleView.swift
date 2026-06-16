@@ -25,9 +25,13 @@ struct MiloTodoBubbleView: View {
                 .lineLimit(3)
 
             HStack(spacing: 6) {
-                Button("Done") { onDone() }
-                Button("Open List") { onOpenTodoList() }
-            }
+                    Button("Done") { onDone() }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.green)
+                    Button("Open List") { onOpenTodoList() }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.yellow)
+                }
             .font(.system(size: 10, weight: .semibold, design: .rounded))
         }
         .foregroundStyle(.white)

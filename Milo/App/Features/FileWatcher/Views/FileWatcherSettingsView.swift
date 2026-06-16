@@ -120,7 +120,10 @@ struct FileWatcherSettingsView: View {
                             onOpenInFinder: {
                                 NSWorkspace.shared.open(URL(fileURLWithPath: project.path))
                             },
-                            onRemove: { showingRemoveConfirmation = project }
+                            onRemove: { showingRemoveConfirmation = project },
+                            onCheckGit: {
+                                fileWatcherService.refreshGitStatus(for: project.id)
+                            }
                         )
                     }
                 }

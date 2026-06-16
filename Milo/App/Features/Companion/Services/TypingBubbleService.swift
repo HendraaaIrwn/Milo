@@ -17,7 +17,6 @@ final class TypingBubbleService {
 
     private var hideBubbleTask: Task<Void, Never>?
     private var cooldownTask: Task<Void, Never>?
-    private var soundTask: Task<Void, Never>?
 
     private var canShowBubble = true
     private var activeBubbleID = UUID()
@@ -43,10 +42,8 @@ final class TypingBubbleService {
     func handleTypingStopped() {
         hideBubbleTask?.cancel()
         cooldownTask?.cancel()
-        soundTask?.cancel()
         hideBubbleTask = nil
         cooldownTask = nil
-        soundTask = nil
 
         canShowBubble = true
         activeBubbleID = UUID()
@@ -56,9 +53,7 @@ final class TypingBubbleService {
 
     func handleTypingBubbleDisabled() {
         hideBubbleTask?.cancel()
-        soundTask?.cancel()
         hideBubbleTask = nil
-        soundTask = nil
         activeBubbleID = UUID()
         guard !(miloStateStore?.isContextMenuOpen ?? false) else { return }
         miloStateStore?.hideTypingBubble()
@@ -74,31 +69,9 @@ final class TypingBubbleService {
         activeBubbleID = bubbleID
 
         miloStateStore.showTypingBubble(line)
-        scheduleBubbleSound(line: line, bubbleID: bubbleID)
 
         scheduleBubbleHide()
         scheduleCooldown(for: intensity)
-    }
-
-    private func scheduleBubbleSound(line: String, bubbleID: UUID) {
-        soundTask?.cancel()
-
-        soundTask = Task { [weak self] in
-            await Task.yield()
-            guard !Task.isCancelled else { return }
-
-            await MainActor.run {
-                guard let self, let miloStateStore = self.miloStateStore else { return }
-                guard !miloStateStore.isContextMenuOpen else { return }
-                guard self.activeBubbleID == bubbleID else { return }
-                guard miloStateStore.isMiloVisible else { return }
-                guard miloStateStore.shouldShowTypingBubble else { return }
-                guard miloStateStore.typingBubbleText == line else { return }
-                guard !miloStateStore.shouldShowReminderBubble else { return }
-
-                MiloMumbleEngine.shared.speak(line)
-            }
-        }
     }
 
     private func scheduleBubbleHide() {
@@ -109,8 +82,6 @@ final class TypingBubbleService {
             guard !Task.isCancelled else { return }
 
             await MainActor.run {
-                self?.soundTask?.cancel()
-                self?.soundTask = nil
                 guard !(self?.miloStateStore?.isContextMenuOpen ?? false) else { return }
                 self?.miloStateStore?.hideTypingBubble()
             }
@@ -140,6 +111,5 @@ final class TypingBubbleService {
     deinit {
         hideBubbleTask?.cancel()
         cooldownTask?.cancel()
-        soundTask?.cancel()
     }
 }

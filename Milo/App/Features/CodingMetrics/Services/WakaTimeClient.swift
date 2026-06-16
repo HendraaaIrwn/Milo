@@ -224,7 +224,7 @@ final class WakaTimeClient: Sendable {
         else { return WakaTimeSummary(totalSeconds: 0, topLanguage: nil, topProject: nil, editorUsage: [:]) }
 
         let grandTotal = firstDay["grand_total"] as? [String: Any]
-        let totalSeconds = grandTotal?["total_seconds"] as? Int ?? 0
+        let totalSeconds = intSeconds(from: grandTotal?["total_seconds"])
         let languages = firstDay["languages"] as? [[String: Any]] ?? []
         let topLanguage = languages.first?["name"] as? String
         let projects = firstDay["projects"] as? [[String: Any]] ?? []
@@ -233,9 +233,16 @@ final class WakaTimeClient: Sendable {
         var editorUsage: [String: Int] = [:]
         for editor in editors {
             guard let name = editor["name"] as? String else { continue }
-            editorUsage[name] = editor["total_seconds"] as? Int ?? 0
+            editorUsage[name] = intSeconds(from: editor["total_seconds"])
         }
         return WakaTimeSummary(totalSeconds: totalSeconds, topLanguage: topLanguage, topProject: topProject, editorUsage: editorUsage)
+    }
+
+    private func intSeconds(from value: Any?) -> Int {
+        if let value = value as? Int { return value }
+        if let value = value as? Double { return Int(value.rounded()) }
+        if let value = value as? String, let seconds = Double(value) { return Int(seconds.rounded()) }
+        return 0
     }
 
     // MARK: - Auth

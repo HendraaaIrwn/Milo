@@ -50,20 +50,11 @@ struct CodingMetricsPanelView: View {
                     MiloMetricCardView(title: "Top Editor", value: snapshot.topEditor ?? "-", systemImage: "macwindow")
                     MiloMetricCardView(title: "Top Project", value: snapshot.topProject ?? "-", systemImage: "folder")
                     MiloMetricCardView(title: "Top Language", value: snapshot.topLanguage ?? "-", systemImage: "chevron.left.forwardslash.chevron.right")
-                    MiloMetricCardView(title: "LOC Net", value: "\(snapshot.locToday.netLines)", systemImage: "plus.forwardslash.minus")
+                    MiloMetricCardView(title: "LOC Net", value: locDisplayValue, systemImage: "plus.forwardslash.minus")
                 }
             }
 
-            MiloPanelCardView(
-                title: "Lines of Code",
-                subtitle: "Git-based added, deleted, and net line changes."
-            ) {
-                HStack(spacing: 14) {
-                    MiloStatusPillView(title: "+\(snapshot.locToday.linesAdded)", systemImage: "plus.circle.fill", tone: .success)
-                    MiloStatusPillView(title: "-\(snapshot.locToday.linesDeleted)", systemImage: "minus.circle.fill", tone: .danger)
-                    MiloStatusPillView(title: "Net \(snapshot.locToday.netLines)", systemImage: "equal.circle.fill", tone: .info)
-                }
-            }
+            gitLOCCard
 
             MiloPanelCardView(
                 title: "WakaTime",
@@ -105,7 +96,6 @@ struct CodingMetricsPanelView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.blue)
-                    
 
                     Button("File Watcher") {
                         onOpenFileWatcherSettings()
@@ -129,6 +119,137 @@ struct CodingMetricsPanelView: View {
         }
     }
 
+    private var locDisplayValue: String {
+        let loc = snapshot.locToday
+
+        switch loc.status {
+        case .ready:
+            return "\(loc.netLines)"
+        default:
+            return "-"
+        }
+    }
+
+    private var gitLOCCard: some View {
+        let loc = snapshot.locToday
+
+        return MiloPanelCardView(
+            title: "Git & LOC Tracking",
+            subtitle: locSubtitle(for: loc),
+            trailing: AnyView(
+                MiloStatusPillView(
+                    title: loc.status.title,
+                    systemImage: locStatusIcon(for: loc.status),
+                    tone: locStatusTone(for: loc.status)
+                )
+            )
+        ) {
+            switch loc.status {
+            case .ready:
+                HStack(spacing: 14) {
+                    MiloStatusPillView(title: "+\(loc.linesAdded)", systemImage: "plus.circle.fill", tone: .success)
+                    MiloStatusPillView(title: "-\(loc.linesDeleted)", systemImage: "minus.circle.fill", tone: .danger)
+                    MiloStatusPillView(title: "Net \(loc.netLines)", systemImage: "equal.circle.fill", tone: .info)
+                    if loc.filesChanged > 0 {
+                        MiloStatusPillView(title: "\(loc.filesChanged) files", systemImage: "doc.plaintext.fill", tone: .neutral)
+                    }
+                }
+
+            case .unknown:
+                MiloEmptyStateView(
+                    systemImage: "questionmark.folder.fill",
+                    title: "No LOC data yet",
+                    message: "Add a project folder in File Watcher Settings to enable local Git LOC tracking. Make sure the folder is a Git repository.",
+                    buttonTitle: "Open File Watcher Settings",
+                    buttonSystemImage: "folder.badge.gearshape",
+                    action: onOpenFileWatcherSettings
+                )
+
+            case .notGitRepository:
+                MILOLOCStatusMessageView(
+                    icon: "xmark.circle.fill",
+                    iconColor: .orange,
+                    title: "Not a Git Repository",
+                    message: "This folder is not a Git repository. LOC tracking requires Git. Initialize a Git repository or select a different project folder.",
+                    actionTitle: "File Watcher Settings",
+                    action: onOpenFileWatcherSettings
+                )
+
+            case .permissionDenied(let msg):
+                MILOLOCStatusMessageView(
+                    icon: "lock.trianglebadge.exclamationmark.fill",
+                    iconColor: .red,
+                    title: "Permission Denied",
+                    message: "MILO lost access to this folder. Re-add the project folder to refresh permission. \(msg)",
+                    actionTitle: "File Watcher Settings",
+                    action: onOpenFileWatcherSettings
+                )
+
+            case .gitUnavailable(let msg):
+                MILOLOCStatusMessageView(
+                    icon: "terminal.fill",
+                    iconColor: .red,
+                    title: "Git Unavailable",
+                    message: "MILO could not run Git. Make sure Git CLI tools are installed. \(msg)",
+                    actionTitle: "File Watcher Settings",
+                    action: onOpenFileWatcherSettings
+                )
+
+            case .gitError(let msg):
+                MILOLOCStatusMessageView(
+                    icon: "exclamationmark.triangle.fill",
+                    iconColor: .red,
+                    title: "Git Error",
+                    message: msg,
+                    actionTitle: "File Watcher Settings",
+                    action: onOpenFileWatcherSettings
+                )
+            }
+        }
+    }
+
+    private func locSubtitle(for loc: LOCSummary) -> String {
+        switch loc.status {
+        case .ready:
+            if let updatedAt = loc.lastUpdatedAt {
+                return "Last updated: \(updatedAt.formatted(date: .abbreviated, time: .shortened))"
+            }
+            return "Git-based added, deleted, and net line changes."
+        default:
+            return loc.status.message
+        }
+    }
+
+    private func locStatusTone(for status: LOCSummaryStatus) -> MiloStatusPillView.Tone {
+        switch status {
+        case .ready:
+            return .success
+        case .notGitRepository:
+            return .warning
+        case .permissionDenied, .gitUnavailable, .gitError:
+            return .danger
+        case .unknown:
+            return .neutral
+        }
+    }
+
+    private func locStatusIcon(for status: LOCSummaryStatus) -> String {
+        switch status {
+        case .ready:
+            return "checkmark.circle.fill"
+        case .notGitRepository:
+            return "xmark.circle"
+        case .permissionDenied:
+            return "lock.fill"
+        case .gitUnavailable:
+            return "terminal"
+        case .gitError:
+            return "exclamationmark.triangle"
+        case .unknown:
+            return "questionmark.circle"
+        }
+    }
+
     private var metricColumns: [GridItem] {
         [
             GridItem(.flexible(), spacing: 16),
@@ -136,7 +257,7 @@ struct CodingMetricsPanelView: View {
             GridItem(.flexible(), spacing: 16)
         ]
     }
-    
+
     private var metricColumnsWaka: [GridItem] {
         [
             GridItem(.flexible(), spacing: 16),
@@ -157,5 +278,45 @@ struct CodingMetricsPanelView: View {
         }
 
         return "\(minutes)m"
+    }
+}
+
+// MARK: - LOC Status Message View
+
+struct MILOLOCStatusMessageView: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let message: String
+    let actionTitle: String
+    let action: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(iconColor)
+
+                Text(title)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+            }
+
+            Text(message)
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button(actionTitle) {
+                action()
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.yellow.opacity(0.08))
+        )
     }
 }

@@ -30,6 +30,7 @@ struct MiloPomodoroTimerBadgeView: View {
             }
         }
         .frame(width: 112, height: 112)
+        .padding(20)
         .background(Color.clear)
         .accessibilityLabel("Pomodoro \(session.mode == .focus ? "Focus" : "Break") timer")
     }

@@ -17,6 +17,8 @@ struct WatchedProject: Codable, Identifiable, Equatable {
     var addedAt: Date
     var lastActivityAt: Date?
     var lastKnownTopLanguage: String?
+    var gitRepositoryInfo: GitRepositoryInfo?
+    var lastLOCSummary: LOCSummary?
 
     init(
         id: UUID = UUID(),
@@ -26,7 +28,9 @@ struct WatchedProject: Codable, Identifiable, Equatable {
         isEnabled: Bool = true,
         addedAt: Date = Date(),
         lastActivityAt: Date? = nil,
-        lastKnownTopLanguage: String? = nil
+        lastKnownTopLanguage: String? = nil,
+        gitRepositoryInfo: GitRepositoryInfo? = nil,
+        lastLOCSummary: LOCSummary? = nil
     ) {
         self.id = id
         self.name = name
@@ -36,5 +40,7 @@ struct WatchedProject: Codable, Identifiable, Equatable {
         self.addedAt = addedAt
         self.lastActivityAt = lastActivityAt
         self.lastKnownTopLanguage = lastKnownTopLanguage
+        self.gitRepositoryInfo = gitRepositoryInfo
+        self.lastLOCSummary = lastLOCSummary
     }
 }

@@ -2,8 +2,6 @@
 //  MiloFloatingPetView.swift
 //  Milo
 //
-//  Created by Hendra Irawan on 13/06/26.
-//
 
 import Combine
 import SwiftUI
@@ -43,28 +41,21 @@ final class MiloFloatingPetState: ObservableObject {
 
 struct MiloFloatingPetView: View {
     @ObservedObject var state: MiloFloatingPetState
-    @ObservedObject var stateStore: MiloStateStore
-    @ObservedObject var pomodoroService: PomodoroService
-    @ObservedObject var codingMetricsCoordinator: CodingMetricsCoordinator
 
     var body: some View {
         MiloRootView(
-            state: state,
-            stateStore: stateStore,
-            pomodoroService: pomodoroService,
-            codingMetricsCoordinator: codingMetricsCoordinator
+            mood: state.mood,
+            mouseLocation: nil,
+            characterFrame: CGRect(x: 0, y: 0, width: 160, height: 110),
+            contextMenuController: nil,
+            onLeftClick: {}
         )
     }
 }
 
 #if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
-    MiloFloatingPetView(
-        state: MiloFloatingPetState(),
-        stateStore: MiloStateStore(),
-        pomodoroService: PomodoroService(),
-        codingMetricsCoordinator: CodingMetricsCoordinator(localMetricsService: CodingMetricsService(storage: .shared))
-    )
+    MiloFloatingPetView(state: MiloFloatingPetState())
         .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
 }
 #endif

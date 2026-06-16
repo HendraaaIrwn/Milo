@@ -21,6 +21,7 @@ final class ProjectFileWatcherService: ObservableObject {
 
     private let storage: MiloLocalStorageService
     private let bookmarkStore: SecurityScopedBookmarkStore
+    private let gitLOCTracker: GitLOCTracker
     private let debouncer = FileEventDebouncer()
     private let logger = Logger(subsystem: "com.milo", category: "FileWatcher")
 
@@ -32,11 +33,13 @@ final class ProjectFileWatcherService: ObservableObject {
     var onFileEvents: (([ProjectFileEvent]) -> Void)?
 
     init(
-        storage: MiloLocalStorageService,
-        bookmarkStore: SecurityScopedBookmarkStore
+        storage: MiloLocalStorageService = .shared,
+        bookmarkStore: SecurityScopedBookmarkStore = .shared,
+        gitLOCTracker: GitLOCTracker = GitLOCTracker()
     ) {
         self.storage = storage
         self.bookmarkStore = bookmarkStore
+        self.gitLOCTracker = gitLOCTracker
         load()
     }
 
@@ -99,12 +102,21 @@ final class ProjectFileWatcherService: ObservableObject {
         do {
             let bookmark = try bookmarkStore.createBookmark(for: url)
 
-            let project = WatchedProject(
+            var project = WatchedProject(
                 name: url.lastPathComponent,
                 path: url.path,
                 bookmarkData: bookmark,
                 isEnabled: true
             )
+
+            let gitInfo = gitLOCTracker.detectRepository(for: project)
+            project.gitRepositoryInfo = gitInfo
+
+            if gitInfo.canTrackLOC {
+                project.lastLOCSummary = gitLOCTracker.totalLOC(for: project)
+            } else {
+                project.lastLOCSummary = LOCSummary.unavailable(gitInfoToUnavailable(gitInfo))
+            }
 
             watchedProjects.append(project)
             saveProjects()
@@ -112,7 +124,7 @@ final class ProjectFileWatcherService: ObservableObject {
             if isEnabled {
                 startWatching(project)
             }
-            logger.debug("Added project: \(project.name)")
+            logger.debug("Added project: \(project.name) git=\(gitInfo.status.title)")
         } catch {
             status = .error(message: "Could not add project folder.")
             logger.error("Failed to add project: \(error.localizedDescription)")
@@ -346,9 +358,20 @@ final class ProjectFileWatcherService: ObservableObject {
     private func handleDebouncedEvents(_ events: [ProjectFileEvent]) {
         guard let last = events.last else { return }
 
-        Task {
-            let loc = await GitLOCTracker.totalLOCToday(projectPath: last.projectPath)
-            updateSnapshot(with: events, activeProjectEvent: last, loc: loc)
+        if let project = watchedProjects.first(where: { $0.id == last.projectID }) {
+            Task {
+                let loc = gitLOCTracker.totalLOC(for: project)
+                let gitInfo = gitLOCTracker.detectRepository(for: project)
+                await MainActor.run {
+                    updateSnapshot(
+                        with: events,
+                        activeProjectEvent: last,
+                        loc: loc,
+                        project: project,
+                        gitInfo: gitInfo
+                    )
+                }
+            }
         }
 
         onFileEvents?(events)
@@ -357,7 +380,9 @@ final class ProjectFileWatcherService: ObservableObject {
     private func updateSnapshot(
         with events: [ProjectFileEvent],
         activeProjectEvent: ProjectFileEvent,
-        loc: LOCSummary
+        loc: LOCSummary,
+        project: WatchedProject,
+        gitInfo: GitRepositoryInfo
     ) {
         if snapshot.dateKey != ProjectActivitySnapshot.makeDateKey(Date()) {
             snapshot = .empty()
@@ -383,14 +408,76 @@ final class ProjectFileWatcherService: ObservableObject {
             snapshot.recentEvents = Array(snapshot.recentEvents.suffix(100))
         }
 
-        // Update project metadata
-        if let idx = watchedProjects.firstIndex(where: { $0.id == activeProjectEvent.projectID }) {
-            watchedProjects[idx].lastActivityAt = Date()
-            watchedProjects[idx].lastKnownTopLanguage = snapshot.topLanguageToday
-        }
+        // Update project metadata with git and LOC info
+        updateProjectGitAndLOCMetadata(
+            projectID: activeProjectEvent.projectID,
+            locSummary: loc,
+            gitInfo: gitInfo
+        )
 
         saveSnapshot()
         onProjectActivity?(snapshot)
+    }
+
+    private func updateProjectGitAndLOCMetadata(
+        projectID: UUID,
+        locSummary: LOCSummary,
+        gitInfo: GitRepositoryInfo
+    ) {
+        guard let index = watchedProjects.firstIndex(where: { $0.id == projectID }) else {
+            return
+        }
+
+        watchedProjects[index].lastActivityAt = Date()
+        watchedProjects[index].lastKnownTopLanguage = snapshot.topLanguageToday
+        watchedProjects[index].lastLOCSummary = locSummary
+        watchedProjects[index].gitRepositoryInfo = gitInfo
+
+        saveProjects()
+    }
+
+    func refreshGitStatus(for projectID: UUID) {
+        guard let index = watchedProjects.firstIndex(where: { $0.id == projectID }) else {
+            return
+        }
+
+        var project = watchedProjects[index]
+        project.gitRepositoryInfo = GitRepositoryInfo(
+            selectedPath: project.path,
+            repoRootPath: nil,
+            status: .checking,
+            checkedAt: Date()
+        )
+        watchedProjects[index] = project
+        saveProjects()
+
+        let gitInfo = gitLOCTracker.detectRepository(for: project)
+        let locSummary: LOCSummary
+
+        if gitInfo.canTrackLOC {
+            locSummary = gitLOCTracker.totalLOC(for: project)
+        } else {
+            locSummary = LOCSummary.unavailable(gitInfoToUnavailable(gitInfo))
+        }
+
+        watchedProjects[index].gitRepositoryInfo = gitInfo
+        watchedProjects[index].lastLOCSummary = locSummary
+        saveProjects()
+    }
+
+    private func gitInfoToUnavailable(_ info: GitRepositoryInfo) -> LOCSummaryStatus {
+        switch info.status {
+        case .notGitRepository:
+            return .notGitRepository
+        case .permissionDenied(let message):
+            return .permissionDenied(message)
+        case .gitUnavailable(let message):
+            return .gitUnavailable(message)
+        case .error(let message):
+            return .gitError(message)
+        default:
+            return .unknown
+        }
     }
 
     private func parseEventType(_ flag: FSEventStreamEventFlags) -> ProjectFileEventType {

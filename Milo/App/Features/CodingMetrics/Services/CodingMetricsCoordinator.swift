@@ -48,6 +48,10 @@ final class CodingMetricsCoordinator: ObservableObject {
                 await MainActor.run {
                     self.wakaTimeSummary = summary
                     self.sourceLabel = summary == nil ? "Local" : "Local + WakaTime"
+
+                    if let summary {
+                        self.localMetricsService.applyWakaTimeFallback(summary)
+                    }
                 }
             } catch {
                 await MainActor.run {

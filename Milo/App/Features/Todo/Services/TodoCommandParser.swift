@@ -320,6 +320,11 @@ struct TodoCommandParser {
             result = String(result.dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
         }
 
+        // Remove leading punctuation (e.g. ": fix login bug" after stripping "add todo :")
+        while result.hasPrefix(":") || result.hasPrefix(";") || result.hasPrefix(".") || result.hasPrefix(",") {
+            result = String(result.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
         return result
     }
 }

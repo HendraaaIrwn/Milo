@@ -4,10 +4,13 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct FileWatcherSettingsEmbedView: View {
     @ObservedObject var fileWatcherService: ProjectFileWatcherService
-
+    
+    @State private var windowController: FileWatcherSettingsWindowController?
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             SettingsCardView(title: "Status", subtitle: "Real-time file activity monitoring.", systemImage: "folder.badge.gearshape") {
@@ -21,11 +24,22 @@ struct FileWatcherSettingsEmbedView: View {
                     Text("Active project: \(fileWatcherService.snapshot.activeProjectName ?? "-")").font(.caption)
                     Text("Top language: \(fileWatcherService.snapshot.topLanguageToday ?? "-")").font(.caption)
                     Text("Changed files today: \(fileWatcherService.snapshot.changedFileCountToday)").font(.caption)
+                    Spacer()
                     Button("Open Full Settings") {
-                        // This would open the standalone FileWatcherSettingsView
+                        openFullSettings()
                     }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.blue)
                 }
             }
         }
+    }
+    
+    private func openFullSettings() {
+        let controller = FileWatcherSettingsWindowController(
+            fileWatcherService: fileWatcherService
+        )
+        windowController = controller
+        controller.show()
     }
 }
