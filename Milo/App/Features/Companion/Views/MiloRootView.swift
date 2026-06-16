@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct MiloRootView: View {
-    static let windowWidth: CGFloat = 340
-    static let windowHeight: CGFloat = 410
+    static let windowWidth: CGFloat = 240
+    static let windowHeight: CGFloat = 300
+    static let topAccessoryHeight: CGFloat = 116
+    //fix w x h = 240x300
 
     @ObservedObject var state: MiloFloatingPetState
     @ObservedObject var stateStore: MiloStateStore
@@ -46,10 +48,11 @@ struct MiloRootView: View {
     var body: some View {
         ZStack(alignment: .top) {
             Color.clear
+                .allowsHitTesting(false)
 
             VStack(spacing: 4) {
                 bubbleSlot
-                    .frame(height: 112, alignment: .bottom)
+                    .frame(height: Self.topAccessoryHeight - 4, alignment: .bottom)
                     .zIndex(30)
 
                 ZStack {
@@ -81,12 +84,14 @@ struct MiloRootView: View {
 
                 if shouldShowPomodoroBadge {
                     MiloPomodoroTimerBadgeView(pomodoroService: pomodoroService)
+                        .allowsHitTesting(false)
                         .transition(.scale.combined(with: .opacity))
                         .zIndex(5)
                 }
 
                 if showCodingMetricsBadge {
                     CodingMetricsBadgeView(service: codingMetricsCoordinator.localMetricsService)
+                        .allowsHitTesting(false)
                         .offset(y: 8)
                         .transition(.opacity.combined(with: .scale))
                         .zIndex(5)
@@ -119,11 +124,13 @@ struct MiloRootView: View {
                 }
             )
             .frame(width: Self.windowWidth, height: Self.windowHeight)
+            .allowsHitTesting(false)
         }
         #endif
         .overlay(alignment: .topTrailing) {
             if state.reactionText == nil && !stateStore.shouldShowReminderBubble && !stateStore.shouldShowTodoBubble {
                 TodoCountBadge(stateStore: stateStore)
+                    .allowsHitTesting(false)
             }
         }
     }

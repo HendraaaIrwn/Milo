@@ -109,7 +109,7 @@ final class MiloWindowController {
         print("MILO ignoresMouseEvents:", panel.ignoresMouseEvents)
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
-        panel.isMovableByWindowBackground = true
+        panel.isMovableByWindowBackground = false
         panel.isReleasedWhenClosed = false
         panel.acceptsMouseMovedEvents = true
         panel.minSize = size
@@ -618,4 +618,30 @@ final class FloatingPetPanel: NSPanel {
 
 final class DraggableHostingView<Content: View>: NSHostingView<Content> {
     override var mouseDownCanMoveWindow: Bool { true }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard let result = super.hitTest(point) else {
+            return nil
+        }
+
+        let className = String(describing: type(of: result))
+
+        if result is MiloRightClickHitView {
+            return result
+        }
+
+        if result is NSControl {
+            return result
+        }
+
+        if className.contains("MiloRightClickHitView") {
+            return result
+        }
+
+        if result.self === self {
+            return nil
+        }
+
+        return nil
+    }
 }
