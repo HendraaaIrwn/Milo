@@ -46,20 +46,20 @@ private struct MiloReminderBubbleWrapperView: View {
                 onSnooze15: onSnooze15,
                 onReschedule: onReschedule
             )
-            .frame(width: 300, height: 120)
+            .frame(width: 320, height: 130)
         } else {
-            Color.clear.frame(width: 300, height: 110)
+            Color.clear.frame(width: 320, height: 130)
         }
     }
 }
 
 @MainActor
 final class MiloReminderBubbleWindowController {
-    private let bubbleSize = NSSize(width: 280, height: 110)
+    private let bubbleSize = NSSize(width: 320, height: 130)
     private let bubbleState = MiloReminderBubbleState()
 
     private let overlay = MiloOverlayWindowController<AnyView>(
-        defaultSize: NSSize(width: 280, height: 120),
+        defaultSize: NSSize(width: 320, height: 130),
         ignoresMouseEventsWhenVisible: false
     )
 
