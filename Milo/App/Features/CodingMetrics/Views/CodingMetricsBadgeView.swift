@@ -33,7 +33,7 @@ struct CodingMetricsBadgeView: View {
                 Text("-\(snapshot.locToday.linesDeleted)")
                     .foregroundStyle(Color.red)
             }
-            .font(.system(size: 9, weight: .medium, design: .rounded))
+            .font(.system(size: 11, weight: .medium, design: .rounded))
             .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 9)
