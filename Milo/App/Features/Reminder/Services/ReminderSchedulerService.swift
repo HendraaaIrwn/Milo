@@ -89,10 +89,5 @@ final class ReminderSchedulerService {
 
     private func triggerReminder(_ reminder: MiloReminder) {
         miloStateStore.showReminder(reminder)
-        ReminderSoundEngine.shared.playReminderSound(mode: reminder.soundMode)
-
-        if reminder.soundMode == .mumble {
-            MiloMumbleEngine.shared.speak("Reminder.")
-        }
     }
 }

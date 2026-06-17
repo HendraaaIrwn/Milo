@@ -27,6 +27,20 @@ final class CodingMetricsService: ObservableObject {
         category: "CodingMetrics"
     )
 
+    convenience init() {
+        self.init(
+            storage: MiloLocalStorageService.shared,
+            gitLOCTracker: GitLOCTracker(bookmarkStore: SecurityScopedBookmarkStore.shared)
+        )
+    }
+
+    convenience init(storage: MiloLocalStorageService) {
+        self.init(
+            storage: storage,
+            gitLOCTracker: GitLOCTracker(bookmarkStore: SecurityScopedBookmarkStore.shared)
+        )
+    }
+
     init(
         storage: MiloLocalStorageService? = nil,
         gitLOCTracker: GitLOCTracker? = nil

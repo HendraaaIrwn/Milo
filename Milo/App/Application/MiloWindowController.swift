@@ -271,7 +271,7 @@ final class MiloWindowController {
                     self.overlayCoordinator.updatePositions(relativeTo: frame)
                     self.overlayCoordinator.showReminderBubble(
                         reminder: reminder,
-                        duration: 5,
+                        duration: nil,
                         onDone: { [weak self] in
                             self?.reminderSchedulerService.markDone(reminder)
                         },
@@ -284,6 +284,7 @@ final class MiloWindowController {
                             self?.showBubble("Reminder snoozed 15 minutes.", mood: .reminder, source: .system)
                         },
                         onReschedule: { [weak self] in
+                            self?.stateStore.hideReminder()
                             self?.openRescheduleReminder(reminder)
                         }
                     )
@@ -300,11 +301,12 @@ final class MiloWindowController {
                     self.overlayCoordinator.updatePositions(relativeTo: frame)
                     self.overlayCoordinator.showTodoBubble(
                         todo: todo,
-                        duration: 5,
+                        duration: nil,
                         onDone: { [weak self] in
                             self?.todoSchedulerService.markDone(todo)
                         },
                         onOpenTodoList: { [weak self] in
+                            self?.stateStore.hideTodoBubble()
                             self?.panelRouter.openTodoList()
                         }
                     )

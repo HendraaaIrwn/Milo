@@ -90,6 +90,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             miloWindowController?.handlePomodoroCompleted()
         }
 
+        pomodoroService.onFocusStarted = {
+            PomodoroSoundEngine.shared.playFocusStart()
+        }
+
         pomodoroService.onBreakStarted = { [weak stateStore] in
             stateStore?.animationState = .breakTime
         }
