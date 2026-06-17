@@ -33,13 +33,13 @@ final class ProjectFileWatcherService: ObservableObject {
     var onFileEvents: (([ProjectFileEvent]) -> Void)?
 
     init(
-        storage: MiloLocalStorageService = .shared,
-        bookmarkStore: SecurityScopedBookmarkStore = .shared,
-        gitLOCTracker: GitLOCTracker = GitLOCTracker()
+        storage: MiloLocalStorageService? = nil,
+        bookmarkStore: SecurityScopedBookmarkStore? = nil,
+        gitLOCTracker: GitLOCTracker? = nil
     ) {
-        self.storage = storage
-        self.bookmarkStore = bookmarkStore
-        self.gitLOCTracker = gitLOCTracker
+        self.storage = storage ?? .shared
+        self.bookmarkStore = bookmarkStore ?? .shared
+        self.gitLOCTracker = gitLOCTracker ?? GitLOCTracker()
         load()
     }
 

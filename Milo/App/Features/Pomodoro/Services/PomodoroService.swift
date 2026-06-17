@@ -20,6 +20,7 @@ final class PomodoroService: ObservableObject {
     private var timerTask: Task<Void, Never>?
 
     var onFocusCompleted: (() -> Void)?
+    var onFocusStarted: (() -> Void)?
     var onBreakStarted: (() -> Void)?
     var onBreakCompleted: (() -> Void)?
 
@@ -91,6 +92,7 @@ final class PomodoroService: ObservableObject {
         UserDefaults.standard.set(preset.id, forKey: MiloStorageKeys.selectedPomodoroPreset)
         save()
         startTimer()
+        onFocusStarted?()
     }
 
     func pause() {
@@ -281,4 +283,3 @@ final class PomodoroService: ObservableObject {
         timerTask?.cancel()
     }
 }
-

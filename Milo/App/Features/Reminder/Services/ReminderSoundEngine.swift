@@ -13,6 +13,11 @@ final class ReminderSoundEngine {
 
     private init() {}
 
+    func playReminderBubbleSound() {
+        guard reminderSoundEnabled else { return }
+        MiloSoundEffectPlayer.shared.play("reminder-sound.mp3")
+    }
+
     func playReminderSound(mode: ReminderSoundMode = .reminderBell) {
         guard reminderSoundEnabled else { return }
 

@@ -65,7 +65,7 @@ final class MiloTodoBubbleWindowController {
     func show(
         todo: MiloTodo,
         relativeTo characterFrame: NSRect,
-        duration: TimeInterval = 5,
+        duration: TimeInterval? = nil,
         onDone: @escaping () -> Void,
         onOpenTodoList: @escaping () -> Void
     ) {
