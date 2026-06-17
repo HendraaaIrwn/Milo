@@ -58,7 +58,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             miloStateStore: stateStore
         )
         let codingMetricsService = CodingMetricsService(storage: .shared)
-        let weeklyCodingMetricsService = WeeklyCodingMetricsService(storage: .shared)
+        let weeklyCodingMetricsService = WeeklyCodingMetricsService(
+            storage: .shared,
+            pomodoroService: pomodoroService,
+            todoService: todoService
+        )
         let codingMetricsCoordinator = CodingMetricsCoordinator(
             localMetricsService: codingMetricsService,
             weeklyMetricsService: weeklyCodingMetricsService,
