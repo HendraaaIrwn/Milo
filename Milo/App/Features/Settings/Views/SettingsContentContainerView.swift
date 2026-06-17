@@ -57,6 +57,15 @@ struct SettingsContentContainerView: View {
             GeneralSettingsView()
         case .appearance:
             AppearanceSettingsView()
+        case .personality:
+            if let store = dependencies.personalitySettingsStore,
+               let avail = dependencies.availabilityService {
+                MiloPersonalitySettingsView(
+                    settingsStore: store,
+                    availabilityService: avail,
+                    onTestResponse: { await dependencies.onTestSmartPersonality?() ?? nil }
+                )
+            }
         case .sound:
             SoundSettingsView()
         case .reminders:
