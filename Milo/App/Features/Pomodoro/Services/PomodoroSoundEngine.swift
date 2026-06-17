@@ -6,14 +6,19 @@ final class PomodoroSoundEngine {
 
     private init() {}
 
+    func playFocusStart() {
+        guard isSoundEnabled else { return }
+        MiloSoundEffectPlayer.shared.play("start-pomodoro.mp3")
+    }
+
     func playFocusComplete() {
         guard isSoundEnabled else { return }
-        NSSound(named: "Glass")?.play()
+        MiloSoundEffectPlayer.shared.play("pomodoro-ends.mp3")
     }
 
     func playBreakComplete() {
         guard isSoundEnabled else { return }
-        NSSound(named: "Pop")?.play()
+        MiloSoundEffectPlayer.shared.play("start-pomodoro.mp3")
     }
 
     private var isSoundEnabled: Bool {

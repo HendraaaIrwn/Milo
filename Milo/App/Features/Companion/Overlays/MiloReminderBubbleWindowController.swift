@@ -75,7 +75,7 @@ final class MiloReminderBubbleWindowController {
     func show(
         reminder: MiloReminder,
         relativeTo characterFrame: NSRect,
-        duration: TimeInterval = 5,
+        duration: TimeInterval? = nil,
         onDone: @escaping () -> Void,
         onSnooze5: @escaping () -> Void,
         onSnooze15: @escaping () -> Void,

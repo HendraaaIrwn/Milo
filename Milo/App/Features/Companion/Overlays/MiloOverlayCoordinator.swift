@@ -102,11 +102,12 @@ final class MiloOverlayCoordinator {
 
     func showTodoBubble(
         todo: MiloTodo,
-        duration: TimeInterval = 5,
+        duration: TimeInterval? = nil,
         onDone: @escaping () -> Void,
         onOpenTodoList: @escaping () -> Void
     ) {
         bubbleCoordinator.hideCurrentBubble()
+        MiloSoundEffectPlayer.shared.play("todo-sound.mp3")
         todoBubbleController.show(
             todo: todo,
             relativeTo: latestCharacterFrame,
@@ -124,13 +125,14 @@ final class MiloOverlayCoordinator {
 
     func showReminderBubble(
         reminder: MiloReminder,
-        duration: TimeInterval = 5,
+        duration: TimeInterval? = nil,
         onDone: @escaping () -> Void,
         onSnooze5: @escaping () -> Void,
         onSnooze15: @escaping () -> Void,
         onReschedule: @escaping () -> Void
     ) {
         bubbleCoordinator.hideCurrentBubble()
+        ReminderSoundEngine.shared.playReminderBubbleSound()
         reminderBubbleController.show(
             reminder: reminder,
             relativeTo: latestCharacterFrame,
