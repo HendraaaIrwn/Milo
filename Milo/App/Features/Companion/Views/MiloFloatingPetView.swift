@@ -44,10 +44,12 @@ struct MiloFloatingPetView: View {
 
     var body: some View {
         MiloRootView(
+            mousePositionService: MousePositionService(),
             state: state,
             stateStore: MiloStateStore(),
             contextMenuController: nil,
-            onLeftClick: {}
+            onLeftClick: {},
+            characterFrame: { .zero }
         )
     }
 }

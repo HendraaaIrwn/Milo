@@ -53,9 +53,6 @@ struct TrackingMouseView: NSViewRepresentable {
             } else {
                 startTrackingMouseGlobally()
             }
-            #if DEBUG
-            print("[TrackingNSView] viewDidMoveToWindow – window=\(window != nil), bounds=\(bounds), timer=\(timer != nil)")
-            #endif
         }
 
         override func viewDidMoveToSuperview() {
@@ -101,9 +98,6 @@ struct TrackingMouseView: NSViewRepresentable {
 
         func startTrackingMouseGlobally() {
             guard timer == nil else { return }
-            #if DEBUG
-            print("[TrackingNSView] startTrackingMouseGlobally – bounds=\(bounds)")
-            #endif
 
             localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]) { [weak self] event in
                 self?.reportCurrentMouseLocation()
@@ -146,11 +140,6 @@ struct TrackingMouseView: NSViewRepresentable {
 
         private func report(_ windowPoint: CGPoint) {
             let point = convert(windowPoint, from: nil)
-            #if DEBUG
-            if lastPoint == nil || abs(point.x - (lastPoint?.x ?? 0)) > 50 || abs(point.y - (lastPoint?.y ?? 0)) > 50 {
-                print("[TrackingNSView] report – windowPoint=\(windowPoint), viewPoint=\(point), bounds=\(bounds), frameInWindow=\(convert(bounds, to: nil))")
-            }
-            #endif
             guard lastPoint != point else { return }
             lastPoint = point
             onMove?(point)

@@ -9,8 +9,8 @@ import SwiftUI
 
 struct MiloCharacter: View {
     let mood: MiloMood
-    var mouseLocation: CGPoint? = nil
-    var characterFrame: CGRect = .zero
+    var mouseLocation: NSPoint? = nil
+    var characterFrame: NSRect = .zero
 
     @StateObject private var blinkEngine = MiloBlinkEngine()
     @State private var moodAnimationPhase = false
@@ -62,25 +62,13 @@ struct MiloCharacter: View {
                     y: height * MiloLayout.mouthY
                 )
 
-            MiloEye(side: .left, blinkPhase: effectivePhase, pupilOffset: effectivePupilOffset)
-                .frame(
-                    width: width * MiloLayout.eyeWidth,
-                    height: height * MiloLayout.eyeHeight
-                )
-                .position(
-                    x: width * MiloLayout.leftEyeX,
-                    y: height * MiloLayout.eyeY
-                )
-
-            MiloEye(side: .right, blinkPhase: effectivePhase, pupilOffset: effectivePupilOffset)
-                .frame(
-                    width: width * MiloLayout.eyeWidth,
-                    height: height * MiloLayout.eyeHeight
-                )
-                .position(
-                    x: width * MiloLayout.rightEyeX,
-                    y: height * MiloLayout.eyeY
-                )
+            MiloEyesView(
+                mouseLocation: mouseLocation,
+                characterFrame: characterFrame,
+                blinkPhase: effectivePhase,
+                bodyOffsetY: animationFrame.bodyOffsetY,
+                fallbackPupilOffset: currentAnimationFrame.pupilOffset
+            )
         }
         .frame(width: width, height: height)
         .rotationEffect(.degrees(animationFrame.bodyRotation))
@@ -115,42 +103,6 @@ struct MiloCharacter: View {
     private var currentAnimationFrame: MiloAnimationFrame {
         guard !reduceMotion else { return MiloAnimationFrame() }
         return moodAnimationPhase ? mood.animationConfiguration.activeFrame : mood.animationConfiguration.restingFrame
-    }
-
-    private var effectivePupilOffset: CGSize {
-        guard let trackingPupilOffset else {
-            return clampedPupilOffset(currentAnimationFrame.pupilOffset)
-        }
-
-        return clampedPupilOffset(trackingPupilOffset)
-    }
-
-    private var trackingPupilOffset: CGSize? {
-        guard let mouseLocation, !characterFrame.isEmpty else { return nil }
-
-        let visualCenter = CGPoint(
-            x: characterFrame.midX,
-            y: characterFrame.midY + characterFrame.height * currentAnimationFrame.bodyOffsetY
-        )
-        let x = (mouseLocation.x - visualCenter.x) / (characterFrame.width * 0.5)
-        let y = (mouseLocation.y - visualCenter.y) / (characterFrame.height * 0.5)
-        let distance = hypot(x, y)
-
-        guard distance > 0 else { return .zero }
-
-        let scale = min(distance, 1) / distance
-
-        return CGSize(
-            width: x * scale * 2,
-            height: y * scale * 2
-        )
-    }
-
-    private func clampedPupilOffset(_ offset: CGSize) -> CGSize {
-        return CGSize(
-            width: max(-2, min(2, offset.width)),
-            height: max(-2, min(2, offset.height))
-        )
     }
 
     private var animationTaskID: String {

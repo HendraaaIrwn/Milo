@@ -11,6 +11,7 @@ import SwiftUI
 final class MiloWindowController {
     private let petState = MiloFloatingPetState()
     private let stateStore: MiloStateStore
+    private let mousePositionService = MousePositionService()
     private let reminderService: ReminderService
     private let reminderHistoryService: ReminderHistoryService
     private let reminderSchedulerService: ReminderSchedulerService
@@ -122,6 +123,7 @@ final class MiloWindowController {
             overlayCoordinator.configureAll()
         }
 
+        mousePositionService.start()
         petPanel?.orderFrontRegardless()
         stateStore.isMiloVisible = true
 
@@ -178,20 +180,25 @@ final class MiloWindowController {
             .stationary
         ]
 
+        petPanel = panel
+
         panel.contentView = DraggableHostingView(
             rootView: MiloRootView(
+                mousePositionService: mousePositionService,
                 state: petState,
                 stateStore: stateStore,
                 contextMenuController: contextMenuController,
                 onLeftClick: { [weak self] in
                     let text = MiloReactionLineProvider.randomLine(excluding: self?.petState.reactionText)
                     self?.showBubble(text)
+                },
+                characterFrame: { [weak panel] in
+                    panel?.frame ?? .zero
                 }
             )
             .frame(width: size.width, height: size.height)
         )
 
-        petPanel = panel
         panel.orderFrontRegardless()
         stateStore.isMiloVisible = true
     }
@@ -577,6 +584,7 @@ final class MiloWindowController {
     }
 
     func destroy() {
+        mousePositionService.stop()
         overlayCoordinator.destroyAll()
         frameObserver.map { NotificationCenter.default.removeObserver($0) }
         frameObserver = nil
