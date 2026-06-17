@@ -31,28 +31,28 @@ private struct MiloTodoBubbleWrapperView: View {
            let onDone = state.onDone,
            let onOpenTodoList = state.onOpenTodoList
         {
-            MiloTodoBubbleView(
-                todo: todo,
-                onDone: onDone,
-                onOpenTodoList: onOpenTodoList
-            )
-            .environment(\.controlActiveState, .active)
-            .frame(width: 280, height: 110)
-        } else {
-            Color.clear.frame(width: 280, height: 110)
-        }
-    }
-}
+             MiloTodoBubbleView(
+                 todo: todo,
+                 onDone: onDone,
+                 onOpenTodoList: onOpenTodoList
+             )
+             .environment(\.controlActiveState, .active)
+             .frame(width: 280, height: 130)
+         } else {
+             Color.clear.frame(width: 280, height: 130)
+         }
+     }
+ }
 
-@MainActor
-final class MiloTodoBubbleWindowController {
-    private let bubbleSize = NSSize(width: 280, height: 110)
-    private let bubbleState = MiloTodoBubbleState()
+ @MainActor
+ final class MiloTodoBubbleWindowController {
+     private let bubbleSize = NSSize(width: 280, height: 130)
+     private let bubbleState = MiloTodoBubbleState()
 
-    private let overlay = MiloOverlayWindowController<AnyView>(
-        defaultSize: NSSize(width: 280, height: 110),
-        ignoresMouseEventsWhenVisible: false
-    )
+     private let overlay = MiloOverlayWindowController<AnyView>(
+         defaultSize: NSSize(width: 280, height: 130),
+         ignoresMouseEventsWhenVisible: false
+     )
 
     func configure() {
         overlay.configure(

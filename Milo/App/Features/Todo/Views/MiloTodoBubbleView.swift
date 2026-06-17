@@ -2,8 +2,6 @@
 //  MiloTodoBubbleView.swift
 //  Milo
 //
-//  Created by Hendra Irawan on 14/06/26.
-//
 
 import SwiftUI
 
@@ -15,32 +13,55 @@ struct MiloTodoBubbleView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Text("📌")
-                Text("Todo Overdue")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                Circle()
+                    .fill(.red.opacity(0.8))
+                    .frame(width: 7, height: 7)
+                Circle()
+                    .fill(.yellow.opacity(0.8))
+                    .frame(width: 7, height: 7)
+                Circle()
+                    .fill(.green.opacity(0.8))
+                    .frame(width: 7, height: 7)
+
+                Text("milo.todo")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.45))
+
+                Spacer()
             }
 
-            Text(todo.title)
-                .font(.system(size: 12, weight: .medium, design: .rounded))
-                .lineLimit(3)
+            MiloTerminalTextView(
+                text: "Todo overdue: \(todo.title)",
+                typingSpeed: 0.022,
+                cursorStyle: .block,
+                keepCursorAfterTyping: false,
+                fontSize: 13,
+                maxLines: 3
+            )
+            .foregroundStyle(.green.opacity(0.92))
 
             HStack(spacing: 6) {
-                    Button("Done") { onDone() }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.green)
-                    Button("Open List") { onOpenTodoList() }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.yellow)
-                }
-            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                Button("Done") { onDone() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                    .controlSize(.small)
+                Button("Open List") { onOpenTodoList() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.yellow)
+                    .controlSize(.small)
+            }
+            .font(.system(size: 10, weight: .semibold))
         }
-        .foregroundStyle(.white)
-        .padding(10)
-        .frame(maxWidth: 240, alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .frame(width: 280, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.blue.opacity(0.95))
-                .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 4)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.black.opacity(0.9))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.green.opacity(0.25), lineWidth: 1)
+                )
         )
     }
 }

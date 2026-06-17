@@ -87,7 +87,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         pomodoroService.onFocusCompleted = { [weak stateStore, weak miloWindowController] in
             stateStore?.animationState = .happy
             PomodoroSoundEngine.shared.playFocusComplete()
-            miloWindowController?.showBubble("Focus complete. Break time unlocked.", mood: .happy)
+            miloWindowController?.handlePomodoroCompleted()
         }
 
         pomodoroService.onFocusStarted = {
@@ -101,7 +101,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         pomodoroService.onBreakCompleted = { [weak stateStore, weak miloWindowController] in
             stateStore?.animationState = .idle
             PomodoroSoundEngine.shared.playBreakComplete()
-            miloWindowController?.showBubble("Break done. Ready for another round?", mood: .idle)
+            miloWindowController?.handleBreakCompleted()
         }
 
         self.miloWindowController = miloWindowController

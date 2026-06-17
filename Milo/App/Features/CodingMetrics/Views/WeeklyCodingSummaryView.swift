@@ -183,3 +183,7 @@ private struct WeeklyCodingSummaryDayCardView: View {
         return "\(minutes)m"
     }
 }
+
+//#Preview {
+//    WeeklyCodingCardsView(week: .mock)
+//}

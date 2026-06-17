@@ -42,13 +42,13 @@ final class CodingMetricsService: ObservableObject {
     }
 
     init(
-        storage: MiloLocalStorageService,
-        gitLOCTracker: GitLOCTracker
+        storage: MiloLocalStorageService? = nil,
+        gitLOCTracker: GitLOCTracker? = nil
     ) {
-        self.storage = storage
-        self.gitLOCTracker = gitLOCTracker
+        self.storage = storage ?? .shared
+        self.gitLOCTracker = gitLOCTracker ?? GitLOCTracker()
 
-        let loaded = storage.load(
+        let loaded = self.storage.load(
             CodingMetricsSnapshot.self,
             forKey: MiloStorageKeys.codingMetricsSnapshot,
             defaultValue: CodingMetricsSnapshot.empty()

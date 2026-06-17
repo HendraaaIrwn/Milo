@@ -14,6 +14,13 @@ enum MiloSettingsKeys {
     static let typingReaction = "typingReaction"
     static let typingBubbleDialogs = "typingBubbleDialogs"
     static let breakNudgesEnabled = "breakNudgesEnabled"
+    static let responseMode = "miloResponseMode"
+}
+
+enum MiloResponseMode: String, Codable {
+    case classicLocal
+    case smartLocal
+    case aiEnhanced
 }
 
 struct SettingsView: View {
@@ -25,6 +32,7 @@ struct SettingsView: View {
     @AppStorage(MiloSettingsKeys.typingReaction) private var typingReaction = true
     @AppStorage(MiloSettingsKeys.typingBubbleDialogs) private var typingBubbleDialogs = true
     @AppStorage(MiloSettingsKeys.breakNudgesEnabled) private var breakNudgesEnabled = true
+    @AppStorage(MiloSettingsKeys.responseMode) private var responseMode = MiloResponseMode.smartLocal.rawValue
     @AppStorage(MiloStorageKeys.reminderNotificationsEnabled) private var reminderNotificationsEnabled = true
     @AppStorage(MiloStorageKeys.reminderSoundEnabled) private var reminderSoundEnabled = true
     @AppStorage(MiloStorageKeys.pomodoroSoundEnabled) private var pomodoroSoundEnabled = true
@@ -58,6 +66,9 @@ struct SettingsView: View {
                 Text("Mood check-ins placeholder")
             }
             .tabItem { Label("Mood Check-ins", systemImage: "face.smiling") }
+
+            personalityTab
+                .tabItem { Label("Personality", systemImage: "brain.head.profile") }
 
             Form {
                 Text("Agent integrations placeholder")
@@ -146,6 +157,40 @@ struct SettingsView: View {
             Button("Reset Stats Today") {
                 pomodoroService.resetStatsToday()
             }
+        }
+    }
+
+    private var personalityTab: some View {
+        Form {
+            Section {
+                Picker("Response Mode", selection: $responseMode) {
+                    Text("Classic Local").tag(MiloResponseMode.classicLocal.rawValue)
+                    Text("Smart Local").tag(MiloResponseMode.smartLocal.rawValue)
+                    Text("AI Enhanced · Coming Soon").tag(MiloResponseMode.aiEnhanced.rawValue)
+                        .disabled(true)
+                }
+                .pickerStyle(.radioGroup)
+
+                Text(responseModeDescription)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } header: {
+                Text("MILO Personality")
+            }
+        }
+    }
+
+    private var responseModeDescription: String {
+        switch responseMode {
+        case MiloResponseMode.classicLocal.rawValue:
+            return "Simple random responses — playful but not context-aware."
+        case MiloResponseMode.smartLocal.rawValue:
+            return "Context-aware responses based on focus duration, typing intensity, active project, and more. All local, no cloud."
+        case MiloResponseMode.aiEnhanced.rawValue:
+            return "AI-enhanced responses. Coming in a future update."
+        default:
+            return ""
         }
     }
 }
