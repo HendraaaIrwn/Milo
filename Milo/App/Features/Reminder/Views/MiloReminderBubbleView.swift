@@ -2,8 +2,6 @@
 //  MiloReminderBubbleView.swift
 //  Milo
 //
-//  Created by Hendra Irawan on 14/06/26.
-//
 
 import SwiftUI
 
@@ -18,15 +16,32 @@ struct MiloReminderBubbleView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
-                    Text("⏰")
-                    Text("Reminder")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                    Circle()
+                        .fill(.red.opacity(0.8))
+                        .frame(width: 7, height: 7)
+                    Circle()
+                        .fill(.yellow.opacity(0.8))
+                        .frame(width: 7, height: 7)
+                    Circle()
+                        .fill(.green.opacity(0.8))
+                        .frame(width: 7, height: 7)
+
+                    Text("milo.remind")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.45))
+
+                    Spacer()
                 }
 
-                Text(reminder.message)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
+                MiloTerminalTextView(
+                    text: reminder.message,
+                    typingSpeed: 0.022,
+                    cursorStyle: .block,
+                    keepCursorAfterTyping: false,
+                    fontSize: 13,
+                    maxLines: 3
+                )
+                .foregroundStyle(.green.opacity(0.92))
 
                 HStack(spacing: 6) {
                     Button("Done", action: onDone)
@@ -42,24 +57,23 @@ struct MiloReminderBubbleView: View {
                         .buttonStyle(.borderedProminent)
                         .tint(.blue)
                 }
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .font(.system(size: 10, weight: .semibold))
                 .controlSize(.small)
             }
-            .foregroundStyle(.black.opacity(0.9))
-            .padding(10)
-            .frame(width: 300, alignment: .leading)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .frame(width: 320, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.yellow.opacity(0.96))
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.black.opacity(0.9))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color.orange.opacity(0.8), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.green.opacity(0.25), lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 4)
             )
 
             Triangle()
-                .fill(Color.yellow.opacity(0.96))
+                .fill(Color.black.opacity(0.9))
                 .frame(width: 14, height: 8)
                 .offset(y: -1)
         }

@@ -20,17 +20,17 @@ private struct MiloBubbleWrapperView: View {
 
     var body: some View {
         MiloReactionBubbleView(text: state.text)
-            .frame(width: 260, height: 90)
+            .frame(width: 270, height: 110)
     }
 }
 
 @MainActor
 final class MiloBubbleWindowController {
-    private let bubbleSize = NSSize(width: 260, height: 90)
+    private let bubbleSize = NSSize(width: 270, height: 110)
     private let bubbleState = MiloBubbleState()
 
     private let overlay = MiloOverlayWindowController<AnyView>(
-        defaultSize: NSSize(width: 260, height: 90),
+        defaultSize: NSSize(width: 270, height: 110),
         ignoresMouseEventsWhenVisible: true
     )
 
