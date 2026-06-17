@@ -21,6 +21,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var codingMetricsService: CodingMetricsService?
     private var codingMetricsCoordinator: CodingMetricsCoordinator?
     private var projectFileWatcherService: ProjectFileWatcherService?
+    private var personalitySettingsStore: MiloPersonalitySettingsStore?
+    private var availabilityService: AppleIntelligenceAvailabilityService?
 
     private(set) var miloStateStore: MiloStateStore?
     private var keyboardActivityService: KeyboardActivityService?
@@ -66,6 +68,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let fileWatcherService = ProjectFileWatcherService(storage: .shared, bookmarkStore: .shared)
         self.projectFileWatcherService = fileWatcherService
 
+        let personalitySettingsStore = MiloPersonalitySettingsStore()
+        self.personalitySettingsStore = personalitySettingsStore
+
+        let availabilityService = AppleIntelligenceAvailabilityService()
+        self.availabilityService = availabilityService
+
+        let aiGenerator = AppleFoundationModelsResponseGenerator()
+
         fileWatcherService.onProjectActivity = { [weak codingMetricsService] activitySnapshot in
             Task { @MainActor in
                 codingMetricsService?.applyProjectActivitySnapshot(activitySnapshot)
@@ -81,7 +91,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             todoSchedulerService: todoSchedulerService,
             pomodoroService: pomodoroService,
             codingMetricsCoordinator: codingMetricsCoordinator,
-            fileWatcherService: fileWatcherService
+            fileWatcherService: fileWatcherService,
+            personalitySettingsStore: personalitySettingsStore,
+            availabilityService: availabilityService,
+            aiGenerator: aiGenerator
         )
 
         pomodoroService.onFocusCompleted = { [weak stateStore, weak miloWindowController] in

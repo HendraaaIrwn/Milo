@@ -8,6 +8,7 @@ import SwiftUI
 enum SettingsSection: String, CaseIterable, Identifiable {
     case general
     case appearance
+    case personality
     case sound
     case reminders
     case todos
@@ -24,6 +25,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         switch self {
         case .general: return "General"
         case .appearance: return "Appearance"
+        case .personality: return "Personality"
         case .sound: return "Sound"
         case .reminders: return "Reminders"
         case .todos: return "Todos"
@@ -40,6 +42,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         switch self {
         case .general: return "Basic MILO behavior and startup preferences."
         case .appearance: return "Visual style, badge visibility, and companion display."
+        case .personality: return "MILO response style, AI enhancement, and tone."
         case .sound: return "Mumble voice, sound effects, and volume."
         case .reminders: return "Reminder notifications, sounds, and defaults."
         case .todos: return "Todo list behavior and overdue bubbles."
@@ -56,6 +59,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         switch self {
         case .general: return "gearshape.fill"
         case .appearance: return "paintpalette.fill"
+        case .personality: return "brain.head.profile"
         case .sound: return "speaker.wave.2.fill"
         case .reminders: return "bell.badge.fill"
         case .todos: return "checklist"

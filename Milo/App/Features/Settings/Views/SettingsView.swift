@@ -17,12 +17,6 @@ enum MiloSettingsKeys {
     static let responseMode = "miloResponseMode"
 }
 
-enum MiloResponseMode: String, Codable {
-    case classicLocal
-    case smartLocal
-    case aiEnhanced
-}
-
 struct SettingsView: View {
     @StateObject private var settingsStore = MiloSettingsStore()
     @ObservedObject var pomodoroService: PomodoroService
@@ -166,8 +160,7 @@ struct SettingsView: View {
                 Picker("Response Mode", selection: $responseMode) {
                     Text("Classic Local").tag(MiloResponseMode.classicLocal.rawValue)
                     Text("Smart Local").tag(MiloResponseMode.smartLocal.rawValue)
-                    Text("AI Enhanced · Coming Soon").tag(MiloResponseMode.aiEnhanced.rawValue)
-                        .disabled(true)
+                    Text("Smart Personality").tag(MiloResponseMode.smartPersonality.rawValue)
                 }
                 .pickerStyle(.radioGroup)
 
@@ -187,8 +180,8 @@ struct SettingsView: View {
             return "Simple random responses — playful but not context-aware."
         case MiloResponseMode.smartLocal.rawValue:
             return "Context-aware responses based on focus duration, typing intensity, active project, and more. All local, no cloud."
-        case MiloResponseMode.aiEnhanced.rawValue:
-            return "AI-enhanced responses. Coming in a future update."
+        case MiloResponseMode.smartPersonality.rawValue:
+            return "Apple Intelligence enhanced responses — personalized, contextual, and playful."
         default:
             return ""
         }

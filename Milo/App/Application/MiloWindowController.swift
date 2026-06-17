@@ -20,9 +20,11 @@ final class MiloWindowController {
     private let pomodoroService: PomodoroService
     private let codingMetricsCoordinator: CodingMetricsCoordinator
     private let fileWatcherService: ProjectFileWatcherService
+    private let personalitySettingsStore: MiloPersonalitySettingsStore
+    private let availabilityService: AppleIntelligenceAvailabilityService
     private var petPanel: FloatingPetPanel?
 
-    private let responseEngine = MiloContextAwareResponseEngine()
+    private let smartPersonalityEngine: MiloSmartPersonalityEngine
 
     private lazy var contextProvider = CodingContextProvider(
         codingMetricsService: codingMetricsCoordinator.localMetricsService,
@@ -77,7 +79,13 @@ final class MiloWindowController {
             todoService: todoService,
             pomodoroService: pomodoroService,
             codingMetricsCoordinator: codingMetricsCoordinator,
-            fileWatcherService: fileWatcherService
+            fileWatcherService: fileWatcherService,
+            personalitySettingsStore: personalitySettingsStore,
+            availabilityService: availabilityService,
+            onTestSmartPersonality: { [weak self] in
+                let context = self?.contextProvider.makeContext() ?? .empty
+                return await self?.smartPersonalityEngine.generateResponse(event: .miloClicked, context: context)
+            }
         )
     )
     private(set) lazy var panelRouter = MiloPanelRouter(
@@ -108,7 +116,10 @@ final class MiloWindowController {
         todoSchedulerService: TodoSchedulerService,
         pomodoroService: PomodoroService,
         codingMetricsCoordinator: CodingMetricsCoordinator,
-        fileWatcherService: ProjectFileWatcherService
+        fileWatcherService: ProjectFileWatcherService,
+        personalitySettingsStore: MiloPersonalitySettingsStore,
+        availabilityService: AppleIntelligenceAvailabilityService,
+        aiGenerator: MiloAIResponseGenerating?
     ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
@@ -119,6 +130,16 @@ final class MiloWindowController {
         self.pomodoroService = pomodoroService
         self.codingMetricsCoordinator = codingMetricsCoordinator
         self.fileWatcherService = fileWatcherService
+        self.personalitySettingsStore = personalitySettingsStore
+        self.availabilityService = availabilityService
+
+        let localEngine = MiloContextAwareResponseEngine()
+        self.smartPersonalityEngine = MiloSmartPersonalityEngine(
+            localEngine: localEngine,
+            aiGenerator: aiGenerator,
+            availabilityService: availabilityService,
+            settingsStore: personalitySettingsStore
+        )
         observeStateStore(stateStore)
         observeOverlayTriggers()
         observeFrameChanges()
@@ -158,25 +179,34 @@ final class MiloWindowController {
     }
 
     func handleMiloClick() {
-        let context = contextProvider.makeContext()
-        guard let response = responseEngine.generateResponse(event: .miloClicked, context: context) else {
-            return
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let context = self.contextProvider.makeContext()
+            guard let response = await self.smartPersonalityEngine.generateResponse(event: .miloClicked, context: context) else {
+                return
+            }
+            self.showBubble(response, source: .click)
         }
-        showBubble(response, source: .click)
     }
 
     func handlePomodoroCompleted() {
-        let context = contextProvider.makeContext()
-        let text = responseEngine.generateResponse(event: .pomodoroCompleted, context: context)
-            ?? "Focus complete. Break time unlocked."
-        showBubble(text, mood: .happy)
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let context = self.contextProvider.makeContext()
+            let text = await self.smartPersonalityEngine.generateResponse(event: .pomodoroCompleted, context: context)
+                ?? "Focus complete. Break time unlocked."
+            self.showBubble(text, mood: .happy)
+        }
     }
 
     func handleBreakCompleted() {
-        let context = contextProvider.makeContext()
-        let text = responseEngine.generateResponse(event: .system, context: context)
-            ?? "Break done. Ready for another round?"
-        showBubble(text, mood: .idle)
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let context = self.contextProvider.makeContext()
+            let text = await self.smartPersonalityEngine.generateResponse(event: .system, context: context)
+                ?? "Break done. Ready for another round?"
+            self.showBubble(text, mood: .idle)
+        }
     }
 
     func showBubble(_ text: String, mood: MiloMood? = nil, source: MiloBubbleSource = .system) {
@@ -319,19 +349,22 @@ final class MiloWindowController {
             .sink { [weak self] shouldShow in
                 guard let self else { return }
                 if shouldShow, let frame = self.petPanel?.frame {
-                    let context = self.contextProvider.makeContext()
-                    let text = self.responseEngine.generateResponse(
-                        event: .typingDetected,
-                        context: context
-                    ) ?? self.stateStore.typingBubbleText ?? ""
-                    guard !text.isEmpty else { return }
-                    self.overlayCoordinator.updatePositions(relativeTo: frame)
-                    self.overlayCoordinator.showBubble(
-                        text: text,
-                        source: .typing,
-                        priority: .low,
-                        duration: 2.5
-                    )
+                    Task { @MainActor [weak self] in
+                        guard let self else { return }
+                        let context = self.contextProvider.makeContext()
+                        let text = await self.smartPersonalityEngine.generateResponse(
+                            event: .typingDetected,
+                            context: context
+                        ) ?? self.stateStore.typingBubbleText ?? ""
+                        guard !text.isEmpty else { return }
+                        self.overlayCoordinator.updatePositions(relativeTo: frame)
+                        self.overlayCoordinator.showBubble(
+                            text: text,
+                            source: .typing,
+                            priority: .low,
+                            duration: 2.5
+                        )
+                    }
                 }
             }
 
@@ -619,10 +652,13 @@ final class MiloWindowController {
 
     func startPomodoro(_ preset: PomodoroPreset) {
         pomodoroService.start(preset: preset)
-        let context = contextProvider.makeContext()
-        let text = responseEngine.generateResponse(event: .system, context: context)
-            ?? "Pomodoro started. Let\u{2019}s focus."
-        showBubble(text, mood: .focus)
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let context = self.contextProvider.makeContext()
+            let text = await self.smartPersonalityEngine.generateResponse(event: .system, context: context)
+                ?? "Pomodoro started. Let\u{2019}s focus."
+            self.showBubble(text, mood: .focus)
+        }
     }
 
     func destroy() {
