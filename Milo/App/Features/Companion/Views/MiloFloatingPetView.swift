@@ -10,6 +10,7 @@ import SwiftUI
 final class MiloFloatingPetState: ObservableObject {
     @Published var mood: MiloMood = .idle
     @Published var reactionText: String?
+    @Published var reactionSource: MiloBubbleSource = .click
 
     private var bubbleHideTask: Task<Void, Never>?
 
@@ -17,9 +18,10 @@ final class MiloFloatingPetState: ObservableObject {
         bubbleHideTask?.cancel()
     }
 
-    func showBubble(_ text: String, hideAfter seconds: UInt64 = 3) {
+    func showBubble(_ text: String, source: MiloBubbleSource = .click, hideAfter seconds: UInt64 = 3) {
         bubbleHideTask?.cancel()
         reactionText = text
+        reactionSource = source
         MiloMumbleEngine.shared.speak(text)
 
         bubbleHideTask = Task { [weak self] in
