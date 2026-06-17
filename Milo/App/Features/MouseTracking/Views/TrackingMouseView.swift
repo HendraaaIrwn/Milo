@@ -23,14 +23,19 @@ struct TrackingMouseView: NSViewRepresentable {
     func updateNSView(_ nsView: TrackingNSView, context: Context) {
         nsView.onMove = onMove
         nsView.onExit = onExit
+        if nsView.window != nil, nsView.timer == nil {
+            nsView.startTrackingMouseGlobally()
+        }
     }
 
     final class TrackingNSView: NSView {
         var onMove: ((CGPoint) -> Void)?
         var onExit: (() -> Void)?
 
-        private var trackingArea: NSTrackingArea?
-        private var timer: Timer?
+        private(set) var trackingArea: NSTrackingArea?
+        private(set) var timer: Timer?
+        private var localMonitor: Any?
+        private var globalMonitor: Any?
         private var lastPoint: CGPoint?
 
         override var isFlipped: Bool { true }
@@ -91,8 +96,17 @@ struct TrackingMouseView: NSViewRepresentable {
             reportCurrentMouseLocation()
         }
 
-        private func startTrackingMouseGlobally() {
+        func startTrackingMouseGlobally() {
             guard timer == nil else { return }
+
+            localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]) { [weak self] event in
+                self?.reportCurrentMouseLocation()
+                return event
+            }
+
+            globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]) { [weak self] _ in
+                self?.reportCurrentMouseLocation()
+            }
 
             let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
                 self?.reportCurrentMouseLocation()
@@ -103,6 +117,16 @@ struct TrackingMouseView: NSViewRepresentable {
         }
 
         private func stopTrackingMouseGlobally() {
+            if let localMonitor {
+                NSEvent.removeMonitor(localMonitor)
+                self.localMonitor = nil
+            }
+
+            if let globalMonitor {
+                NSEvent.removeMonitor(globalMonitor)
+                self.globalMonitor = nil
+            }
+
             timer?.invalidate()
             timer = nil
             lastPoint = nil

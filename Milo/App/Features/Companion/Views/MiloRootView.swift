@@ -9,18 +9,24 @@ struct MiloRootView: View {
     static let windowWidth: CGFloat = MiloLayout.designWidth
     static let windowHeight: CGFloat = MiloLayout.designHeight
 
-    let mood: MiloMood
-    let mouseLocation: CGPoint?
-    let characterFrame: CGRect
+    @ObservedObject var mousePositionService: MousePositionService
+    @ObservedObject var state: MiloFloatingPetState
+    @ObservedObject var stateStore: MiloStateStore
     let contextMenuController: MiloContextMenuController?
     let onLeftClick: () -> Void
+
+    @AppStorage(MiloSettingsKeys.eyeFollowCursor) private var eyeFollowCursor = true
+
+    var characterFrame: () -> NSRect
 
     var body: some View {
         ZStack {
             MiloCharacter(
-                mood: mood,
-                mouseLocation: mouseLocation,
-                characterFrame: characterFrame
+                mood: state.mood,
+                mouseLocation: eyeFollowCursor && !stateStore.isContextMenuOpen
+                    ? mousePositionService.mouseLocation
+                    : nil,
+                characterFrame: characterFrame()
             )
             .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)
             .allowsHitTesting(false)
@@ -34,17 +40,21 @@ struct MiloRootView: View {
             }
         }
         .frame(width: Self.windowWidth, height: Self.windowHeight)
+        .onChange(of: eyeFollowCursor) { _, enabled in
+            if !enabled { }
+        }
     }
 }
 
 #if ENABLE_SWIFTUI_PREVIEWS
 #Preview {
     MiloRootView(
-        mood: .idle,
-        mouseLocation: nil,
-        characterFrame: CGRect(x: 0, y: 0, width: 160, height: 110),
+        mousePositionService: MousePositionService(),
+        state: MiloFloatingPetState(),
+        stateStore: MiloStateStore(),
         contextMenuController: nil,
-        onLeftClick: {}
+        onLeftClick: {},
+        characterFrame: { .zero }
     )
 }
 #endif

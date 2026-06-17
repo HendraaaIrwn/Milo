@@ -21,6 +21,29 @@ final class GitLOCTracker {
         self.bookmarkStore = bookmarkStore
     }
 
+    func canAccess(_ project: WatchedProject) -> Bool {
+        let result = accessProjectURL(project)
+        switch result {
+        case .success(let scoped):
+            scoped.stopAccessing()
+            return true
+        case .failure:
+            return false
+        }
+    }
+
+    func modificationDate(for project: WatchedProject) -> Date? {
+        let result = accessProjectURL(project)
+        switch result {
+        case .success(let scoped):
+            defer { scoped.stopAccessing() }
+            let attrs = try? FileManager.default.attributesOfItem(atPath: scoped.url.path)
+            return attrs?[.modificationDate] as? Date
+        case .failure:
+            return nil
+        }
+    }
+
     func detectRepository(for project: WatchedProject) -> GitRepositoryInfo {
         let accessResult = accessProjectURL(project)
 
@@ -426,12 +449,14 @@ extension GitLOCTracker {
                     bookmarkDataIsStale: &isStale
                 )
             } else {
+                print("[GitLOCTracker] accessProjectURL: \(project.name) has NO bookmark data")
                 url = URL(fileURLWithPath: project.path)
             }
 
             let didStartAccessing = url.startAccessingSecurityScopedResource()
 
             if project.bookmarkData != nil, !didStartAccessing {
+                print("[GitLOCTracker] accessProjectURL: \(project.name) startAccessingSecurityScopedResource FAILED")
                 return .failure(.permissionDenied(
                     message: "Security-scoped access failed for \(project.name). Please re-add this folder."
                 ))
@@ -442,6 +467,7 @@ extension GitLOCTracker {
                 didStartAccessing: didStartAccessing
             ))
         } catch {
+            print("[GitLOCTracker] accessProjectURL: \(project.name) error=\(error.localizedDescription)")
             return .failure(.permissionDenied(
                 message: error.localizedDescription
             ))
