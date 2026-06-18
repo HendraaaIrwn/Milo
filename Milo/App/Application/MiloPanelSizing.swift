@@ -10,12 +10,12 @@ struct MiloPanelSizing {
     let minSize: NSSize
 
     static let weeklyCodingSummary = MiloPanelSizing(
-        defaultSize: NSSize(width: 760, height: 680),
+        defaultSize: NSSize(width: 820, height: 760),
         minSize: NSSize(width: 640, height: 560)
     )
 
     static let codingMetrics = MiloPanelSizing(
-        defaultSize: NSSize(width: 720, height: 640),
+        defaultSize: NSSize(width: 820, height: 720),
         minSize: NSSize(width: 600, height: 520)
     )
 

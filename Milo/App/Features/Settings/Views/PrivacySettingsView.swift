@@ -168,9 +168,10 @@ struct PrivacySettingsView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     PrivacySettingsView()
-        .frame(width: 640, height: 520)
+        .frame(minWidth: 640, idealWidth: 760, maxWidth: 980, minHeight: 520, idealHeight: 680, maxHeight: 900)
+        .miloPanelDynamicTypeLimit()
 }
 #endif

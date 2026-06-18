@@ -46,7 +46,7 @@ struct MiloRootView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     MiloRootView(
         mousePositionService: MousePositionService(),

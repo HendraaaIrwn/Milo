@@ -97,7 +97,7 @@ struct ReminderEntryView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     ReminderEntryView(onSave: { _, _ in }, onCancel: {})
 }

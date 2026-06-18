@@ -127,7 +127,7 @@ private struct MiloFramePreferenceKey: PreferenceKey {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     MiloHomeView()
 }

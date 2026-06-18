@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct MiloPanelCardView<Content: View>: View {
+    private var metrics = MiloScaledMetrics()
+
     let title: String
     let subtitle: String?
     let trailing: AnyView?
@@ -19,39 +21,53 @@ struct MiloPanelCardView<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 8) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .layoutPriority(1)
-
-                if let trailing {
-                    trailing
-                        .layoutPriority(2)
-                }
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            ViewThatFits(in: .horizontal) {
+                headerHorizontal
+                headerVertical
             }
 
             content
         }
-        .padding(16)
+        .padding(metrics.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.92))
                 .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
         )
+    }
+
+    private var headerHorizontal: some View {
+        HStack(alignment: .top, spacing: metrics.mediumSpacing) {
+            titleBlock
+            Spacer(minLength: metrics.mediumSpacing)
+            if let trailing { trailing.layoutPriority(2) }
+        }
+    }
+
+    private var headerVertical: some View {
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+            titleBlock
+            if let trailing { trailing }
+        }
+    }
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+            Text(title)
+                .font(.headline.weight(.bold))
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let subtitle {
+                Text(subtitle)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .layoutPriority(1)
     }
 }

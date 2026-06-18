@@ -77,5 +77,6 @@ struct MiloPanelScaffoldView<Content: View>: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .miloPanelDynamicTypeLimit()
     }
 }

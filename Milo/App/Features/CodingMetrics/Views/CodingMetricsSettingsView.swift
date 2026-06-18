@@ -10,12 +10,24 @@ import SwiftUI
 struct CodingMetricsSettingsView: View {
     @AppStorage(MiloStorageKeys.codingMetricsEnabled) private var metricsEnabled = true
     @AppStorage(MiloStorageKeys.codingMetricsShowBadge) private var showBadge = true
+    private var metrics = MiloScaledMetrics()
 
     var onOpenFileWatcherSettings: () -> Void = {}
 
+    init(onOpenFileWatcherSettings: @escaping () -> Void = {}) {
+        self.onOpenFileWatcherSettings = onOpenFileWatcherSettings
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        MiloResponsivePanelContainer(
+            minWidth: 560,
+            idealWidth: 720,
+            maxWidth: 920,
+            minHeight: 520,
+            idealHeight: 680,
+            maxHeight: 860
+        ) {
+            VStack(alignment: .leading, spacing: metrics.largeSpacing) {
                 Form {
                     Section {
                         Toggle("Enable Coding Metrics", isOn: $metricsEnabled)
@@ -26,20 +38,21 @@ struct CodingMetricsSettingsView: View {
 
                 Form {
                     Section("LOC Tracking") {
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                             Label("Project folders are managed in File Watcher Settings.", systemImage: "folder.badge.gearshape")
-                                .font(.system(size: 13))
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
 
                             Label("LOC tracking uses Git. Install Git CLI tools and make sure your project folder is a Git repository.", systemImage: "info.circle")
-                                .font(.system(size: 12))
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
 
                             Button("Open File Watcher Settings") {
                                 onOpenFileWatcherSettings()
                             }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
+                            .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                         }
                         .padding(.vertical, 4)
                     }
@@ -47,9 +60,8 @@ struct CodingMetricsSettingsView: View {
                 .formStyle(.grouped)
 
                 Text("WakaTime Connection")
-                    .font(.system(size: 13, weight: .semibold))
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
+                    .font(.headline)
+                    .padding(.top, metrics.smallSpacing)
 
                 WakaTimeConnectionView()
             }
@@ -57,9 +69,9 @@ struct CodingMetricsSettingsView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     CodingMetricsSettingsView()
-        .frame(width: 640, height: 520)
+        .dynamicTypeSize(.accessibility1)
 }
 #endif

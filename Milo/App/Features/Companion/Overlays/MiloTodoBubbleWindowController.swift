@@ -37,20 +37,20 @@ private struct MiloTodoBubbleWrapperView: View {
                  onOpenTodoList: onOpenTodoList
              )
              .environment(\.controlActiveState, .active)
-             .frame(width: 280, height: 130)
+             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
          } else {
-             Color.clear.frame(width: 280, height: 130)
+             Color.clear.frame(width: 420, height: 170)
          }
      }
  }
 
  @MainActor
  final class MiloTodoBubbleWindowController {
-     private let bubbleSize = NSSize(width: 280, height: 130)
+     private let bubbleSize = NSSize(width: 420, height: 170)
      private let bubbleState = MiloTodoBubbleState()
 
      private let overlay = MiloOverlayWindowController<AnyView>(
-         defaultSize: NSSize(width: 280, height: 130),
+         defaultSize: NSSize(width: 420, height: 170),
          ignoresMouseEventsWhenVisible: false
      )
 
@@ -98,7 +98,7 @@ private struct MiloTodoBubbleWrapperView: View {
     private func origin(relativeTo characterFrame: NSRect) -> NSPoint {
         NSPoint(
             x: characterFrame.midX - bubbleSize.width / 2,
-            y: characterFrame.maxY + 8
+            y: characterFrame.maxY - 44
         )
     }
 }

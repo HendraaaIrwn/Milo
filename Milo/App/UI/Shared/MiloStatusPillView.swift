@@ -4,48 +4,47 @@ struct MiloStatusPillView: View {
     enum Tone {
         case success
         case warning
-        case danger
         case neutral
+        case danger
         case info
     }
 
+    private var metrics = MiloScaledMetrics()
+
     let title: String
-    var systemImage: String?
-    var tone: Tone = .neutral
+    let systemImage: String
+    let tone: Tone
+
+    init(title: String, systemImage: String = "circle.fill", tone: Tone) {
+        self.title = title
+        self.systemImage = systemImage
+        self.tone = tone
+    }
 
     var body: some View {
-        HStack(spacing: 7) {
-            if let systemImage {
-                Image(systemName: systemImage)
-                    .imageScale(.small)
-            }
-
+        HStack(spacing: metrics.smallSpacing) {
+            Image(systemName: systemImage)
+                .font(.caption.weight(.semibold))
             Text(title)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .font(.caption.weight(.semibold))
                 .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .allowsTightening(true)
+                .minimumScaleFactor(0.8)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
-        .background(color.opacity(0.14))
+        .padding(.horizontal, metrics.badgePaddingHorizontal)
+        .padding(.vertical, metrics.badgePaddingVertical)
+        .frame(minHeight: metrics.badgeMinHeight)
+        .background(Capsule().fill(color.opacity(0.16)))
         .foregroundStyle(color)
-        .clipShape(Capsule())
-        .fixedSize(horizontal: true, vertical: false)
+        .miloSmallOverlayDynamicTypeLimit()
     }
 
     private var color: Color {
         switch tone {
-        case .success:
-            return .green
-        case .warning:
-            return .orange
-        case .danger:
-            return .red
-        case .neutral:
-            return .secondary
-        case .info:
-            return .blue
+        case .success: return .green
+        case .warning: return .orange
+        case .neutral: return .secondary
+        case .danger: return .red
+        case .info: return .blue
         }
     }
 }

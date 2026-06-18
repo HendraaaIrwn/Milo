@@ -20,17 +20,17 @@ private struct MiloBubbleWrapperView: View {
 
     var body: some View {
         MiloReactionBubbleView(text: state.text)
-            .frame(width: 270, height: 110)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
     }
 }
 
 @MainActor
 final class MiloBubbleWindowController {
-    private let bubbleSize = NSSize(width: 270, height: 110)
+    private let bubbleSize = NSSize(width: 360, height: 120)
     private let bubbleState = MiloBubbleState()
 
     private let overlay = MiloOverlayWindowController<AnyView>(
-        defaultSize: NSSize(width: 270, height: 110),
+        defaultSize: NSSize(width: 360, height: 120),
         ignoresMouseEventsWhenVisible: true
     )
 
@@ -66,7 +66,7 @@ final class MiloBubbleWindowController {
     private func origin(relativeTo characterFrame: NSRect) -> NSPoint {
         NSPoint(
             x: characterFrame.midX - bubbleSize.width / 2,
-            y: characterFrame.maxY - 18
+            y: characterFrame.maxY + 8
         )
     }
 }

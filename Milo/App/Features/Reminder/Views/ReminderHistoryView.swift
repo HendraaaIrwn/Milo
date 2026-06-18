@@ -292,7 +292,7 @@ private struct ReminderHistoryStyledRowView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     ReminderHistoryView(historyService: ReminderHistoryService())
 }

@@ -90,24 +90,21 @@ struct CodingMetricsPanelView: View {
                 title: "Quick Actions",
                 subtitle: "Manage local metrics and project activity."
             ) {
-                HStack(spacing: 12) {
+                MiloAdaptiveActionRow(spacing: 12) {
                     Button("Refresh WakaTime") {
                         coordinator.refreshWakaTime()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.blue)
+                    .buttonStyle(MiloAdaptiveButtonStyle(.primary))
 
                     Button("File Watcher") {
                         onOpenFileWatcherSettings()
                     }
-
-                    Spacer()
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
 
                     Button("Reset Local Stats", role: .destructive) {
                         coordinator.localMetricsService.resetLocalStats()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
+                    .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
                 }
             }
         } footer: {
@@ -251,11 +248,7 @@ struct CodingMetricsPanelView: View {
     }
 
     private var metricColumns: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16)
-        ]
+        [GridItem(.adaptive(minimum: 150), spacing: 16)]
     }
 
     private var metricColumnsWaka: [GridItem] {

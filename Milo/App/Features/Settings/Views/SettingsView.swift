@@ -76,7 +76,8 @@ struct SettingsView: View {
                 .tabItem { Label("Privacy", systemImage: "hand.raised") }
         }
         .padding(16)
-        .frame(width: 640, height: 520)
+        .frame(minWidth: 640, idealWidth: 760, maxWidth: 980, minHeight: 520, idealHeight: 680, maxHeight: 900)
+        .miloPanelDynamicTypeLimit()
     }
 
     private var generalTab: some View {
@@ -102,14 +103,16 @@ struct SettingsView: View {
                 Slider(value: $settingsStore.soundVolume, in: 0...1)
             }
 
-            HStack {
+            MiloAdaptiveActionRow {
                 Button("Test MILO Voice") {
                     MiloMumbleEngine.shared.speak("Milo is ready to code.")
                 }
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
 
                 Button("Say Milo") {
                     MiloMumbleEngine.shared.speakName()
                 }
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
             }
         }
     }
@@ -129,16 +132,22 @@ struct SettingsView: View {
             Toggle("Pomodoro Sound Enabled", isOn: $pomodoroSoundEnabled)
             Toggle("Show Timer Badge Under MILO", isOn: $pomodoroShowTimerBadge)
 
-            HStack {
+            MiloAdaptiveActionRow {
                 Button("Start 25/5") { pomodoroService.start(preset: .short) }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.primary))
                 Button("Start 50/10") { pomodoroService.start(preset: .medium) }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                 Button("Start 90/15") { pomodoroService.start(preset: .long) }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
             }
 
-            HStack {
+            MiloAdaptiveActionRow {
                 Button("Pause") { pomodoroService.pause() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                 Button("Resume") { pomodoroService.resume() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                 Button("Reset") { pomodoroService.reset() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.subtle))
             }
 
             Divider()
@@ -188,7 +197,7 @@ struct SettingsView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     SettingsView(pomodoroService: PomodoroService())
 }

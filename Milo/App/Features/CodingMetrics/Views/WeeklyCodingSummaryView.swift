@@ -159,11 +159,11 @@ struct WeeklyCodingSummaryView: View {
     }
 
     private var metricColumns: [GridItem] {
-        [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
+        [GridItem(.adaptive(minimum: 150), spacing: 16)]
     }
 
     private var dualColumns: [GridItem] {
-        [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
+        [GridItem(.adaptive(minimum: 260), spacing: 16)]
     }
 
     private func formatSeconds(_ seconds: Int) -> String {
@@ -189,21 +189,31 @@ private struct WeeklyCodingSummaryDayCardView: View {
             .frame(width: 52, height: 52)
 
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(record.date.formatted(date: .abbreviated, time: .omitted))
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                    Spacer()
-                    MiloStatusPillView(title: "\(record.sessionCount) sessions", systemImage: "timer", tone: .info)
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        Text(record.date.formatted(date: .abbreviated, time: .omitted))
+                            .font(.headline.weight(.bold))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        MiloStatusPillView(title: "\(record.sessionCount) sessions", systemImage: "timer", tone: .info)
+                    }
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(record.date.formatted(date: .abbreviated, time: .omitted))
+                            .font(.headline.weight(.bold))
+                            .fixedSize(horizontal: false, vertical: true)
+                        MiloStatusPillView(title: "\(record.sessionCount) sessions", systemImage: "timer", tone: .info)
+                    }
                 }
-                HStack(spacing: 8) {
+
+                MiloAdaptiveActionRow(spacing: 8) {
                     MiloStatusPillView(title: formatSeconds(record.codingSeconds), systemImage: "clock", tone: record.codingSeconds > 0 ? .success : .neutral)
                     MiloStatusPillView(title: record.topLanguage ?? "No language", systemImage: "chevron.left.forwardslash.chevron.right", tone: .neutral)
                     MiloStatusPillView(title: "LOC \(record.locSummary.netLines)", systemImage: "plus.forwardslash.minus", tone: record.locSummary.netLines >= 0 ? .success : .warning)
                 }
                 Text([record.topProject, record.topEditor].compactMap { $0 }.joined(separator: " \u{2022} "))
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(16)

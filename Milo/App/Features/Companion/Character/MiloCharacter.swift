@@ -163,7 +163,7 @@ struct MiloCharacter: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview("Milo · Idle") {
     MiloCharacter(mood: .idle)
         .padding()
@@ -171,7 +171,7 @@ struct MiloCharacter: View {
 }
 #endif
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview("Milo · Sleepy") {
     MiloCharacter(mood: .sleepy)
         .padding()
@@ -179,7 +179,7 @@ struct MiloCharacter: View {
 }
 #endif
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview("Milo · Happy") {
     MiloCharacter(mood: .happy)
         .padding()
@@ -187,7 +187,7 @@ struct MiloCharacter: View {
 }
 #endif
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview("Milo · Typing") {
     MiloCharacter(mood: .typing)
         .padding()
@@ -195,7 +195,7 @@ struct MiloCharacter: View {
 }
 #endif
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview("Milo · Confused") {
     MiloCharacter(mood: .confused)
         .padding()
@@ -203,7 +203,7 @@ struct MiloCharacter: View {
 }
 #endif
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview("Milo · Reminder") {
     MiloCharacter(mood: .reminder)
         .padding()
@@ -211,7 +211,7 @@ struct MiloCharacter: View {
 }
 #endif
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview("Milo · Focus") {
     MiloCharacter(mood: .focus)
         .padding()

@@ -47,20 +47,20 @@ private struct MiloReminderBubbleWrapperView: View {
                 onReschedule: onReschedule
             )
             .environment(\.controlActiveState, .active)
-            .frame(width: 320, height: 130)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         } else {
-            Color.clear.frame(width: 320, height: 130)
+            Color.clear.frame(width: 460, height: 190)
         }
     }
 }
 
 @MainActor
 final class MiloReminderBubbleWindowController {
-    private let bubbleSize = NSSize(width: 320, height: 130)
+    private let bubbleSize = NSSize(width: 460, height: 190)
     private let bubbleState = MiloReminderBubbleState()
 
     private let overlay = MiloOverlayWindowController<AnyView>(
-        defaultSize: NSSize(width: 320, height: 130),
+        defaultSize: NSSize(width: 460, height: 190),
         ignoresMouseEventsWhenVisible: false
     )
 
@@ -112,7 +112,7 @@ final class MiloReminderBubbleWindowController {
     private func origin(relativeTo characterFrame: NSRect) -> NSPoint {
         NSPoint(
             x: characterFrame.midX - bubbleSize.width / 2,
-            y: characterFrame.maxY - 4
+            y: characterFrame.maxY + 8 
         )
     }
 }

@@ -6,93 +6,115 @@
 import SwiftUI
 
 struct MiloReminderBubbleView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    private var metrics = MiloScaledMetrics()
+    
     let reminder: MiloReminder
     let onDone: () -> Void
     let onSnooze5: () -> Void
     let onSnooze15: () -> Void
     let onReschedule: () -> Void
-
+    
+    init(
+        reminder: MiloReminder,
+        onDone: @escaping () -> Void,
+        onSnooze5: @escaping () -> Void,
+        onSnooze15: @escaping () -> Void,
+        onReschedule: @escaping () -> Void
+    ) {
+        self.reminder = reminder
+        self.onDone = onDone
+        self.onSnooze5 = onSnooze5
+        self.onSnooze15 = onSnooze15
+        self.onReschedule = onReschedule
+    }
+    
     var body: some View {
+        let bubbleWidth = maxBubbleWidth(for: dynamicTypeSize)
+        
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(.red.opacity(0.8))
-                        .frame(width: 7, height: 7)
-                    Circle()
-                        .fill(.yellow.opacity(0.8))
-                        .frame(width: 7, height: 7)
-                    Circle()
-                        .fill(.green.opacity(0.8))
-                        .frame(width: 7, height: 7)
-
-                    Text("milo.remind")
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.45))
-
-                    Spacer()
-                }
-
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                titleBar
+                
                 MiloTerminalTextView(
                     text: reminder.message,
                     typingSpeed: 0.022,
                     cursorStyle: .block,
                     keepCursorAfterTyping: false,
-                    fontSize: 13,
-                    maxLines: 3
+                    maxLines: nil
                 )
                 .foregroundStyle(.green.opacity(0.92))
-
-                HStack(spacing: 6) {
-                    Button("Done", action: onDone)
-                        .buttonStyle(.borderedProminent)
-                        .tint(.green)
-                    Button("+5", action: onSnooze5)
-                        .buttonStyle(.borderedProminent)
-                        .tint(.white)
-                    Button("+15", action: onSnooze15)
-                        .buttonStyle(.borderedProminent)
-                        .tint(.white)
-                    Button("Reschedule", action: onReschedule)
-                        .buttonStyle(.borderedProminent)
-                        .tint(.blue)
+                
+                MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
+                    HStack(spacing: metrics.smallSpacing) {
+                        Button { onDone() } label: {
+                            Label("Done", systemImage: "checkmark.circle.fill")
+                        }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
+                        
+                        Button { onSnooze5() } label: {
+                            Label("+5", systemImage: "clock.fill")
+                        }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                        
+                        Button { onSnooze15() } label: {
+                            Label("+15", systemImage: "clock.fill")
+                        }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                        
+                        Button { onReschedule() } label: {
+                            Label("Reschedule", systemImage: "calendar")
+                        }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.subtle))
+                    }
                 }
-                .font(.system(size: 10, weight: .semibold))
-                .controlSize(.small)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .frame(width: 320, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.black.opacity(0.9))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color.green.opacity(0.25), lineWidth: 1)
-                    )
-            )
-
+            .padding(.horizontal, metrics.bubblePaddingHorizontal)
+            .padding(.vertical, metrics.bubblePaddingVertical)
+            .frame(minWidth: 320, idealWidth: 380, maxWidth: bubbleWidth, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
+            .background(bubbleBackground)
+            
             Triangle()
                 .fill(Color.black.opacity(0.9))
                 .frame(width: 14, height: 8)
                 .offset(y: -1)
         }
+        .miloBubbleDynamicTypeLimit()
+    }
+    
+    private func maxBubbleWidth(for dynamicTypeSize: DynamicTypeSize) -> CGFloat {
+        dynamicTypeSize.isAccessibilitySize ? 460 : 380
+    }
+    
+    private var titleBar: some View {
+        HStack(spacing: metrics.smallSpacing) {
+            trafficLight(.red)
+            trafficLight(.yellow)
+            trafficLight(.green)
+            
+            Text("milo.remind")
+                .font(.caption2.monospaced().weight(.semibold))
+                .foregroundStyle(.white.opacity(0.45))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            
+            Spacer(minLength: 0)
+        }
+    }
+    
+    private func trafficLight(_ color: Color) -> some View {
+        Circle()
+            .fill(color.opacity(0.8))
+            .frame(width: 7, height: 7)
+    }
+    
+    private var bubbleBackground: some View {
+        RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
+            .fill(Color.black.opacity(0.9))
+            .overlay(
+                RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
+                    .stroke(Color.green.opacity(0.25), lineWidth: 1)
+            )
     }
 }
-
-#if ENABLE_SWIFTUI_PREVIEWS
-#Preview {
-    MiloReminderBubbleView(
-        reminder: MiloReminder(
-            title: "Take a break",
-            message: "Take a break",
-            dueDate: Date(),
-            createdSource: .rightClick
-        ),
-        onDone: {},
-        onSnooze5: {},
-        onSnooze15: {},
-        onReschedule: {}
-    )
-}
-#endif
