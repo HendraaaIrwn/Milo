@@ -15,6 +15,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
     case pomodoro
     case codingMetrics
     case wakaTime
+    case agentIntegrations
     case fileWatcher
     case privacy
     case about
@@ -32,6 +33,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         case .pomodoro: return "Pomodoro"
         case .codingMetrics: return "Coding Metrics"
         case .wakaTime: return "WakaTime"
+        case .agentIntegrations: return "Agent Integrations"
         case .fileWatcher: return "File Watcher"
         case .privacy: return "Privacy"
         case .about: return "About"
@@ -49,6 +51,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         case .pomodoro: return "Focus timer presets, badge, and stats."
         case .codingMetrics: return "Local coding stats and activity tracking."
         case .wakaTime: return "Optional WakaTime connection and sync."
+        case .agentIntegrations: return "AI agent detection and status indicators."
         case .fileWatcher: return "Watched project folders and file activity."
         case .privacy: return "Local-first data and permission controls."
         case .about: return "MILO version, credits, and app info."
@@ -66,6 +69,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         case .pomodoro: return "timer"
         case .codingMetrics: return "chart.bar.xaxis"
         case .wakaTime: return "clock.badge.checkmark"
+        case .agentIntegrations: return "cpu"
         case .fileWatcher: return "folder.badge.gearshape"
         case .privacy: return "lock.shield.fill"
         case .about: return "info.circle.fill"

@@ -23,6 +23,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var projectFileWatcherService: ProjectFileWatcherService?
     private var personalitySettingsStore: MiloPersonalitySettingsStore?
     private var availabilityService: AppleIntelligenceAvailabilityService?
+    private var perAgentManager: MiloPerAgentIntegrationManager?
+    private var agentSettingsStore: MiloAgentIntegrationsSettingsStore?
+    private var claudeCodeIntegration: MiloClaudeCodeIntegration?
+    private var claudeCodeIntegrationBundleURL: URL?
 
     private(set) var miloStateStore: MiloStateStore?
     private var keyboardActivityService: KeyboardActivityService?
@@ -80,6 +84,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let aiGenerator = AppleFoundationModelsResponseGenerator()
 
+        let agentIntegrationsStore = MiloAgentIntegrationsSettingsStore()
+        self.agentSettingsStore = agentIntegrationsStore
+
+        let agentDetectionStore = MiloAgentDetectionSettingsStore()
+        let agentStatusStore = MiloAgentStatusStore()
+
+        if agentDetectionStore.settings.isEnabled {
+            var s = agentDetectionStore.settings
+            s.isEnabled = false
+            s.isConnected = false
+            s.autoStartOnLaunch = false
+            agentDetectionStore.settings = s
+        }
+
+        let agentDetector = MiloAgentDetector(
+            statusStore: agentStatusStore,
+            settingsStore: agentIntegrationsStore
+        )
+
+        let testService = MiloAgentConnectionTestService()
+        let agentPreflight = MiloAgentIntegrationPreflightService()
+        let perAgentManager = MiloPerAgentIntegrationManager(
+            settingsStore: agentIntegrationsStore,
+            detector: agentDetector,
+            statusStore: agentStatusStore,
+            testService: testService
+        )
+        self.perAgentManager = perAgentManager
+
+        // The Claude Code facade is constructed lazily inside the window
+        // controller because it needs the overlay coordinator and the
+        // floating pet state. We hold a back-reference here so we can stop
+        // it cleanly on terminate.
+        let miloctlBundleURL = Bundle.main.url(forResource: "miloctl", withExtension: nil)
+        self.claudeCodeIntegrationBundleURL = miloctlBundleURL
+
         fileWatcherService.onProjectActivity = { [weak codingMetricsService] activitySnapshot in
             Task { @MainActor in
                 codingMetricsService?.applyProjectActivitySnapshot(activitySnapshot)
@@ -98,7 +138,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             fileWatcherService: fileWatcherService,
             personalitySettingsStore: personalitySettingsStore,
             availabilityService: availabilityService,
-            aiGenerator: aiGenerator
+            aiGenerator: aiGenerator,
+            perAgentManager: perAgentManager,
+            agentSettingsStore: agentIntegrationsStore,
+            agentDetectionStore: agentDetectionStore,
+            claudeCodeIntegrationBundleURL: miloctlBundleURL,
+            agentStatusStore: agentStatusStore
         )
 
         pomodoroService.onFocusCompleted = { [weak stateStore, weak miloWindowController] in
@@ -122,6 +167,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         self.miloWindowController = miloWindowController
+        self.claudeCodeIntegration = miloWindowController.claudeCodeIntegrationFacade
+        perAgentManager.onAgentConnected = { [weak self] agentType in
+            guard agentType == .claudeCode || agentType == .codex else { return }
+            self?.claudeCodeIntegration?.start()
+        }
+        perAgentManager.onAgentDisconnected = { [weak self] agentType in
+            guard agentType == .claudeCode || agentType == .codex else { return }
+            let codexConnected = agentIntegrationsStore.config(for: .codex).isConnected
+            let claudeConnected = agentIntegrationsStore.config(for: .claudeCode).isConnected
+            guard !codexConnected && !claudeConnected else { return }
+            self?.claudeCodeIntegration?.stop()
+        }
         self.pomodoroService = pomodoroService
         self.reminderHistoryService = reminderHistoryService
         self.reminderService = reminderService
@@ -138,7 +195,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             reminderService: reminderService,
             todoService: todoService,
             codingMetricsCoordinator: codingMetricsCoordinator,
-            fileWatcherService: fileWatcherService
+            fileWatcherService: fileWatcherService,
+            agentSettingsStore: agentIntegrationsStore
         )
 
         ReminderNotificationService.shared.requestAuthorizationIfNeeded()
@@ -180,6 +238,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         reminderService?.closeEntryWindow()
         miloWindowController?.close()
         menuBarController?.cleanup()
+        claudeCodeIntegration?.stop()
     }
 
 

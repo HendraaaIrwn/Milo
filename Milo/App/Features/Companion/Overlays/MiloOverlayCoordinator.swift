@@ -12,6 +12,7 @@ final class MiloOverlayCoordinator {
     private let pomodoroBadgeController: MiloPomodoroBadgeWindowController
     private let todoBubbleController: MiloTodoBubbleWindowController
     private let reminderBubbleController: MiloReminderBubbleWindowController
+    private let agentBadgeController: MiloAgentStatusBadgeWindowController
 
     private let bubbleCoordinator: MiloBubbleCoordinator
 
@@ -22,12 +23,14 @@ final class MiloOverlayCoordinator {
         bubbleController: MiloBubbleWindowController,
         pomodoroBadgeController: MiloPomodoroBadgeWindowController,
         todoBubbleController: MiloTodoBubbleWindowController,
-        reminderBubbleController: MiloReminderBubbleWindowController
+        reminderBubbleController: MiloReminderBubbleWindowController,
+        agentBadgeController: MiloAgentStatusBadgeWindowController
     ) {
         self.codingBadgeController = codingBadgeController
         self.pomodoroBadgeController = pomodoroBadgeController
         self.todoBubbleController = todoBubbleController
         self.reminderBubbleController = reminderBubbleController
+        self.agentBadgeController = agentBadgeController
         self.bubbleCoordinator = MiloBubbleCoordinator(bubbleWindowController: bubbleController)
     }
 
@@ -37,6 +40,7 @@ final class MiloOverlayCoordinator {
         pomodoroBadgeController.configure()
         todoBubbleController.configure()
         reminderBubbleController.configure()
+        agentBadgeController.configure()
     }
 
     func updatePositions(relativeTo characterFrame: NSRect) {
@@ -55,6 +59,10 @@ final class MiloOverlayCoordinator {
 
         if reminderBubbleController.isVisible {
             reminderBubbleController.updatePosition(relativeTo: characterFrame)
+        }
+
+        if agentBadgeController.isVisible {
+            agentBadgeController.updatePosition(relativeTo: characterFrame)
         }
     }
 
@@ -148,6 +156,16 @@ final class MiloOverlayCoordinator {
         reminderBubbleController.hide()
     }
 
+    // MARK: - Agent Status Badge
+
+    func showAgentStatusBadge(_ event: MiloAgentEvent) {
+        agentBadgeController.show(event: event, relativeTo: latestCharacterFrame)
+    }
+
+    func hideAgentStatusBadge() {
+        agentBadgeController.hide()
+    }
+
     // MARK: - Lifecycle
 
     func hideAllEventOverlays() {
@@ -166,5 +184,6 @@ final class MiloOverlayCoordinator {
         pomodoroBadgeController.destroy()
         todoBubbleController.destroy()
         reminderBubbleController.destroy()
+        agentBadgeController.destroy()
     }
 }

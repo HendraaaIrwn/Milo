@@ -20,8 +20,14 @@ final class MiloWindowController {
     private let pomodoroService: PomodoroService
     private let codingMetricsCoordinator: CodingMetricsCoordinator
     private let fileWatcherService: ProjectFileWatcherService
+    private let agentSettingsStore: MiloAgentIntegrationsSettingsStore
+    private let agentDetectionStore: MiloAgentDetectionSettingsStore
+    private let perAgentManager: MiloPerAgentIntegrationManager
     private let personalitySettingsStore: MiloPersonalitySettingsStore
     private let availabilityService: AppleIntelligenceAvailabilityService
+    private let claudeCodeIntegrationBundleURL: URL?
+    private let agentStatusStore: MiloAgentStatusStore
+    private(set) var claudeCodeIntegration: MiloClaudeCodeIntegration?
     private var petPanel: FloatingPetPanel?
 
     private let smartPersonalityEngine: MiloSmartPersonalityEngine
@@ -61,14 +67,32 @@ final class MiloWindowController {
     )
     private lazy var todoBubbleController = MiloTodoBubbleWindowController()
     private lazy var reminderBubbleController = MiloReminderBubbleWindowController()
+    private lazy var agentBadgeController = MiloAgentStatusBadgeWindowController()
+    private lazy var agentStatusCoordinator = MiloAgentStatusCoordinator(
+        statusStore: perAgentManager.statusStore,
+        settingsStore: agentDetectionStore,
+        overlayCoordinator: overlayCoordinator
+    )
 
     private lazy var overlayCoordinator = MiloOverlayCoordinator(
         codingBadgeController: codingBadgeController,
         bubbleController: bubbleController,
         pomodoroBadgeController: pomodoroBadgeController,
         todoBubbleController: todoBubbleController,
-        reminderBubbleController: reminderBubbleController
+        reminderBubbleController: reminderBubbleController,
+        agentBadgeController: agentBadgeController
     )
+
+    private(set) lazy var claudeCodeIntegrationFacade: MiloClaudeCodeIntegration? = {
+        guard let bundleURL = claudeCodeIntegrationBundleURL else { return nil }
+        return MiloClaudeCodeIntegration(
+            statusStore: agentStatusStore,
+            overlayCoordinator: overlayCoordinator,
+            petState: petState,
+            settingsStore: agentSettingsStore,
+            miloctlBundleURL: bundleURL
+        )
+    }()
 
     private lazy var fileWatcherSettingsWindowController = FileWatcherSettingsWindowController(
         fileWatcherService: fileWatcherService
@@ -85,7 +109,10 @@ final class MiloWindowController {
             onTestSmartPersonality: { [weak self] in
                 let context = self?.contextProvider.makeContext() ?? .empty
                 return await self?.smartPersonalityEngine.generateResponse(event: .miloClicked, context: context)
-            }
+            },
+            agentIntegrationsSettingsStore: agentSettingsStore,
+            perAgentManager: perAgentManager,
+            claudeCodeIntegration: claudeCodeIntegrationFacade
         )
     )
     private(set) lazy var panelRouter = MiloPanelRouter(
@@ -119,7 +146,12 @@ final class MiloWindowController {
         fileWatcherService: ProjectFileWatcherService,
         personalitySettingsStore: MiloPersonalitySettingsStore,
         availabilityService: AppleIntelligenceAvailabilityService,
-        aiGenerator: MiloAIResponseGenerating?
+        aiGenerator: MiloAIResponseGenerating?,
+        perAgentManager: MiloPerAgentIntegrationManager,
+        agentSettingsStore: MiloAgentIntegrationsSettingsStore,
+        agentDetectionStore: MiloAgentDetectionSettingsStore,
+        claudeCodeIntegrationBundleURL: URL?,
+        agentStatusStore: MiloAgentStatusStore
     ) {
         self.stateStore = stateStore
         self.reminderService = reminderService
@@ -132,6 +164,11 @@ final class MiloWindowController {
         self.fileWatcherService = fileWatcherService
         self.personalitySettingsStore = personalitySettingsStore
         self.availabilityService = availabilityService
+        self.perAgentManager = perAgentManager
+        self.agentSettingsStore = agentSettingsStore
+        self.agentDetectionStore = agentDetectionStore
+        self.claudeCodeIntegrationBundleURL = claudeCodeIntegrationBundleURL
+        self.agentStatusStore = agentStatusStore
 
         let localEngine = MiloContextAwareResponseEngine()
         self.smartPersonalityEngine = MiloSmartPersonalityEngine(
@@ -155,6 +192,7 @@ final class MiloWindowController {
         }
 
         mousePositionService.start()
+        _ = agentStatusCoordinator
         petPanel?.orderFrontRegardless()
         stateStore.isMiloVisible = true
 
@@ -172,6 +210,7 @@ final class MiloWindowController {
         overlayCoordinator.hideAllEventOverlays()
         overlayCoordinator.hideCodingBadge()
         overlayCoordinator.hidePomodoroBadge()
+        overlayCoordinator.hideAgentStatusBadge()
     }
 
     func setMood(_ mood: MiloMood) {
@@ -663,6 +702,7 @@ final class MiloWindowController {
 
     func destroy() {
         mousePositionService.stop()
+        perAgentManager.disconnectAll()
         overlayCoordinator.destroyAll()
         frameObserver.map { NotificationCenter.default.removeObserver($0) }
         frameObserver = nil

@@ -54,6 +54,7 @@
 			buildPhases = (
 				4C783EA12FD98B3D00DC4498 /* Sources */,
 				4C783EA22FD98B3D00DC4498 /* Frameworks */,
+				BEEF00012FD98B3D00DC4498 /* Build miloctl */,
 				4C783EA32FD98B3D00DC4498 /* Resources */,
 			);
 			buildRules = (
@@ -113,6 +114,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BEEF00012FD98B3D00DC4498 /* Build miloctl */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/MiloCLI/miloctl/MiloCtlMain.swift",
+				"$(SRCROOT)/MiloCLI/miloctl/MiloCtlHookSanitizer.swift",
+				"$(SRCROOT)/MiloCLI/miloctl/MiloLocalReceiverClient.swift",
+			);
+			name = "Build miloctl";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/miloctl",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nTOOLCHAIN_PATH=\"$(xcrun --sdk macosx --show-sdk-path)\"\nmkdir -p \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\nSDK_FLAGS=\"-sdk $TOOLCHAIN_PATH -target arm64-apple-macosx26.0\"\nxcrun -sdk macosx swiftc $SDK_FLAGS \\\n  -O \\\n  -o \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/miloctl\" \\\n  \"$SRCROOT/MiloCLI/miloctl/MiloCtlMain.swift\" \\\n  \"$SRCROOT/MiloCLI/miloctl/MiloCtlHookSanitizer.swift\" \\\n  \"$SRCROOT/MiloCLI/miloctl/MiloLocalReceiverClient.swift\"\nchmod +x \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/miloctl\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4C783EA12FD98B3D00DC4498 /* Sources */ = {

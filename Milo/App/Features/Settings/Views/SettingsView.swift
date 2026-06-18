@@ -65,7 +65,8 @@ struct SettingsView: View {
                 .tabItem { Label("Personality", systemImage: "brain.head.profile") }
 
             Form {
-                Text("Agent integrations placeholder")
+                Text("Agent detection and status indicators are configured in the full settings window.")
+                    .foregroundStyle(.secondary)
             }
             .tabItem { Label("Agent Integrations", systemImage: "cpu") }
 

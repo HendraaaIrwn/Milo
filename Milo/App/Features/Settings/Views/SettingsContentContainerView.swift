@@ -78,6 +78,15 @@ struct SettingsContentContainerView: View {
             CodingMetricsSettingsEmbedView(coordinator: dependencies.codingMetricsCoordinator)
         case .wakaTime:
             WakaTimeConnectionView()
+        case .agentIntegrations:
+            if let store = dependencies.agentIntegrationsSettingsStore,
+               let manager = dependencies.perAgentManager {
+                MiloAgentIntegrationsSettingsView(
+                    settingsStore: store,
+                    manager: manager,
+                    claudeIntegration: dependencies.claudeCodeIntegration
+                )
+            }
         case .fileWatcher:
             if let fw = dependencies.fileWatcherService {
                 FileWatcherSettingsEmbedView(fileWatcherService: fw)

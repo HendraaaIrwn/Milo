@@ -15,6 +15,9 @@ final class SettingsDependencies {
     let personalitySettingsStore: MiloPersonalitySettingsStore?
     let availabilityService: AppleIntelligenceAvailabilityService?
     let onTestSmartPersonality: (() async -> String?)?
+    let agentIntegrationsSettingsStore: MiloAgentIntegrationsSettingsStore?
+    let perAgentManager: MiloPerAgentIntegrationManager?
+    let claudeCodeIntegration: MiloClaudeCodeIntegration?
 
     init(
         reminderService: ReminderService? = nil,
@@ -24,7 +27,10 @@ final class SettingsDependencies {
         fileWatcherService: ProjectFileWatcherService? = nil,
         personalitySettingsStore: MiloPersonalitySettingsStore? = nil,
         availabilityService: AppleIntelligenceAvailabilityService? = nil,
-        onTestSmartPersonality: (() async -> String?)? = nil
+        onTestSmartPersonality: (() async -> String?)? = nil,
+        agentIntegrationsSettingsStore: MiloAgentIntegrationsSettingsStore? = nil,
+        perAgentManager: MiloPerAgentIntegrationManager? = nil,
+        claudeCodeIntegration: MiloClaudeCodeIntegration? = nil
     ) {
         self.reminderService = reminderService
         self.todoService = todoService
@@ -34,5 +40,8 @@ final class SettingsDependencies {
         self.personalitySettingsStore = personalitySettingsStore
         self.availabilityService = availabilityService
         self.onTestSmartPersonality = onTestSmartPersonality
+        self.agentIntegrationsSettingsStore = agentIntegrationsSettingsStore
+        self.perAgentManager = perAgentManager
+        self.claudeCodeIntegration = claudeCodeIntegration
     }
 }
