@@ -6,6 +6,8 @@
 import SwiftUI
 
 struct MiloPersonalitySettingsView: View {
+    private var metrics = MiloScaledMetrics()
+
     @ObservedObject var settingsStore: MiloPersonalitySettingsStore
     @ObservedObject var availabilityService: AppleIntelligenceAvailabilityService
 
@@ -14,42 +16,49 @@ struct MiloPersonalitySettingsView: View {
     @State private var testResponse: String?
     @State private var isTesting = false
 
+    init(
+        settingsStore: MiloPersonalitySettingsStore,
+        availabilityService: AppleIntelligenceAvailabilityService,
+        onTestResponse: @escaping () async -> String?
+    ) {
+        self.settingsStore = settingsStore
+        self.availabilityService = availabilityService
+        self.onTestResponse = onTestResponse
+    }
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
+            VStack(alignment: .leading, spacing: metrics.largeSpacing) {
                 headerSection
-                Divider()
                 responseModeSection
-                Divider()
 
                 if settingsStore.settings.responseMode == .smartPersonality {
                     smartPersonalitySection
-                    Divider()
                     privacySection
-                    Divider()
                     testSection
                 }
             }
-            .padding(24)
+            .padding(metrics.panelPadding)
         }
         .task { await availabilityService.refresh() }
     }
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text("MILO Personality")
-                .font(.title2.bold())
+                .miloFont(.title2, weight: .bold)
+                .fixedSize(horizontal: false, vertical: true)
             Text("Choose how MILO talks while you code.")
-                .font(.subheadline)
+                .miloFont(.subheadline)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     private var responseModeSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Response Mode")
-                .font(.headline)
-
+        MiloPanelCardView(title: "Response Mode") {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
             Picker("Response Mode", selection: $settingsStore.settings.responseMode) {
                 ForEach(MiloResponseMode.allCases) { mode in
                     Text(mode.title).tag(mode)
@@ -59,37 +68,26 @@ struct MiloPersonalitySettingsView: View {
             .labelsHidden()
 
             Text(settingsStore.settings.responseMode.subtitle)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
+        }
         }
     }
 
     private var smartPersonalitySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Smart Personality")
-                .font(.headline)
-
-            HStack {
-                Text(availabilityLabel)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(availabilityColor.opacity(0.15))
-                    )
-                    .foregroundStyle(availabilityColor)
-
-                Spacer()
+        MiloPanelCardView(title: "Smart Personality", subtitle: "Apple Intelligence availability and response style.") {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
+                MiloStatusPill(availabilityLabel, color: availabilityColor, systemImage: "sparkles")
 
                 Button {
                     Task { await availabilityService.refresh() }
                 } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.caption)
+                    Label("Refresh", systemImage: "arrow.clockwise")
                 }
-                .buttonStyle(.borderless)
+                .buttonStyle(MiloAdaptiveButtonStyle(.subtle))
             }
 
             Toggle("Enable Apple Intelligence responses", isOn: $settingsStore.settings.smartPersonalityEnabled)
@@ -113,19 +111,19 @@ struct MiloPersonalitySettingsView: View {
                 Toggle("Allow playful roast mode", isOn: $settingsStore.settings.allowPlayfulRoast)
             }
         }
+        }
     }
 
     private var privacySection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Privacy")
-                .font(.headline)
-
+        MiloPanelCardView(title: "Privacy") {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
             Text("MILO only uses safe coding metadata like focus time, language, Pomodoro state, and todo counts. It never reads typed text, source code, clipboard, passwords, or file contents.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                 Toggle("Use project name in responses", isOn: $settingsStore.settings.allowProjectName)
                 Toggle("Use active language in responses", isOn: $settingsStore.settings.allowActiveLanguage)
                 Toggle("Use coding duration in responses", isOn: $settingsStore.settings.allowCodingDuration)
@@ -133,14 +131,16 @@ struct MiloPersonalitySettingsView: View {
                 Toggle("Use todo/reminder counts in responses", isOn: $settingsStore.settings.allowTodoCounts)
                 Toggle("Use Pomodoro state in responses", isOn: $settingsStore.settings.allowPomodoroState)
             }
-            .font(.caption)
+            .miloFont(.caption)
             .disabled(!settingsStore.settings.smartPersonalityEnabled)
+        }
         }
     }
 
     private var testSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
+        MiloPanelCardView(title: "Test Response", subtitle: "Preview without saving a full conversation transcript.") {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
                 Button {
                     Task {
                         isTesting = true
@@ -156,25 +156,28 @@ struct MiloPersonalitySettingsView: View {
                         Text("Test Smart Personality")
                     }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(MiloAdaptiveButtonStyle(.primary))
                 .disabled(isTesting)
                 .disabled(!settingsStore.settings.smartPersonalityEnabled)
             }
 
             if let testResponse {
                 Text("milo> \(testResponse)")
-                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .miloFont(.monospacedCallout, weight: .medium)
                     .foregroundStyle(.green)
-                    .padding(12)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(metrics.cardPadding)
                     .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
                             .fill(Color.black.opacity(0.88))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
                                     .stroke(Color.green.opacity(0.25), lineWidth: 1)
                             )
                     )
             }
+        }
         }
     }
 
@@ -193,10 +196,22 @@ struct MiloPersonalitySettingsView: View {
     }
 }
 
-#Preview {
+#if DEBUG
+#Preview("MILO Personality - Medium") {
     MiloPersonalitySettingsView(
         settingsStore: MiloPersonalitySettingsStore(),
         availabilityService: AppleIntelligenceAvailabilityService(),
         onTestResponse: { "This is a test response from MILO." }
     )
+    .dynamicTypeSize(.medium)
 }
+
+#Preview("MILO Personality - Accessibility 2") {
+    MiloPersonalitySettingsView(
+        settingsStore: MiloPersonalitySettingsStore(),
+        availabilityService: AppleIntelligenceAvailabilityService(),
+        onTestResponse: { "This is a test response from MILO." }
+    )
+    .dynamicTypeSize(.accessibility2)
+}
+#endif

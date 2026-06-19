@@ -31,6 +31,7 @@ private final class MiloReminderBubbleState: ObservableObject {
 
 private struct MiloReminderBubbleWrapperView: View {
     @ObservedObject var state: MiloReminderBubbleState
+    let onVisualFrameChange: (CGRect) -> Void
 
     var body: some View {
         if let reminder = state.reminder,
@@ -44,32 +45,53 @@ private struct MiloReminderBubbleWrapperView: View {
                 onDone: onDone,
                 onSnooze5: onSnooze5,
                 onSnooze15: onSnooze15,
-                onReschedule: onReschedule
+                onReschedule: onReschedule,
+                onVisualFrameChange: onVisualFrameChange
             )
             .environment(\.controlActiveState, .active)
-            .frame(width: 320, height: 130)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         } else {
-            Color.clear.frame(width: 320, height: 130)
+            Color.clear.frame(width: 660, height: 200)
         }
     }
 }
 
 @MainActor
 final class MiloReminderBubbleWindowController {
-    private let bubbleSize = NSSize(width: 320, height: 130)
+    private var bubbleSize: NSSize {
+        MiloMacDynamicTypeObserver.currentDynamicTypeSize().isAccessibilitySize
+            ? NSSize(width: 800, height: 280)
+            : NSSize(width: 660, height: 210)
+    }
     private let bubbleState = MiloReminderBubbleState()
+    private var latestCharacterFrame: NSRect = .zero
+    private var dynamicTypeObservers: [NSObjectProtocol] = []
 
     private let overlay = MiloOverlayWindowController<AnyView>(
-        defaultSize: NSSize(width: 320, height: 130),
+        defaultSize: NSSize(width: 660, height: 210),
         ignoresMouseEventsWhenVisible: false
     )
 
     func configure() {
         overlay.configure(
             rootView: AnyView(
-                MiloReminderBubbleWrapperView(state: bubbleState)
+                MiloReminderBubbleWrapperView(
+                    state: bubbleState,
+                    onVisualFrameChange: { [weak self] rect in
+                        self?.overlay.updateHitTestRegion(
+                            NSRect(
+                                x: rect.origin.x,
+                                y: rect.origin.y,
+                                width: rect.width,
+                                height: rect.height
+                            )
+                        )
+                    }
+                )
             )
         )
+        overlay.updateHitTestRegion(.zero)
+        observeDynamicTypeChanges()
     }
 
     func show(
@@ -81,6 +103,7 @@ final class MiloReminderBubbleWindowController {
         onSnooze15: @escaping () -> Void,
         onReschedule: @escaping () -> Void
     ) {
+        latestCharacterFrame = characterFrame
         bubbleState.configure(
             reminder: reminder,
             onDone: onDone,
@@ -100,10 +123,16 @@ final class MiloReminderBubbleWindowController {
     }
 
     func updatePosition(relativeTo characterFrame: NSRect) {
+        latestCharacterFrame = characterFrame
         overlay.updatePosition(origin(relativeTo: characterFrame))
     }
 
     func destroy() {
+        for observer in dynamicTypeObservers {
+            NotificationCenter.default.removeObserver(observer)
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+        }
+        dynamicTypeObservers.removeAll()
         overlay.destroy()
     }
 
@@ -112,7 +141,39 @@ final class MiloReminderBubbleWindowController {
     private func origin(relativeTo characterFrame: NSRect) -> NSPoint {
         NSPoint(
             x: characterFrame.midX - bubbleSize.width / 2,
-            y: characterFrame.maxY - 4
+            y: characterFrame.maxY + 8 
+        )
+    }
+
+    private func observeDynamicTypeChanges() {
+        guard dynamicTypeObservers.isEmpty else { return }
+
+        dynamicTypeObservers.append(
+            NotificationCenter.default.addObserver(
+                forName: UserDefaults.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.refreshDynamicTypeSize() }
+            }
+        )
+        dynamicTypeObservers.append(
+            NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.refreshDynamicTypeSize() }
+            }
+        )
+    }
+
+    private func refreshDynamicTypeSize() {
+        guard isVisible else { return }
+        overlay.show(
+            at: origin(relativeTo: latestCharacterFrame),
+            size: bubbleSize,
+            duration: nil
         )
     }
 }

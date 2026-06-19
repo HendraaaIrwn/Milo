@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct ChatCommandWindowView: View {
+    private var metrics = MiloScaledMetrics()
+
     let reminderService: ReminderService
     let todoService: TodoService
     let reminderSchedulerService: ReminderSchedulerService
@@ -52,18 +54,18 @@ struct ChatCommandWindowView: View {
                 title: "Command",
                 subtitle: "MILO turns simple commands into reminder or todo metadata."
             ) {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
                     TextField("Try: remind me in 30 min to take a break", text: $commandText)
                         .textFieldStyle(.roundedBorder)
                         .onSubmit { submit() }
 
-                    HStack(spacing: 10) {
+                    MiloAdaptiveActionRow(spacing: metrics.mediumSpacing) {
                         Button {
                             submit()
                         } label: {
                             Label("Submit", systemImage: "paperplane.fill")
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
                         .keyboardShortcut(.defaultAction)
                         .disabled(commandText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
@@ -71,13 +73,16 @@ struct ChatCommandWindowView: View {
                             commandText = ""
                             helperText = "Try: remind me in 30 min to take a break"
                         }
-
-                        Spacer()
+                        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                        
+                        Spacer ()
 
                         Button("Close") {
                             onClose()
                         }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.subtle))
                     }
+                    .padding(.top, metrics.largeSpacing)
                 }
             }
 
@@ -85,17 +90,18 @@ struct ChatCommandWindowView: View {
                 title: "Examples",
                 subtitle: "English and Indonesian commands work best when simple."
             ) {
-                LazyVStack(alignment: .leading, spacing: 10) {
+                LazyVStack(alignment: .leading, spacing: metrics.smallSpacing) {
                     ForEach(examples, id: \.self) { example in
-                        HStack(spacing: 10) {
+                        HStack(alignment: .top, spacing: metrics.smallSpacing) {
                             Image(systemName: "quote.bubble.fill")
                                 .foregroundStyle(.orange)
-                                .font(.system(size: 10))
+                                .miloFont(.caption)
                             
                             Text(example)
-                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .miloFont(.caption, weight: .medium)
                                 .foregroundStyle(.secondary)
-                                .lineLimit(1)
+                                .lineLimit(nil)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }

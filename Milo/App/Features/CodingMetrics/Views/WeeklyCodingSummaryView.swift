@@ -6,7 +6,13 @@
 import SwiftUI
 
 struct WeeklyCodingSummaryView: View {
+    private var metrics = MiloScaledMetrics()
+
     @ObservedObject var weeklyService: WeeklyCodingMetricsService
+
+    init(weeklyService: WeeklyCodingMetricsService) {
+        self.weeklyService = weeklyService
+    }
 
     private var summary: WeeklyCodingMetricsSummary {
         weeklyService.weeklySummary
@@ -59,16 +65,18 @@ struct WeeklyCodingSummaryView: View {
             }
 
             MiloPanelCardView(title: "Source Control", subtitle: "Reset only local weekly aggregates when needed.") {
-                HStack {
+                MiloAdaptiveActionRow(spacing: metrics.mediumSpacing) {
                     Text("MILO stores weekly coding summaries locally on this Mac.")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .miloFont(.body, weight: .medium)
                         .foregroundStyle(.secondary)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
                     Spacer()
+
                     Button("Reset This Week", role: .destructive) {
                         weeklyService.resetWeeklyLocalStats()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
+                    .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
                 }
             }
         } footer: {
@@ -155,15 +163,16 @@ struct WeeklyCodingSummaryView: View {
     private var insightsCard: some View {
         MiloPanelCardView(title: "MILO Insights", subtitle: "Patterns and observations from your week.") {
             WeeklyInsightsView(insights: summary.insights)
+                .padding(.top, metrics.largeSpacing)
         }
     }
 
     private var metricColumns: [GridItem] {
-        [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
+        [GridItem(.adaptive(minimum: 150), spacing: 16)]
     }
 
     private var dualColumns: [GridItem] {
-        [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
+        [GridItem(.adaptive(minimum: 260), spacing: 16)]
     }
 
     private func formatSeconds(_ seconds: Int) -> String {
@@ -175,42 +184,77 @@ struct WeeklyCodingSummaryView: View {
 }
 
 private struct WeeklyCodingSummaryDayCardView: View {
+    private var metrics = MiloScaledMetrics()
+
     let record: DailyCodingMetricsRecord
 
-    var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.yellow.opacity(0.12))
-                Image(systemName: "calendar.day.timeline.leading")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(.orange)
-            }
-            .frame(width: 52, height: 52)
+    init(record: DailyCodingMetricsRecord) {
+        self.record = record
+    }
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(record.date.formatted(date: .abbreviated, time: .omitted))
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                    Spacer()
-                    MiloStatusPillView(title: "\(record.sessionCount) sessions", systemImage: "timer", tone: .info)
-                }
-                HStack(spacing: 8) {
-                    MiloStatusPillView(title: formatSeconds(record.codingSeconds), systemImage: "clock", tone: record.codingSeconds > 0 ? .success : .neutral)
-                    MiloStatusPillView(title: record.topLanguage ?? "No language", systemImage: "chevron.left.forwardslash.chevron.right", tone: .neutral)
-                    MiloStatusPillView(title: "LOC \(record.locSummary.netLines)", systemImage: "plus.forwardslash.minus", tone: record.locSummary.netLines >= 0 ? .success : .warning)
-                }
-                Text([record.topProject, record.topEditor].compactMap { $0 }.joined(separator: " \u{2022} "))
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: metrics.mediumSpacing) {
+                icon
+                content
+            }
+
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                icon
+                content
             }
         }
-        .padding(16)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .fill(Color(NSColor.windowBackgroundColor).opacity(0.72))
         )
+    }
+
+    private var icon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
+                .fill(Color.yellow.opacity(0.12))
+            Image(systemName: "calendar.day.timeline.leading")
+                .font(.system(size: metrics.largeIconSize, weight: .semibold))
+                .foregroundStyle(.orange)
+        }
+        .frame(width: metrics.largeIconSize + 26, height: metrics.largeIconSize + 26)
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: metrics.smallSpacing) {
+                    dateTitle
+                    Spacer(minLength: metrics.smallSpacing)
+                    MiloStatusPillView(title: "\(record.sessionCount) sessions", systemImage: "timer", tone: .info)
+                }
+
+                VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+                    dateTitle
+                    MiloStatusPillView(title: "\(record.sessionCount) sessions", systemImage: "timer", tone: .info)
+                }
+            }
+
+            MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
+                MiloStatusPillView(title: formatSeconds(record.codingSeconds), systemImage: "clock", tone: record.codingSeconds > 0 ? .success : .neutral)
+                MiloStatusPillView(title: record.topLanguage ?? "No language", systemImage: "chevron.left.forwardslash.chevron.right", tone: .neutral)
+                MiloStatusPillView(title: "LOC \(record.locSummary.netLines)", systemImage: "plus.forwardslash.minus", tone: record.locSummary.netLines >= 0 ? .success : .warning)
+            }
+
+            Text([record.topProject, record.topEditor].compactMap { $0 }.joined(separator: " • "))
+                .miloFont(.subheadline, weight: .medium)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var dateTitle: some View {
+        Text(record.date.formatted(date: .abbreviated, time: .omitted))
+            .miloFont(.headline, weight: .bold)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private func formatSeconds(_ seconds: Int) -> String {

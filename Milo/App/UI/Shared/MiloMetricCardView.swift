@@ -1,35 +1,46 @@
 import SwiftUI
 
 struct MiloMetricCardView: View {
+    private var metrics = MiloScaledMetrics()
+
     let title: String
     let value: String
     var systemImage: String?
 
+    init(title: String, value: String, systemImage: String? = nil) {
+        self.title = title
+        self.value = value
+        self.systemImage = systemImage
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            HStack(alignment: .top, spacing: metrics.smallSpacing) {
                 if let systemImage {
                     Image(systemName: systemImage)
+                        .font(.system(size: metrics.iconSize, weight: .semibold))
                         .foregroundStyle(.orange)
                 }
 
                 Text(title)
-                    .font(.system(size: 14, design: .rounded))
+                    .miloFont(.subheadline)
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .miloFont(.title3, weight: .bold)
+                .fontDesign(.monospaced)
                 .foregroundStyle(.primary)
-                .lineLimit(1)
-                .truncationMode(.middle)
+                .minimumScaleFactor(0.75)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(18)
-        .frame(maxWidth: .infinity, minHeight: 86, alignment: .leading)
+        .padding(metrics.cardPadding)
+        .frame(maxWidth: .infinity, minHeight: 92, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.yellow.opacity(0.10))
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
+                .fill(Color(NSColor.windowBackgroundColor).opacity(0.72))
         )
     }
 }

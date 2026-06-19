@@ -180,29 +180,32 @@ final class ReminderService: ObservableObject {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 380, height: 210),
-            styleMask: [.titled, .closable],
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 480),
+            styleMask: [.titled, .closable, .resizable],
             backing: .buffered,
             defer: false
         )
 
         window.title = "Add Reminder"
         window.isReleasedWhenClosed = false
+        window.minSize = NSSize(width: 480, height: 380)
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: ReminderEntryView(
-                onSave: { [weak self, weak window] message, dueDate in
-                    guard let self else { return }
+            rootView: MiloDynamicTypeDebugWrapper {
+                ReminderEntryView(
+                    onSave: { [weak self, weak window] message, dueDate in
+                        guard let self else { return }
 
-                    let reminder = addReminder(message: message, dueDate: dueDate, source: source)
-                    closeEntryWindow()
-                    onSave(reminder)
-                    window?.close()
-                },
-                onCancel: { [weak self] in
-                    self?.closeEntryWindow()
-                }
-            )
+                        let reminder = addReminder(message: message, dueDate: dueDate, source: source)
+                        closeEntryWindow()
+                        onSave(reminder)
+                        window?.close()
+                    },
+                    onCancel: { [weak self] in
+                        self?.closeEntryWindow()
+                    }
+                )
+            }
         )
 
         entryWindow = window

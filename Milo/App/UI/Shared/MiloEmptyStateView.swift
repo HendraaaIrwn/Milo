@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct MiloEmptyStateView: View {
+    private var metrics = MiloScaledMetrics()
+
     let systemImage: String
     let title: String
     let message: String
@@ -8,21 +10,41 @@ struct MiloEmptyStateView: View {
     var buttonSystemImage: String?
     var action: (() -> Void)?
 
+    init(
+        systemImage: String,
+        title: String,
+        message: String,
+        buttonTitle: String? = nil,
+        buttonSystemImage: String? = nil,
+        action: (() -> Void)? = nil
+    ) {
+        self.systemImage = systemImage
+        self.title = title
+        self.message = message
+        self.buttonTitle = buttonTitle
+        self.buttonSystemImage = buttonSystemImage
+        self.action = action
+    }
+
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: metrics.cardPadding) {
             Image(systemName: systemImage)
-                .font(.system(size: 40, weight: .semibold))
+                .font(.system(size: metrics.largeIconSize + 14, weight: .semibold))
                 .foregroundStyle(.orange)
 
-            VStack(spacing: 6) {
+            VStack(spacing: metrics.smallSpacing) {
                 Text(title)
-                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .miloFont(.headline, weight: .bold)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(message)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .miloFont(.body, weight: .medium)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .frame(maxWidth: 420)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 460)
             }
 
             if let buttonTitle, let action {
@@ -35,14 +57,14 @@ struct MiloEmptyStateView: View {
                         Text(buttonTitle)
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .buttonStyle(MiloAdaptiveButtonStyle(.primary))
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 42)
+        .padding(.vertical, metrics.extraLargeSpacing)
+        .padding(.horizontal, metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [7]))
                 .foregroundStyle(Color.secondary.opacity(0.25))
         )

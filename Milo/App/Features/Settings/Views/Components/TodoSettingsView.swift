@@ -13,7 +13,7 @@ struct TodoSettingsView: View {
             SettingsCardView(title: "Todo List", subtitle: "Manage todo behavior.", systemImage: "checklist") {
                 Toggle("Show overdue todo bubbles", isOn: $todoNotificationsEnabled)
                 Text("Todos are stored locally and persist after restart.")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .miloFont(.caption).foregroundStyle(.secondary)
             }
         }
     }

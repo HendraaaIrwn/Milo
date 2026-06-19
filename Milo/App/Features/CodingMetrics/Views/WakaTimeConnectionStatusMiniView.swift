@@ -14,7 +14,7 @@ struct WakaTimeConnectionStatusMiniView: View {
             Spacer()
             if store.hasSavedAPIKey && !store.isTesting {
                 Button("Test") { store.testConnection() }
-                    .buttonStyle(.plain).font(.caption).foregroundStyle(.blue)
+                    .buttonStyle(.plain).miloFont(.caption).foregroundStyle(.blue)
             }
         }
         .onAppear {

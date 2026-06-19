@@ -56,7 +56,7 @@ struct MiloFloatingPetView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     MiloFloatingPetView(state: MiloFloatingPetState())
         .frame(width: MiloLayout.designWidth, height: MiloLayout.designHeight)

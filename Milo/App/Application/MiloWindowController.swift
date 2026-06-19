@@ -46,7 +46,7 @@ final class MiloWindowController {
 
     private var chatReminderWindow: NSWindow?
     private var historyWindow: NSWindow?
-    private var rescheduleWindow: NSWindow?
+    private var rescheduleWindow: UtilityWindowController?
     private var todoWindow: NSWindow?
     private var todoEditorWindow: NSWindow?
     private var codingMetricsWindow: NSWindow?
@@ -147,6 +147,7 @@ final class MiloWindowController {
 
     func showMilo() {
         panelRouter.onOpenSettings = { [weak self] in self?.openSettings() }
+        panelRouter.onOpenFileWatcherSettings = { [weak self] in self?.openFileWatcherSettings() }
         panelRouter.onHideMilo = { [weak self] in self?.hideMilo() }
 
         if petPanel == nil {
@@ -245,19 +246,21 @@ final class MiloWindowController {
         petPanel = panel
 
         panel.contentView = DraggableHostingView(
-            rootView: MiloRootView(
-                mousePositionService: mousePositionService,
-                state: petState,
-                stateStore: stateStore,
-                contextMenuController: contextMenuController,
-                onLeftClick: { [weak self] in
-                    self?.handleMiloClick()
-                },
-                characterFrame: { [weak panel] in
-                    panel?.frame ?? .zero
-                }
-            )
-            .frame(width: size.width, height: size.height)
+            rootView: MiloHostingRoot.wrap {
+                MiloRootView(
+                    mousePositionService: mousePositionService,
+                    state: petState,
+                    stateStore: stateStore,
+                    contextMenuController: contextMenuController,
+                    onLeftClick: { [weak self] in
+                        self?.handleMiloClick()
+                    },
+                    characterFrame: { [weak panel] in
+                        panel?.frame ?? .zero
+                    }
+                )
+                .frame(width: size.width, height: size.height)
+            }
         )
 
         panel.orderFrontRegardless()
@@ -426,27 +429,30 @@ final class MiloWindowController {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 200),
-            styleMask: [.titled, .closable],
+            contentRect: NSRect(x: 0, y: 0, width: 720, height: 620),
+            styleMask: [.titled, .closable, .resizable],
             backing: .buffered,
             defer: false
         )
 
         window.title = "MILO Chat"
         window.isReleasedWhenClosed = false
+        window.minSize = NSSize(width: 560, height: 460)
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: MiloChatInputView(
-                onSubmit: { [weak self, weak window] text in
-                    self?.handleChatInput(text)
-                    self?.chatReminderWindow = nil
-                    window?.close()
-                },
-                onCancel: { [weak self, weak window] in
-                    self?.chatReminderWindow = nil
-                    window?.close()
-                }
-            )
+            rootView: MiloDynamicTypeDebugWrapper {
+                MiloChatInputView(
+                    onSubmit: { [weak self, weak window] text in
+                        self?.handleChatInput(text)
+                        self?.chatReminderWindow = nil
+                        window?.close()
+                    },
+                    onCancel: { [weak self, weak window] in
+                        self?.chatReminderWindow = nil
+                        window?.close()
+                    }
+                )
+            }
         )
 
         chatReminderWindow = window
@@ -462,7 +468,7 @@ final class MiloWindowController {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 520),
+            contentRect: NSRect(x: 0, y: 0, width: 760, height: 680),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -470,18 +476,21 @@ final class MiloWindowController {
 
         window.title = "MILO Todo List"
         window.isReleasedWhenClosed = false
+        window.minSize = NSSize(width: 560, height: 520)
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: TodoListView(
-                todoService: todoService,
-                onEditTodo: { [weak self, weak window] todo in
-                    self?.openTodoEditor(existingTodo: todo)
-                    window?.close()
-                },
-                onConvertToReminder: { [weak self] todo in
-                    self?.convertTodoToReminder(todo)
-                }
-            )
+            rootView: MiloDynamicTypeDebugWrapper {
+                TodoListView(
+                    todoService: todoService,
+                    onEditTodo: { [weak self, weak window] todo in
+                        self?.openTodoEditor(existingTodo: todo)
+                        window?.close()
+                    },
+                    onConvertToReminder: { [weak self] todo in
+                        self?.convertTodoToReminder(todo)
+                    }
+                )
+            }
         )
 
         todoWindow = window
@@ -497,31 +506,34 @@ final class MiloWindowController {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 380, height: 300),
-            styleMask: [.titled, .closable],
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 580),
+            styleMask: [.titled, .closable, .resizable],
             backing: .buffered,
             defer: false
         )
 
         window.title = existingTodo == nil ? "Add Todo" : "Edit Todo"
         window.isReleasedWhenClosed = false
+        window.minSize = NSSize(width: 500, height: 480)
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: TodoEditorView(
-                todoService: todoService,
-                reminderService: reminderService,
-                existingTodo: existingTodo,
-                source: existingTodo != nil ? existingTodo!.createdSource : .rightClick,
-                onSave: { [weak self, weak window] _ in
-                    self?.showBubble("Todo saved.", mood: .focus)
-                    self?.todoEditorWindow = nil
-                    window?.close()
-                },
-                onCancel: { [weak self, weak window] in
-                    self?.todoEditorWindow = nil
-                    window?.close()
-                }
-            )
+            rootView: MiloDynamicTypeDebugWrapper {
+                TodoEditorView(
+                    todoService: todoService,
+                    reminderService: reminderService,
+                    existingTodo: existingTodo,
+                    source: existingTodo != nil ? existingTodo!.createdSource : .rightClick,
+                    onSave: { [weak self, weak window] _ in
+                        self?.showBubble("Todo saved.", mood: .focus)
+                        self?.todoEditorWindow = nil
+                        window?.close()
+                    },
+                    onCancel: { [weak self, weak window] in
+                        self?.todoEditorWindow = nil
+                        window?.close()
+                    }
+                )
+            }
         )
 
         todoEditorWindow = window
@@ -537,7 +549,7 @@ final class MiloWindowController {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 680, height: 520),
+            contentRect: NSRect(x: 0, y: 0, width: 720, height: 640),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -545,9 +557,12 @@ final class MiloWindowController {
 
         window.title = "MILO Reminder History"
         window.isReleasedWhenClosed = false
+        window.minSize = NSSize(width: 560, height: 500)
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: ReminderHistoryView(historyService: reminderHistoryService)
+            rootView: MiloDynamicTypeDebugWrapper {
+                ReminderHistoryView(historyService: reminderHistoryService)
+            }
         )
 
         historyWindow = window
@@ -557,26 +572,28 @@ final class MiloWindowController {
 
     func openRescheduleReminder(_ reminder: MiloReminder) {
         if let rescheduleWindow {
-            NSApp.activate(ignoringOtherApps: true)
-            rescheduleWindow.makeKeyAndOrderFront(nil)
+            rescheduleWindow.show()
             return
         }
 
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 400, height: 220),
-            styleMask: [.titled, .closable],
-            backing: .buffered,
-            defer: false
+        let ctrl = UtilityWindowController(
+            title: "Reschedule Reminder",
+            sizing: .rescheduleReminder,
+            rootView: ReminderRescheduleView(
+                reminder: reminder,
+                onSave: { [weak self] newDate in
+                    self?.reminderSchedulerService.reschedule(reminder, newDate: newDate)
+                    self?.showBubble("Reminder rescheduled.", mood: .reminder, source: .system)
+                    self?.rescheduleWindow?.close()
+                },
+                onCancel: { [weak self] in
+                    self?.rescheduleWindow?.close()
+                }
+            )
         )
-
-        window.title = "Reschedule"
-        window.isReleasedWhenClosed = false
-        window.center()
-        // Placeholder for reschedule UI
-
-        rescheduleWindow = window
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
+        ctrl.onClose = { [weak self] in self?.rescheduleWindow = nil }
+        rescheduleWindow = ctrl
+        ctrl.show()
     }
 
     func openCodingMetrics() {
@@ -587,7 +604,7 @@ final class MiloWindowController {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 620),
+            contentRect: NSRect(x: 0, y: 0, width: 760, height: 680),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -595,18 +612,21 @@ final class MiloWindowController {
 
         window.title = "MILO Coding Metrics"
         window.isReleasedWhenClosed = false
+        window.minSize = NSSize(width: 600, height: 520)
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: CodingMetricsPanelView(
-                coordinator: codingMetricsCoordinator,
-                service: codingMetricsCoordinator.localMetricsService,
-                onOpenWeeklySummary: { [weak self] in
-                    self?.openWeeklyCodingSummary()
-                },
-                onOpenFileWatcherSettings: { [weak self] in
-                    self?.openFileWatcherSettings()
-                }
-            )
+            rootView: MiloDynamicTypeDebugWrapper {
+                CodingMetricsPanelView(
+                    coordinator: codingMetricsCoordinator,
+                    service: codingMetricsCoordinator.localMetricsService,
+                    onOpenWeeklySummary: { [weak self] in
+                        self?.openWeeklyCodingSummary()
+                    },
+                    onOpenFileWatcherSettings: { [weak self] in
+                        self?.openFileWatcherSettings()
+                    }
+                )
+            }
         )
 
         codingMetricsWindow = window
@@ -622,19 +642,22 @@ final class MiloWindowController {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 620),
-            styleMask: [.titled, .closable, .miniaturizable],
+            contentRect: NSRect(x: 0, y: 0, width: 800, height: 720),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
 
         window.title = "Weekly Coding Summary"
         window.isReleasedWhenClosed = false
+        window.minSize = NSSize(width: 640, height: 560)
         window.center()
         window.contentViewController = NSHostingController(
-            rootView: WeeklyCodingSummaryView(
-                weeklyService: codingMetricsCoordinator.weeklyMetricsService
-            )
+            rootView: MiloDynamicTypeDebugWrapper {
+                WeeklyCodingSummaryView(
+                    weeklyService: codingMetricsCoordinator.weeklyMetricsService
+                )
+            }
         )
 
         weeklyCodingSummaryWindow = window

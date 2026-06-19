@@ -15,12 +15,12 @@ struct ReminderHistoryRowView: View {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(event.title)
-                        .font(.headline)
+                        .miloFont(.headline)
                         .lineLimit(1)
 
                     if event.message != event.title {
                         Text(event.message)
-                            .font(.subheadline)
+                            .miloFont(.subheadline)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
                     }
@@ -29,7 +29,7 @@ struct ReminderHistoryRowView: View {
                 Spacer()
 
                 Text(statusLabel(event.status))
-                    .font(.caption.weight(.semibold))
+                    .miloFont(.captionBold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(statusColor(event.status).opacity(0.14), in: Capsule())
@@ -53,10 +53,10 @@ struct ReminderHistoryRowView: View {
     private func metadata(_ title: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
-                .font(.caption2.weight(.semibold))
+                .miloFont(.caption2, weight: .semibold)
                 .foregroundStyle(.tertiary)
             Text(value)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }

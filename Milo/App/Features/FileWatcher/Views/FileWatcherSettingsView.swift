@@ -9,6 +9,8 @@ import SwiftUI
 import AppKit
 
 struct FileWatcherSettingsView: View {
+    private var metrics = MiloScaledMetrics()
+
     @ObservedObject var fileWatcherService: ProjectFileWatcherService
 
     @State private var isGlobalEnabled: Bool = UserDefaults.standard.object(
@@ -18,33 +20,39 @@ struct FileWatcherSettingsView: View {
     @State private var showingRemoveConfirmation: WatchedProject?
     @State private var lastUIMessage: String?
 
+    init(fileWatcherService: ProjectFileWatcherService) {
+        self.fileWatcherService = fileWatcherService
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            Divider()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    FileWatcherStatusCardView(
-                        status: fileWatcherService.status,
-                        snapshot: fileWatcherService.snapshot,
-                        isGlobalEnabled: $isGlobalEnabled,
-                        onToggleGlobal: handleGlobalToggle,
-                        onPause: { fileWatcherService.pause() },
-                        onResume: { fileWatcherService.resume() },
-                        onReset: {
-                            fileWatcherService.resetActivitySnapshot()
-                            lastUIMessage = "File watcher activity reset."
-                        }
-                    )
-                    watchedProjectsSection
-                    FileWatcherRecentActivityView(snapshot: fileWatcherService.snapshot)
-                    privacyNote
-                }
-                .padding(20)
+        MiloResponsivePanelContainer(
+            minWidth: 560,
+            idealWidth: 720,
+            maxWidth: 980,
+            minHeight: 500,
+            idealHeight: 640,
+            maxHeight: 900
+        ) {
+            VStack(alignment: .leading, spacing: metrics.largeSpacing) {
+                header
+                FileWatcherStatusCardView(
+                    status: fileWatcherService.status,
+                    snapshot: fileWatcherService.snapshot,
+                    isGlobalEnabled: $isGlobalEnabled,
+                    onToggleGlobal: handleGlobalToggle,
+                    onPause: { fileWatcherService.pause() },
+                    onResume: { fileWatcherService.resume() },
+                    onReset: {
+                        fileWatcherService.resetActivitySnapshot()
+                        lastUIMessage = "File watcher activity reset."
+                    }
+                )
+                watchedProjectsSection
+                FileWatcherRecentActivityView(snapshot: fileWatcherService.snapshot)
+                privacyNote
+                footer
             }
-            footer
         }
-        .frame(minWidth: 560, minHeight: 500)
         .confirmationDialog("Remove watched project?", isPresented: isPresentedRemoveDialog, presenting: showingRemoveConfirmation) { project in
             Button("Remove \(project.name)", role: .destructive) {
                 fileWatcherService.removeProject(id: project.id)
@@ -64,53 +72,74 @@ struct FileWatcherSettingsView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.yellow.opacity(0.22))
-                Image(systemName: "folder.badge.gearshape")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(.orange)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: metrics.mediumSpacing) {
+                headerIcon
+                headerText
+                Spacer(minLength: metrics.smallSpacing)
+                addProjectButton
             }
-            .frame(width: 48, height: 48)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("File Watcher")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                Text("Watch project folders for real-time coding activity.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                HStack(spacing: metrics.mediumSpacing) {
+                    headerIcon
+                    headerText
+                }
+                addProjectButton
             }
-            Spacer()
-            Button { openFolderPicker() } label: {
-                Label("Add Project", systemImage: "plus")
-            }
-            .buttonStyle(.borderedProminent)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
+    }
+
+    private var headerIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
+                .fill(Color.yellow.opacity(0.22))
+            Image(systemName: "folder.badge.gearshape")
+                .font(.system(size: metrics.largeIconSize, weight: .semibold))
+                .foregroundStyle(.orange)
+        }
+        .frame(width: metrics.largeIconSize + 22, height: metrics.largeIconSize + 22)
+    }
+
+    private var headerText: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+            Text("File Watcher")
+                .miloFont(.title3, weight: .bold)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Watch project folders for real-time coding activity.")
+                .miloFont(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var addProjectButton: some View {
+        Button { openFolderPicker() } label: {
+            Label("Add Project", systemImage: "plus")
+        }
+        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
     }
 
     private var watchedProjectsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Watched Projects")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                    Text("\(fileWatcherService.watchedProjects.count) folder(s) added")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    watchedProjectsTitle
+                    Spacer(minLength: metrics.smallSpacing)
+                    addFolderButton
                 }
-                Spacer()
-                Button { openFolderPicker() } label: {
-                    Label("Add Folder", systemImage: "folder.badge.plus")
+
+                VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+                    watchedProjectsTitle
+                    addFolderButton
                 }
             }
 
             if fileWatcherService.watchedProjects.isEmpty {
                 EmptyWatchedProjectsView { openFolderPicker() }
             } else {
-                VStack(spacing: 8) {
+                VStack(spacing: metrics.smallSpacing) {
                     ForEach(fileWatcherService.watchedProjects) { project in
                         WatchedProjectRowView(
                             project: project,
@@ -131,16 +160,37 @@ struct FileWatcherSettingsView: View {
         }
     }
 
-    private var privacyNote: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Privacy-first local watcher", systemImage: "lock.shield")
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-            Text("MILO watches file activity metadata only: path, extension, event type, timestamp, language estimate, and Git LOC summary. MILO does not store source code content or upload project activity.")
-                .font(.caption)
+    private var watchedProjectsTitle: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+            Text("Watched Projects")
+                .miloFont(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("\(fileWatcherService.watchedProjects.count) folder(s) added")
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(14)
+    }
+
+    private var addFolderButton: some View {
+        Button { openFolderPicker() } label: {
+            Label("Add Folder", systemImage: "folder.badge.plus")
+        }
+        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+    }
+
+    private var privacyNote: some View {
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+            Label("Privacy-first local watcher", systemImage: "lock.shield")
+                .miloFont(.captionBold)
+            Text("MILO watches file activity metadata only: path, extension, event type, timestamp, language estimate, and Git LOC summary. MILO does not store source code content or upload project activity.")
+                .miloFont(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(metrics.cardPadding)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color.yellow.opacity(0.10))
@@ -148,25 +198,26 @@ struct FileWatcherSettingsView: View {
     }
 
     private var footer: some View {
-        HStack {
-            if let lastUIMessage {
-                Text(lastUIMessage).font(.caption).foregroundStyle(.secondary).lineLimit(1)
-            } else {
-                Text("Ignored: node_modules, .git, build, dist, DerivedData, vendor")
-                    .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: metrics.mediumSpacing) {
+                footerMessage
+                Spacer(minLength: metrics.smallSpacing)
+                MiloStatusPill(fileWatcherService.status.title, color: statusColor)
             }
-            Spacer()
-            Text(fileWatcherService.status.title)
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(statusColor.opacity(0.16))
-                .foregroundStyle(statusColor)
-                .clipShape(Capsule())
+
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+                footerMessage
+                MiloStatusPill(fileWatcherService.status.title, color: statusColor)
+            }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 10)
-        .background(.regularMaterial)
+    }
+
+    private var footerMessage: some View {
+        Text(lastUIMessage ?? "Ignored: node_modules, .git, build, dist, DerivedData, vendor")
+            .miloFont(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var statusColor: Color {

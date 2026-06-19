@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TodoListView: View {
+    private var metrics = MiloScaledMetrics()
+
     @ObservedObject var todoService: TodoService
     let onAddTodo: () -> Void
     let onEditTodo: (MiloTodo) -> Void
@@ -61,7 +63,7 @@ struct TodoListView: View {
                 title: "Todo Status",
                 subtitle: "A quick snapshot of task health."
             ) {
-                LazyVGrid(columns: metricColumns, spacing: 16) {
+                LazyVGrid(columns: metricColumns, spacing: metrics.mediumSpacing) {
                     MiloMetricCardView(title: "Active", value: "\(activeCount)", systemImage: "circle")
                     MiloMetricCardView(title: "Overdue", value: "\(overdueCount)", systemImage: "exclamationmark.triangle.fill")
                     MiloMetricCardView(title: "Done", value: "\(doneCount)", systemImage: "checkmark.circle.fill")
@@ -78,7 +80,7 @@ struct TodoListView: View {
                     }
                 )
             ) {
-                HStack {
+                MiloAdaptiveActionRow {
                     Picker("Filter", selection: $filter) {
                         ForEach(TodoListFilter.allCases) { filter in
                             Text(filter.title).tag(filter)
@@ -90,11 +92,10 @@ struct TodoListView: View {
                     
                     if doneCount > 0 {
                         Button("Clear Done") { showClearConfirmation = true }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.red)
-                            .controlSize(.large)
+                            .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
                     }
                 }
+                .padding(.top, metrics.largeSpacing)
             }
 
             MiloPanelCardView(
@@ -111,7 +112,7 @@ struct TodoListView: View {
                         action: onAddTodo
                     )
                 } else {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: metrics.mediumSpacing) {
                         ForEach(filteredTodos) { todo in
                             TodoStyledRowView(
                                 todo: todo,
@@ -145,12 +146,7 @@ struct TodoListView: View {
     }
 
     private var metricColumns: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16)
-        ]
+        [GridItem(.adaptive(minimum: 160), spacing: metrics.mediumSpacing)]
     }
 
     private var emptyTitle: String {
@@ -194,28 +190,65 @@ private enum TodoListFilter: String, CaseIterable, Identifiable {
 }
 
 private struct TodoStyledRowView: View {
+    private var metrics = MiloScaledMetrics()
+
     let todo: MiloTodo
     let onDone: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
     let onConvertToReminder: () -> Void
 
+    init(
+        todo: MiloTodo,
+        onDone: @escaping () -> Void,
+        onEdit: @escaping () -> Void,
+        onDelete: @escaping () -> Void,
+        onConvertToReminder: @escaping () -> Void
+    ) {
+        self.todo = todo
+        self.onDone = onDone
+        self.onEdit = onEdit
+        self.onDelete = onDelete
+        self.onConvertToReminder = onConvertToReminder
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: metrics.cardPadding) {
+                doneButton
+                content
+            }
+
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                doneButton
+                content
+            }
+        }
+        .padding(metrics.cardPadding)
+        .background(
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
+                .fill(rowBackground)
+        )
+    }
+
+    private var doneButton: some View {
             Button(action: onDone) {
                 Image(systemName: todo.status == .done ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: metrics.iconSize, weight: .semibold))
                     .foregroundStyle(todo.status == .done ? .green : .secondary)
             }
             .buttonStyle(.plain)
+    }
 
-            VStack(alignment: .leading, spacing: 9) {
+    private var content: some View {
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(todo.title)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .miloFont(.bodyBold)
                         .strikethrough(todo.status == .done)
                         .foregroundStyle(todo.status == .done ? .secondary : .primary)
-                        .lineLimit(1)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Spacer()
 
@@ -236,12 +269,13 @@ private struct TodoStyledRowView: View {
 
                 if let notes = todo.notes, !notes.isEmpty {
                     Text(notes)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .miloFont(.body, weight: .medium)
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
-                HStack(spacing: 8) {
+                MiloAdaptiveActionRow {
                     MiloStatusPillView(title: statusLabel, systemImage: statusIcon, tone: statusTone)
                     MiloStatusPillView(title: priorityLabel, systemImage: "flag.fill", tone: priorityTone)
 
@@ -254,12 +288,6 @@ private struct TodoStyledRowView: View {
                     }
                 }
             }
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(rowBackground)
-        )
     }
 
     private var rowBackground: Color {

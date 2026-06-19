@@ -98,6 +98,12 @@ final class MiloContextMenuController: NSObject, NSMenuDelegate {
         ))
 
         menu.addItem(makeItem(
+            title: "File Watcher Settings",
+            systemImage: "folder.badge.gearshape",
+            action: #selector(openFileWatcherSettings)
+        ))
+
+        menu.addItem(makeItem(
             title: "Weekly Coding Summary",
             systemImage: "calendar.badge.clock",
             action: #selector(openWeeklyCodingSummary)
@@ -188,6 +194,11 @@ final class MiloContextMenuController: NSObject, NSMenuDelegate {
     @objc private func openCodingMetrics() {
         print("MILO menu item tapped: Coding Metrics")
         panelRouter.openCodingMetrics()
+    }
+
+    @objc private func openFileWatcherSettings() {
+        print("MILO menu item tapped: File Watcher Settings")
+        panelRouter.openFileWatcherSettings()
     }
 
     @objc private func openWeeklyCodingSummary() {

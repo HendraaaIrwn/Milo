@@ -6,23 +6,28 @@
 import SwiftUI
 
 struct WeeklyCodingSummaryCardView: View {
+    private var metrics = MiloScaledMetrics()
+
     let title: String
     let value: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(title)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
 
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
-                .lineLimit(1)
+                .miloFont(.bodyBold)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(12)
+        .padding(metrics.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.92))
                 .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 3)
         )

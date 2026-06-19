@@ -10,8 +10,8 @@ struct MiloTerminalTextView: View {
     var typingSpeed: TimeInterval = 0.026
     var cursorStyle: MiloTerminalCursorStyle = .underline
     var keepCursorAfterTyping: Bool = true
-    var fontSize: CGFloat = 13
-    var maxLines: Int = 3
+    var fontSize: CGFloat? = nil
+    var maxLines: Int? = nil
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -22,13 +22,20 @@ struct MiloTerminalTextView: View {
 
     var body: some View {
         Text(renderedText)
-            .font(.system(size: fontSize, weight: .medium, design: .monospaced))
+            .miloFont(.monospacedCallout, weight: .medium)
             .lineLimit(maxLines)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
             .onAppear { startAnimation() }
             .onChange(of: text) { _, _ in startAnimation() }
             .onDisappear { cancelTasks() }
+    }
+
+    private var textFont: Font {
+        if let fontSize {
+            return .system(size: fontSize, weight: .medium, design: .monospaced)
+        }
+        return .body.monospaced().weight(.medium)
     }
 
     private var renderedText: String {

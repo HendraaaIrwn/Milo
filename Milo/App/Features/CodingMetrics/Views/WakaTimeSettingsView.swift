@@ -11,9 +11,9 @@ struct WakaTimeSettingsView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     WakaTimeSettingsView()
-        .frame(width: 480, height: 520)
+        .dynamicTypeSize(.medium)
 }
 #endif

@@ -8,8 +8,18 @@
 import SwiftUI
 
 struct MiloChatInputView: View {
+    private var metrics = MiloScaledMetrics()
+
     let onSubmit: @MainActor (String) -> Void
     let onCancel: @MainActor () -> Void
+
+    init(
+        onSubmit: @escaping @MainActor (String) -> Void,
+        onCancel: @escaping @MainActor () -> Void
+    ) {
+        self.onSubmit = onSubmit
+        self.onCancel = onCancel
+    }
 
     @State private var text = ""
 
@@ -18,42 +28,49 @@ struct MiloChatInputView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: metrics.cardPadding) {
             Text("Chat Reminder and Todo")
-                .font(.title2.weight(.semibold))
+                .miloFont(.title2, weight: .semibold)
+                .fixedSize(horizontal: false, vertical: true)
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: metrics.tinySpacing) {
                 Text("Try:")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                 Text("remind me in 30 min to take a break")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("buat todo reminder untuk deploy jam 7 am")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 TextField("Type reminder", text: $text)
                     .textFieldStyle(.roundedBorder)
                     .onSubmit(submit)
             }
             
-            HStack {
-                Spacer()
-
+            MiloAdaptiveActionRow {
                 Button("Cancel") {
                     onCancel()
                 }
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
 
                 Button("Save") {
                     submit()
                 }
+                .buttonStyle(MiloAdaptiveButtonStyle(.primary))
                 .keyboardShortcut(.defaultAction)
                 .disabled(!canSubmit)
             }
         }
-        .padding(20)
-        .frame(width: 420)
+        .padding(metrics.panelPadding)
+        .frame(minWidth: 360, idealWidth: 420, maxWidth: 560, alignment: .leading)
+        .fixedSize(horizontal: false, vertical: true)
+        .miloPanelDynamicTypeLimit()
     }
 
     private func submit() {

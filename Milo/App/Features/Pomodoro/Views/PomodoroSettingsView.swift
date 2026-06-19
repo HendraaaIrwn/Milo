@@ -1,48 +1,73 @@
 import SwiftUI
 
 struct PomodoroSettingsView: View {
+    private var metrics = MiloScaledMetrics()
+    
     @ObservedObject var pomodoroService: PomodoroService
     
+    init(pomodoroService: PomodoroService) {
+        self.pomodoroService = pomodoroService
+    }
+    
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            Divider()
-            ScrollView {
+        MiloResponsivePanelContainer(
+            minWidth: 500,
+            idealWidth: 620,
+            maxWidth: 900,
+            minHeight: 460,
+            idealHeight: 560,
+            maxHeight: 860
+        ) {
+            VStack(alignment: .leading, spacing: metrics.largeSpacing) {
+                header
                 PomodoroSettingsContentView(pomodoroService: pomodoroService)
-                    .padding(22)
             }
-            .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(minWidth: 520, minHeight: 520)
     }
     
     private var header: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.yellow.opacity(0.22))
-                Image(systemName: "timer")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(.orange)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: metrics.mediumSpacing) {
+                headerIcon
+                headerText
+                Spacer(minLength: metrics.smallSpacing)
             }
-            .frame(width: 48, height: 48)
             
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Pomodoro")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                Text("Start focus sessions, tune alerts, and review today’s progress.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                headerIcon
+                headerText
             }
-            Spacer()
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 16)
-        .background(.regularMaterial)
+    }
+    
+    private var headerIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
+                .fill(Color.yellow.opacity(0.22))
+            Image(systemName: "timer")
+                .font(.system(size: metrics.largeIconSize, weight: .semibold))
+                .foregroundStyle(.orange)
+        }
+        .frame(width: metrics.largeIconSize + 22, height: metrics.largeIconSize + 22)
+    }
+    
+    private var headerText: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+            Text("Pomodoro")
+                .miloFont(.title3, weight: .bold)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Start focus sessions, tune alerts, and review today’s progress.")
+                .miloFont(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 
 struct PomodoroSettingsContentView: View {
+    private var metrics = MiloScaledMetrics()
+    
     @ObservedObject var pomodoroService: PomodoroService
     
     @AppStorage(MiloStorageKeys.pomodoroSoundEnabled) private var soundEnabled = true
@@ -50,15 +75,20 @@ struct PomodoroSettingsContentView: View {
     @State private var selectedPreset: PomodoroPreset = .short
     @State private var customFocusMinutes = 25
     @State private var customBreakMinutes = 5
+    @State private var isCustomTimerExpanded = false
+    
+    init(pomodoroService: PomodoroService) {
+        self.pomodoroService = pomodoroService
+    }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: metrics.largeSpacing) {
             SettingsCardView(
                 title: "Timer Controls",
                 subtitle: "Start, pause, or reset the Pomodoro timer.",
                 systemImage: "timer"
             ) {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: metrics.cardPadding) {
                     currentSession
                     presetPicker
                     customPreset
@@ -71,33 +101,34 @@ struct PomodoroSettingsContentView: View {
                 subtitle: "Control Pomodoro sound and MILO timer badge.",
                 systemImage: "slider.horizontal.3"
             ) {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
                     Toggle("Pomodoro Sound Enabled", isOn: $soundEnabled)
                     Toggle("Show Timer Badge Under MILO", isOn: $showTimerBadge)
                 }
             }
             
-            SettingsCardView(
+            MiloPanelCardView(
                 title: "Today's Stats",
-                subtitle: "Track focus progress for today.",
-                systemImage: "chart.bar"
+                subtitle: "Track focus progress for today."
             ) {
-                VStack(alignment: .leading, spacing: 12) {
-                    LazyVGrid(columns: statColumns, alignment: .leading, spacing: 10) {
-                        statTile("Pomodoros", value: "\(pomodoroService.stats.pomodorosToday)")
-                        statTile("Focus Time", value: "\(pomodoroService.stats.totalFocusSecondsToday / 60) min")
-                        statTile("Streak", value: "\(pomodoroService.stats.streakDays) day(s)")
-                        statTile("Skipped Breaks", value: "\(pomodoroService.stats.skippedBreaksToday)")
+                VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                    LazyVGrid(columns: statColumns, alignment: .leading, spacing: metrics.mediumSpacing) {
+                        MiloMetricCardView(title: "Pomodoros", value: "\(pomodoroService.stats.pomodorosToday)", systemImage: "timer")
+                        MiloMetricCardView(title: "Focus Time", value: "\(pomodoroService.stats.totalFocusSecondsToday / 60) min", systemImage: "clock")
+                        MiloMetricCardView(title: "Streak", value: "\(pomodoroService.stats.streakDays) day(s)", systemImage: "flame")
+                        MiloMetricCardView(title: "Skipped Breaks", value: "\(pomodoroService.stats.skippedBreaksToday)", systemImage: "figure.walk")
                     }
-                    Spacer()
-                    HStack {
+                    MiloAdaptiveActionRow {
+                        
                         Spacer()
+                        
                         Button("Reset Stats Today") {
                             pomodoroService.resetStatsToday()
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.red)
+                        .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
+                        
                     }
+                    .padding(metrics.cardPadding)
                 }
             }
         }
@@ -106,26 +137,43 @@ struct PomodoroSettingsContentView: View {
     }
     
     private var currentSession: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(sessionTitle)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                Text(timeRemaining)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .monospacedDigit()
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: metrics.mediumSpacing) {
+                sessionText
+                Spacer(minLength: metrics.smallSpacing)
+                sessionStatePill
             }
-            Spacer()
-            Text(pomodoroService.session.runState.rawValue.capitalized)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.orange)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(Color.yellow.opacity(0.18), in: Capsule())
+            
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+                sessionText
+                sessionStatePill
+            }
         }
     }
     
+    private var sessionText: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(sessionTitle)
+                .miloFont(.bodyBold)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(timeRemaining)
+                .miloFont(.largeTitle, weight: .bold)
+                .monospacedDigit()
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+        }
+    }
+    
+    private var sessionStatePill: some View {
+        MiloStatusPill(
+            pomodoroService.session.runState.rawValue.capitalized,
+            color: .orange,
+            systemImage: "timer"
+        )
+    }
+    
     private var presetPicker: some View {
-        HStack(spacing: 8) {
+        MiloAdaptiveActionRow {
             presetButton(.short)
             presetButton(.medium)
             presetButton(.long)
@@ -133,39 +181,64 @@ struct PomodoroSettingsContentView: View {
     }
     
     private var customPreset: some View {
-        DisclosureGroup("Custom Timer") {
-            VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.16)) {
+                    isCustomTimerExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: metrics.smallSpacing) {
+                    Image(systemName: isCustomTimerExpanded ? "chevron.down" : "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .frame(width: metrics.badgeIconSize, alignment: .center)
+                    
+                    Text("Custom Timer")
+                        .miloFont(.bodyBold)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            
+            if isCustomTimerExpanded {
+                customTimerFields
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private var customTimerFields: some View {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            HStack(alignment: .top , spacing: metrics.largeSpacing) {
                 Stepper("Focus: \(customFocusMinutes) min", value: $customFocusMinutes, in: 1...240)
                 Stepper("Break: \(customBreakMinutes) min", value: $customBreakMinutes, in: 1...60)
-                Button("Use Custom") {
-                    selectedPreset = .custom(
-                        focusMinutes: customFocusMinutes,
-                        breakMinutes: customBreakMinutes
-                    )
-                }
-                .buttonStyle(.bordered)
             }
-            .padding(.top, 8)
+            Button("Use Custom") {
+                selectedPreset = .custom(
+                    focusMinutes: customFocusMinutes,
+                    breakMinutes: customBreakMinutes
+                )
+            }
+            .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
         }
     }
     
     private var controlButtons: some View {
-        HStack(spacing: 8) {
+        MiloAdaptiveActionRow {
             Button("Start") { pomodoroService.start(preset: selectedPreset) }
-                .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                .buttonStyle(MiloAdaptiveButtonStyle(.primary))
             Button("Pause") { pomodoroService.pause() }
-                .buttonStyle(.bordered)
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
             Button("Resume") { pomodoroService.resume() }
-                .buttonStyle(.bordered)
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
             Button("Reset") { pomodoroService.reset() }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
+                .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
         }
     }
     
     private var statColumns: [GridItem] {
-        [GridItem(.flexible()), GridItem(.flexible())]
+        [GridItem(.adaptive(minimum: 140), spacing: metrics.mediumSpacing)]
     }
     
     private var sessionTitle: String {
@@ -186,20 +259,7 @@ struct PomodoroSettingsContentView: View {
         Button(preset.title) {
             selectedPreset = preset
         }
-        .buttonStyle(.bordered)
-        .tint(selectedPreset.id == preset.id ? .orange : nil)
+        .buttonStyle(MiloAdaptiveButtonStyle(selectedPreset.id == preset.id ? .primary : .secondary))
     }
     
-    private func statTile(_ title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.yellow.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
 }

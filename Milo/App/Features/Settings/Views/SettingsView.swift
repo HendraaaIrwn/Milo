@@ -40,6 +40,7 @@ struct SettingsView: View {
             Form {
                 Toggle("Eye Follow Cursor", isOn: $eyeFollowCursor)
             }
+            .miloFont(.body)
             .tabItem { Label("Appearance", systemImage: "paintbrush") }
 
             soundTab
@@ -54,6 +55,7 @@ struct SettingsView: View {
             Form {
                 Toggle("Break Nudges Enabled", isOn: $breakNudgesEnabled)
             }
+            .miloFont(.body)
             .tabItem { Label("Break Nudges", systemImage: "figure.walk") }
 
             Form {
@@ -76,7 +78,8 @@ struct SettingsView: View {
                 .tabItem { Label("Privacy", systemImage: "hand.raised") }
         }
         .padding(16)
-        .frame(width: 640, height: 520)
+        .frame(minWidth: 640, idealWidth: 760, maxWidth: 980, minHeight: 520, idealHeight: 680, maxHeight: 900)
+        .miloPanelDynamicTypeLimit()
     }
 
     private var generalTab: some View {
@@ -86,9 +89,12 @@ struct SettingsView: View {
             Toggle("Typing Reaction", isOn: $typingReaction)
             Toggle("Typing Bubble Dialogs", isOn: $typingBubbleDialogs)
             Text("MILO only detects keyboard timing, not what you type.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
+        .miloFont(.body)
     }
 
     private var soundTab: some View {
@@ -102,16 +108,19 @@ struct SettingsView: View {
                 Slider(value: $settingsStore.soundVolume, in: 0...1)
             }
 
-            HStack {
+            MiloAdaptiveActionRow {
                 Button("Test MILO Voice") {
                     MiloMumbleEngine.shared.speak("Milo is ready to code.")
                 }
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
 
                 Button("Say Milo") {
                     MiloMumbleEngine.shared.speakName()
                 }
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
             }
         }
+        .miloFont(.body)
     }
 
     private var reminderTab: some View {
@@ -119,9 +128,12 @@ struct SettingsView: View {
             Toggle("Reminder Notifications Enabled", isOn: $reminderNotificationsEnabled)
             Toggle("Reminder Sound Enabled", isOn: $reminderSoundEnabled)
             Text("Reminders stay local and are saved on this Mac only.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
+        .miloFont(.body)
     }
 
     private var pomodoroTab: some View {
@@ -129,16 +141,22 @@ struct SettingsView: View {
             Toggle("Pomodoro Sound Enabled", isOn: $pomodoroSoundEnabled)
             Toggle("Show Timer Badge Under MILO", isOn: $pomodoroShowTimerBadge)
 
-            HStack {
+            MiloAdaptiveActionRow {
                 Button("Start 25/5") { pomodoroService.start(preset: .short) }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.primary))
                 Button("Start 50/10") { pomodoroService.start(preset: .medium) }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                 Button("Start 90/15") { pomodoroService.start(preset: .long) }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
             }
 
-            HStack {
+            MiloAdaptiveActionRow {
                 Button("Pause") { pomodoroService.pause() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                 Button("Resume") { pomodoroService.resume() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                 Button("Reset") { pomodoroService.reset() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.subtle))
             }
 
             Divider()
@@ -152,6 +170,7 @@ struct SettingsView: View {
                 pomodoroService.resetStatsToday()
             }
         }
+        .miloFont(.body)
     }
 
     private var personalityTab: some View {
@@ -165,13 +184,15 @@ struct SettingsView: View {
                 .pickerStyle(.radioGroup)
 
                 Text(responseModeDescription)
-                    .font(.system(size: 11))
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
             } header: {
                 Text("MILO Personality")
             }
         }
+        .miloFont(.body)
     }
 
     private var responseModeDescription: String {
@@ -188,7 +209,7 @@ struct SettingsView: View {
     }
 }
 
-#if ENABLE_SWIFTUI_PREVIEWS
+#if DEBUG
 #Preview {
     SettingsView(pomodoroService: PomodoroService())
 }

@@ -6,18 +6,28 @@
 import SwiftUI
 
 struct SettingsContentContainerView: View {
+    private var metrics = MiloScaledMetrics()
+
     let section: SettingsSection
     let dependencies: SettingsDependencies
+
+    init(
+        section: SettingsSection,
+        dependencies: SettingsDependencies
+    ) {
+        self.section = section
+        self.dependencies = dependencies
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             sectionHeader
             Divider()
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: metrics.largeSpacing) {
                     contentView
                 }
-                .padding(22)
+                .padding(metrics.panelPadding)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .controlSize(ControlSize.large)
             }
@@ -26,30 +36,55 @@ struct SettingsContentContainerView: View {
     }
 
     private var sectionHeader: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.yellow.opacity(0.22))
-                Image(systemName: section.iconName)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(.orange)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: metrics.mediumSpacing) {
+                headerIcon
+                headerText
+                Spacer()
             }
-            .frame(width: 48, height: 48)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(section.title)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                HStack(spacing: metrics.mediumSpacing) {
+                    headerIcon
+                    Text(section.title)
+                        .miloFont(.title3, weight: .bold)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 Text(section.subtitle)
-                    .font(.system(size: 13))
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer()
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 16)
+        .padding(.horizontal, metrics.panelPadding)
+        .padding(.vertical, metrics.cardPadding)
         .background(.regularMaterial)
     }
 
+    private var headerIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
+                .fill(Color.yellow.opacity(0.22))
+            Image(systemName: section.iconName)
+                .font(.system(size: metrics.largeIconSize, weight: .semibold))
+                .foregroundStyle(.orange)
+        }
+        .frame(width: metrics.largeIconSize + 22, height: metrics.largeIconSize + 22)
+    }
+
+    private var headerText: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+            Text(section.title)
+                .miloFont(.title3, weight: .bold)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(section.subtitle)
+                .miloFont(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
     @ViewBuilder
     private var contentView: some View {
         switch section {

@@ -26,11 +26,13 @@ final class UtilityWindowController {
         self.sizing = sizing
         self.rootViewProvider = {
             AnyView(
-                rootView
-                    .frame(
-                        minWidth: sizing.minSize.width,
-                        minHeight: sizing.minSize.height
-                    )
+                MiloDynamicTypeDebugWrapper {
+                    rootView
+                        .frame(
+                            minWidth: sizing.minSize.width,
+                            minHeight: sizing.minSize.height
+                        )
+                }
             )
         }
     }
@@ -85,6 +87,29 @@ final class UtilityWindowController {
         window?.close()
         window = nil
         windowDelegate = nil
+    }
+
+    func ensureMinimumSize(_ size: CGSize) {
+        guard let window else { return }
+
+        window.minSize = NSSize(width: size.width, height: size.height)
+
+        let current = window.frame
+        let newWidth = max(current.width, size.width)
+        let newHeight = max(current.height, size.height)
+
+        guard newWidth != current.width || newHeight != current.height else { return }
+
+        window.setFrame(
+            NSRect(
+                x: current.origin.x,
+                y: current.origin.y,
+                width: newWidth,
+                height: newHeight
+            ),
+            display: true,
+            animate: false
+        )
     }
 
     private func ensureWindowSize(_ win: NSWindow) {

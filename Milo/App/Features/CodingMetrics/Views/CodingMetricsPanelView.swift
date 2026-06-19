@@ -6,8 +6,23 @@
 import SwiftUI
 
 struct CodingMetricsPanelView: View {
+    init(
+        coordinator: CodingMetricsCoordinator,
+        service: CodingMetricsService,
+        onOpenWeeklySummary: @escaping () -> Void = {},
+        onOpenFileWatcherSettings: @escaping () -> Void = {}
+    ) {
+        self.coordinator = coordinator
+        self.service = service
+        self.onOpenWeeklySummary = onOpenWeeklySummary
+        self.onOpenFileWatcherSettings = onOpenFileWatcherSettings
+    }
+
+    private var metrics = MiloScaledMetrics()
+    
     @ObservedObject var coordinator: CodingMetricsCoordinator
     @ObservedObject var service: CodingMetricsService
+    
 
     var onOpenWeeklySummary: () -> Void = {}
     var onOpenFileWatcherSettings: () -> Void = {}
@@ -90,25 +105,25 @@ struct CodingMetricsPanelView: View {
                 title: "Quick Actions",
                 subtitle: "Manage local metrics and project activity."
             ) {
-                HStack(spacing: 12) {
+                MiloAdaptiveActionRow(spacing: 12) {
                     Button("Refresh WakaTime") {
                         coordinator.refreshWakaTime()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.blue)
+                    .buttonStyle(MiloAdaptiveButtonStyle(.primary))
 
                     Button("File Watcher") {
                         onOpenFileWatcherSettings()
                     }
-
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                    
                     Spacer()
 
                     Button("Reset Local Stats", role: .destructive) {
                         coordinator.localMetricsService.resetLocalStats()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
+                    .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
                 }
+                .padding(.top, metrics.largeSpacing)
             }
         } footer: {
             MiloPanelFooterView(
@@ -251,18 +266,11 @@ struct CodingMetricsPanelView: View {
     }
 
     private var metricColumns: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16)
-        ]
+        [GridItem(.adaptive(minimum: 180), spacing: metrics.mediumSpacing)]
     }
 
     private var metricColumnsWaka: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-        ]
+        [GridItem(.adaptive(minimum: 180), spacing: metrics.mediumSpacing)]
     }
 
     private func topEditor(from usage: [String: Int]) -> String? {
@@ -284,6 +292,8 @@ struct CodingMetricsPanelView: View {
 // MARK: - LOC Status Message View
 
 struct MILOLOCStatusMessageView: View {
+    private var metrics = MiloScaledMetrics()
+
     let icon: String
     let iconColor: Color
     let title: String
@@ -291,31 +301,49 @@ struct MILOLOCStatusMessageView: View {
     let actionTitle: String
     let action: () -> Void
 
+    init(
+        icon: String,
+        iconColor: Color,
+        title: String,
+        message: String,
+        actionTitle: String,
+        action: @escaping () -> Void
+    ) {
+        self.icon = icon
+        self.iconColor = iconColor
+        self.title = title
+        self.message = message
+        self.actionTitle = actionTitle
+        self.action = action
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            HStack(alignment: .top, spacing: metrics.smallSpacing) {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .miloFont(.title2)
                     .foregroundStyle(iconColor)
 
                 Text(title)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .miloFont(.bodyBold)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Text(message)
-                .font(.system(size: 12))
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
             Button(actionTitle) {
                 action()
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+            .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
         }
-        .padding(12)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
                 .fill(Color.yellow.opacity(0.08))
         )
     }

@@ -18,7 +18,7 @@ struct PomodoroTabSettingsView: View {
                 systemImage: "timer"
             ) {
                 Text("Open MILO again to enable Pomodoro controls.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
             }
         }

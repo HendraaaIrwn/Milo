@@ -7,12 +7,12 @@ struct MiloSectionTitleView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.system(size: 18, weight: .black, design: .rounded))
+                .miloFont(.roundedTitle3, weight: .black)
                 .foregroundStyle(.primary)
 
             if let subtitle {
                 Text(subtitle)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .miloFont(.roundedCallout, weight: .medium)
                     .foregroundStyle(.secondary)
             }
         }

@@ -15,7 +15,7 @@ struct WakaTimeConnectionStatusBadge: View {
                 .frame(width: 8, height: 8)
 
             Text(status.title)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .miloFont(.roundedCaption2, weight: .semibold)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)

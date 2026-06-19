@@ -7,10 +7,12 @@ import SwiftUI
 import AppKit
 
 struct PrivacySettingsSectionView: View {
+    private var metrics = MiloScaledMetrics()
+
     @State private var hasKeyboardPermission = KeyboardActivityPermission.canMonitorGlobalKeyboard
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: metrics.largeSpacing) {
             SettingsCardView(title: "Data Stored Locally", subtitle: "What MILO keeps on your Mac.", systemImage: "lock.shield") {
                 VStack(alignment: .leading, spacing: 4) {
                     bullet("Last keyboard event timestamp")
@@ -22,7 +24,7 @@ struct PrivacySettingsSectionView: View {
                     bullet("Git diff shortstat and numstat summaries")
                     bullet("Session duration and LOC summary")
                 }
-                .font(.caption)
+                .miloFont(.caption)
             }
 
             SettingsCardView(title: "Never Stored or Sent", subtitle: "MILO does not collect or upload these.", systemImage: "xmark.shield") {
@@ -33,27 +35,31 @@ struct PrivacySettingsSectionView: View {
                     bullet("App or window focus information")
                     bullet("File contents from watched folders")
                 }
-                .font(.caption)
+                .miloFont(.caption)
             }
 
             SettingsCardView(title: "Input Monitoring Permission", subtitle: "Global typing detection needs permission.", systemImage: "hand.raised") {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                     permissionStatus
 
                     Text("MILO still runs without this permission, but typing reactions use local monitoring only.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .miloFont(.caption).foregroundStyle(.secondary)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    HStack {
+                    MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
                         Button("Request Permission") {
                             KeyboardActivityPermission.requestInputMonitoringAccess()
                             refreshPermissionSoon()
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
 
                         Button("Open Input Monitoring") {
                             NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!)
                         }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                     }
+                    .padding(.top, metrics.largeSpacing)
                 }
             }
         }
@@ -64,16 +70,19 @@ struct PrivacySettingsSectionView: View {
         Group {
             if hasKeyboardPermission {
                 Label("Permission granted", systemImage: "checkmark.circle.fill")
-                    .font(.caption).foregroundStyle(.green)
+                    .miloFont(.caption).foregroundStyle(.green)
             } else {
                 Label("Permission not granted.", systemImage: "exclamationmark.triangle.fill")
-                    .font(.caption).foregroundStyle(.orange)
+                    .miloFont(.caption).foregroundStyle(.orange)
             }
         }
     }
 
     private func bullet(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: 8) { Text("•"); Text(text) }
+        HStack(alignment: .top, spacing: metrics.smallSpacing) {
+            Text("•")
+            Text(text).lineLimit(nil).fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private func refreshPermissionSoon() {
