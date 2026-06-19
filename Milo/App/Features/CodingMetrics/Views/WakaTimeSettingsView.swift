@@ -14,6 +14,6 @@ struct WakaTimeSettingsView: View {
 #if DEBUG
 #Preview {
     WakaTimeSettingsView()
-        .frame(width: 480, height: 520)
+        .dynamicTypeSize(.medium)
 }
 #endif

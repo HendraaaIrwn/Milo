@@ -98,7 +98,7 @@ private struct MiloTodoBubbleWrapperView: View {
     private func origin(relativeTo characterFrame: NSRect) -> NSPoint {
         NSPoint(
             x: characterFrame.midX - bubbleSize.width / 2,
-            y: characterFrame.maxY - 44
+            y: characterFrame.maxY - 52
         )
     }
 }

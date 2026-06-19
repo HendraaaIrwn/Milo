@@ -6,6 +6,9 @@
 import SwiftUI
 
 struct WeeklyActivityBarView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    private var metrics = MiloScaledMetrics()
+
     let dailyRecords: [DailyCodingMetricsRecord]
     let calendar: Calendar
 
@@ -18,6 +21,24 @@ struct WeeklyActivityBarView: View {
         let days = weekDays
         let maxMinutes = CGFloat(days.map(\.minutes).max() ?? 1)
 
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+                ForEach(days) { day in
+                    HStack(alignment: .top, spacing: metrics.smallSpacing) {
+                        Text(day.label)
+                            .font(.caption.weight(.semibold))
+                            .frame(minWidth: 42, alignment: .leading)
+
+                        Text(formatLongMinutes(day.minutes))
+                            .font(.caption)
+                            .foregroundStyle(day.minutes > 0 ? Color.primary : Color.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            .padding(.horizontal, metrics.smallSpacing)
+            .padding(.vertical, metrics.mediumSpacing)
+        } else {
         HStack(alignment: .bottom, spacing: 10) {
             ForEach(days) { day in
                 VStack(spacing: 6) {
@@ -46,6 +67,7 @@ struct WeeklyActivityBarView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 12)
+        }
     }
 
     private var weekDays: [DayBarItem] {
@@ -73,6 +95,12 @@ struct WeeklyActivityBarView: View {
         if minutes >= 60 { return "\(minutes / 60)h" }
         if minutes > 0 { return "\(minutes)m" }
         return "-"
+    }
+
+    private func formatLongMinutes(_ minutes: Int) -> String {
+        if minutes >= 60 { return "\(minutes / 60)h \(minutes % 60)m" }
+        if minutes > 0 { return "\(minutes)m" }
+        return "No coding time"
     }
 }
 

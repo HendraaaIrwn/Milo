@@ -55,17 +55,17 @@ struct MiloReminderBubbleView: View {
                         Button { onSnooze5() } label: {
                             Label("+5", systemImage: "clock.fill")
                         }
-                        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                        .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
                         
                         Button { onSnooze15() } label: {
                             Label("+15", systemImage: "clock.fill")
                         }
-                        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                        .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
                         
                         Button { onReschedule() } label: {
                             Label("Reschedule", systemImage: "calendar")
                         }
-                        .buttonStyle(MiloAdaptiveButtonStyle(.subtle))
+                        .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSubtle))
                     }
                 }
             }

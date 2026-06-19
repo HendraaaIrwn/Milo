@@ -15,9 +15,21 @@ struct MiloSettingsView: View {
     }
 
     var body: some View {
+        GeometryReader { proxy in
+            if proxy.size.width < 640 {
+                verticalLayout
+            } else {
+                horizontalLayout
+            }
+        }
+        .frame(minWidth: 640, idealWidth: 720, maxWidth: 980, minHeight: 520, idealHeight: 680, maxHeight: 900)
+        .miloPanelDynamicTypeLimit()
+    }
+
+    private var horizontalLayout: some View {
         HStack(spacing: 0) {
             SettingsSidebarView(selectedSection: $selectedSection)
-                .frame(width: 210)
+                .frame(minWidth: 160, idealWidth: 180, maxWidth: 210)
                 .background(.regularMaterial)
 
             Divider()
@@ -28,6 +40,21 @@ struct MiloSettingsView: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 640, minHeight: 520)
+    }
+
+    private var verticalLayout: some View {
+        VStack(spacing: 0) {
+            SettingsSidebarView(selectedSection: $selectedSection)
+                .frame(minHeight: 170, maxHeight: 220)
+                .background(.regularMaterial)
+
+            Divider()
+
+            SettingsContentContainerView(
+                section: selectedSection,
+                dependencies: dependencies
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
     }
 }

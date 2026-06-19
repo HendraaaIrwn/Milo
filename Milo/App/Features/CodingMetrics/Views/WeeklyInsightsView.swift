@@ -6,15 +6,23 @@
 import SwiftUI
 
 struct WeeklyInsightsView: View {
+    private var metrics = MiloScaledMetrics()
+
     let insights: [WeeklyInsight]
 
+    init(insights: [WeeklyInsight]) {
+        self.insights = insights
+    }
+
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
             if insights.isEmpty {
                 Text("No insights yet. Start coding to generate weekly patterns.")
-                    .font(.system(size: 13))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, 8)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, metrics.smallSpacing)
             } else {
                 ForEach(insights) { insight in
                     insightRow(insight)
@@ -24,25 +32,27 @@ struct WeeklyInsightsView: View {
     }
 
     private func insightRow(_ insight: WeeklyInsight) -> some View {
-        HStack(spacing: 10) {
+        HStack(alignment: .top, spacing: metrics.smallSpacing) {
             Image(systemName: insight.icon)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.body.weight(.semibold))
                 .foregroundStyle(severityColor(insight.severity))
-                .frame(width: 22)
+                .frame(width: metrics.iconSize)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(insight.title)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.caption.weight(.bold))
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(insight.message)
-                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer()
         }
-        .padding(10)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
                 .fill(severityColor(insight.severity).opacity(0.08))
         )
     }

@@ -6,9 +6,9 @@
 import SwiftUI
 
 struct GeneralSettingsView: View {
-    @AppStorage(MiloSettingsKeys.showMiloOnLaunch) private var showMiloOnLaunch = true
-    @AppStorage(MiloSettingsKeys.typingReaction) private var typingReaction = true
-    @AppStorage(MiloSettingsKeys.typingBubbleDialogs) private var typingBubbleDialogs = true
+    @State private var showMiloOnLaunch = GeneralSettingsView.boolSetting(MiloSettingsKeys.showMiloOnLaunch)
+    @State private var typingReaction = GeneralSettingsView.boolSetting(MiloSettingsKeys.typingReaction)
+    @State private var typingBubbleDialogs = GeneralSettingsView.boolSetting(MiloSettingsKeys.typingBubbleDialogs)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -21,5 +21,18 @@ struct GeneralSettingsView: View {
                 Toggle("Typing Bubble Dialogs", isOn: $typingBubbleDialogs)
             }
         }
+        .onChange(of: showMiloOnLaunch) { _, value in
+            UserDefaults.standard.set(value, forKey: MiloSettingsKeys.showMiloOnLaunch)
+        }
+        .onChange(of: typingReaction) { _, value in
+            UserDefaults.standard.set(value, forKey: MiloSettingsKeys.typingReaction)
+        }
+        .onChange(of: typingBubbleDialogs) { _, value in
+            UserDefaults.standard.set(value, forKey: MiloSettingsKeys.typingBubbleDialogs)
+        }
+    }
+
+    private static func boolSetting(_ key: String) -> Bool {
+        UserDefaults.standard.object(forKey: key) as? Bool ?? true
     }
 }

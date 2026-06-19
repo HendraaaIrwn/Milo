@@ -11,6 +11,7 @@ final class MiloPanelRouter {
     private let deps: MiloPanelDependencies
 
     var onOpenSettings: (() -> Void)?
+    var onOpenFileWatcherSettings: (() -> Void)?
     var onHideMilo: (() -> Void)?
 
     private var chatCommandWindow: UtilityWindowController?
@@ -107,7 +108,7 @@ final class MiloPanelRouter {
                 coordinator: deps.codingMetricsCoordinator,
                 service: deps.codingMetricsCoordinator.localMetricsService,
                 onOpenWeeklySummary: { [weak self] in self?.openWeeklyCodingSummary() },
-                onOpenFileWatcherSettings: {}
+                onOpenFileWatcherSettings: { [weak self] in self?.openFileWatcherSettings() }
             )
         )
         ctrl.onClose = { [weak self] in self?.codingMetricsWindow = nil }
@@ -131,6 +132,10 @@ final class MiloPanelRouter {
 
     func openSettings() {
         onOpenSettings?()
+    }
+
+    func openFileWatcherSettings() {
+        onOpenFileWatcherSettings?()
     }
 
     func hideMilo() {

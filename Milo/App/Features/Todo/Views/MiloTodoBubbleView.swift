@@ -47,7 +47,7 @@ struct MiloTodoBubbleView: View {
                 Button { onOpenTodoList() } label: {
                     Label("Open List", systemImage: "list.bullet")
                 }
-                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
             }
         }
         .padding(.horizontal, metrics.bubblePaddingHorizontal)

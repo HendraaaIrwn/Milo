@@ -87,6 +87,29 @@ final class UtilityWindowController {
         windowDelegate = nil
     }
 
+    func ensureMinimumSize(_ size: CGSize) {
+        guard let window else { return }
+
+        window.minSize = NSSize(width: size.width, height: size.height)
+
+        let current = window.frame
+        let newWidth = max(current.width, size.width)
+        let newHeight = max(current.height, size.height)
+
+        guard newWidth != current.width || newHeight != current.height else { return }
+
+        window.setFrame(
+            NSRect(
+                x: current.origin.x,
+                y: current.origin.y,
+                width: newWidth,
+                height: newHeight
+            ),
+            display: true,
+            animate: false
+        )
+    }
+
     private func ensureWindowSize(_ win: NSWindow) {
         let current = win.frame
         let needWidth = current.width < sizing.minSize.width

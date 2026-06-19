@@ -8,9 +8,15 @@
 import SwiftUI
 
 struct ReminderHistoryView: View {
+    private var metrics = MiloScaledMetrics()
+
     @ObservedObject var historyService: ReminderHistoryService
     @State private var filter: ReminderHistoryFilter = .all
     @State private var showClearConfirmation = false
+
+    init(historyService: ReminderHistoryService) {
+        self.historyService = historyService
+    }
 
     private var latestEvents: [MiloReminderHistoryEvent] {
         historyService.eventsByReminder().compactMap { _, events in
@@ -38,35 +44,14 @@ struct ReminderHistoryView: View {
             primaryActionSystemImage: "trash",
             primaryAction: !filteredEvents.isEmpty ? { showClearConfirmation = true } : nil
         ) {
-            MiloPanelCardView(
-                title: "Filters",
-                subtitle: "Narrow reminders by status or creation source.",
-                trailing: AnyView(
-                    MiloStatusPillView(title: "\(filteredEvents.count) items", systemImage: "tray.full.fill", tone: .info)
-                )
-            ) {
-                Picker("Filter", selection: $filter) {
-                    ForEach(ReminderHistoryFilter.allCases) { filter in
-                        Text(filter.title).tag(filter)
-                    }
-                }
-                .pickerStyle(.segmented)
-            }
-
-            MiloPanelCardView(
-                title: "History List",
-                subtitle: "Latest event per reminder. Long messages stay readable."
-            ) {
-                if filteredEvents.isEmpty {
-                    MiloEmptyStateView(
-                        systemImage: "clock.badge.questionmark",
-                        title: emptyTitle,
-                        message: "Completed, snoozed, rescheduled, and due reminders will appear here."
-                    )
-                } else {
-                    LazyVStack(spacing: 12) {
-                        ForEach(filteredEvents) { event in
-                            ReminderHistoryStyledRowView(event: event)
+            filtersCard
+            historyListCard
+        } footer: {
+            MiloPanelFooterView(
+                message: "Reminder history is stored locally.",
+                statusTitle: filter.title,
+                statusTone: .neutral
+            )
         }
         .confirmationDialog("Clear reminder history?", isPresented: $showClearConfirmation) {
             Button("Clear All History", role: .destructive) {
@@ -77,14 +62,42 @@ struct ReminderHistoryView: View {
             Text("This will permanently delete all \(filteredEvents.count) reminder history events. This cannot be undone.")
         }
     }
+
+    private var filtersCard: some View {
+        MiloPanelCardView(
+            title: "Filters",
+            subtitle: "Narrow reminders by status or creation source.",
+            trailing: AnyView(
+                MiloStatusPillView(title: "\(filteredEvents.count) items", systemImage: "tray.full.fill", tone: .info)
+            )
+        ) {
+            Picker("Filter", selection: $filter) {
+                ForEach(ReminderHistoryFilter.allCases) { filter in
+                    Text(filter.title).tag(filter)
                 }
             }
-        } footer: {
-            MiloPanelFooterView(
-                message: "Reminder history is stored locally.",
-                statusTitle: filter.title,
-                statusTone: .neutral
-            )
+            .pickerStyle(.segmented)
+        }
+    }
+
+    private var historyListCard: some View {
+        MiloPanelCardView(
+            title: "History List",
+            subtitle: "Latest event per reminder. Long messages stay readable."
+        ) {
+            if filteredEvents.isEmpty {
+                MiloEmptyStateView(
+                    systemImage: "clock.badge.questionmark",
+                    title: emptyTitle,
+                    message: "Completed, snoozed, rescheduled, and due reminders will appear here."
+                )
+            } else {
+                LazyVStack(spacing: metrics.mediumSpacing) {
+                    ForEach(filteredEvents) { event in
+                        ReminderHistoryStyledRowView(event: event)
+                    }
+                }
+            }
         }
     }
 
@@ -139,25 +152,52 @@ private enum ReminderHistoryFilter: String, CaseIterable, Identifiable {
 }
 
 private struct ReminderHistoryStyledRowView: View {
+    private var metrics = MiloScaledMetrics()
+
     let event: MiloReminderHistoryEvent
 
+    init(event: MiloReminderHistoryEvent) {
+        self.event = event
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(statusToneColor.opacity(0.12))
-
-                Image(systemName: statusIcon)
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(statusToneColor)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: metrics.cardPadding) {
+                icon
+                content
             }
-            .frame(width: 52, height: 52)
 
-            VStack(alignment: .leading, spacing: 9) {
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                icon
+                content
+            }
+        }
+        .padding(metrics.cardPadding)
+        .background(
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
+                .fill(Color(NSColor.windowBackgroundColor).opacity(0.72))
+        )
+    }
+
+    private var icon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
+                .fill(statusToneColor.opacity(0.12))
+
+            Image(systemName: statusIcon)
+                .font(.system(size: metrics.largeIconSize, weight: .semibold))
+                .foregroundStyle(statusToneColor)
+        }
+        .frame(width: metrics.largeIconSize + 26, height: metrics.largeIconSize + 26)
+    }
+
+    private var content: some View {
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(event.title)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .lineLimit(1)
+                        .font(.body.weight(.bold))
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Spacer()
 
@@ -176,23 +216,18 @@ private struct ReminderHistoryStyledRowView: View {
 //                    .foregroundStyle(.secondary)
 //                    .lineLimit(2)
 
-                HStack(spacing: 8) {
+                MiloAdaptiveActionRow {
                     MiloStatusPillView(title: statusLabel, systemImage: "circle.fill", tone: statusTone)
                     MiloStatusPillView(title: sourceLabel, systemImage: "person.crop.circle.badge.checkmark", tone: .neutral)
                     MiloStatusPillView(title: eventLabel, systemImage: "arrow.triangle.2.circlepath", tone: .info)
                 }
 
                 Text("Due \(event.dueDate.formatted(date: .abbreviated, time: .shortened)) • Updated \(event.updatedAt.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.tertiary)
-                    .lineLimit(1)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color(NSColor.windowBackgroundColor).opacity(0.72))
-        )
     }
 
     private var statusIcon: String {

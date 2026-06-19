@@ -7,6 +7,8 @@ import SwiftUI
 import AppKit
 
 struct WatchedProjectRowView: View {
+    private var metrics = MiloScaledMetrics()
+
     let project: WatchedProject
 
     let onToggle: (Bool) -> Void
@@ -32,83 +34,106 @@ struct WatchedProjectRowView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 12) {
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+            ViewThatFits(in: .horizontal) {
+            HStack(alignment: .center, spacing: metrics.mediumSpacing) {
                 Toggle("", isOn: $isEnabled)
                     .labelsHidden()
                     .onChange(of: isEnabled) { _, newValue in onToggle(newValue) }
 
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(isEnabled ? Color.yellow.opacity(0.18) : Color.gray.opacity(0.12))
-                    Image(systemName: "folder.fill")
-                        .foregroundStyle(isEnabled ? .orange : .secondary)
-                }
-                .frame(width: 42, height: 42)
-
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 8) {
-                        Text(project.name)
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .lineLimit(1)
-
-                        Text(isEnabled ? "Enabled" : "Disabled")
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(isEnabled ? Color.green.opacity(0.14) : Color.gray.opacity(0.14))
-                            .foregroundStyle(isEnabled ? .green : .secondary)
-                            .clipShape(Capsule())
-                    }
-
-                    Text(project.path)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-
-                    HStack(spacing: 8) {
-                        if let lastActivityAt = project.lastActivityAt {
-                            Label(lastActivityAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
-                        } else {
-                            Label("No activity yet", systemImage: "clock")
-                        }
-                        if let language = project.lastKnownTopLanguage {
-                            Label(language, systemImage: "chevron.left.forwardslash.chevron.right")
-                        }
-                    }
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                }
+                folderIcon
+                projectText
 
                 Spacer()
 
-                Menu {
-                    Button("Open in Finder") { onOpenInFinder() }
-                    Divider()
-                    Button("Remove", role: .destructive) { onRemove() }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .font(.system(size: 16))
+                rowMenu
+            }
+
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+                HStack(spacing: metrics.mediumSpacing) {
+                    Toggle("", isOn: $isEnabled)
+                        .labelsHidden()
+                        .onChange(of: isEnabled) { _, newValue in onToggle(newValue) }
+                    folderIcon
+                    rowMenu
                 }
-                .menuStyle(.borderlessButton)
+                projectText
+            }
             }
 
             gitStatusSection
         }
-        .padding(12)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.9))
                 .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 3)
         )
+    }
+
+    private var folderIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
+                .fill(isEnabled ? Color.yellow.opacity(0.18) : Color.gray.opacity(0.12))
+            Image(systemName: "folder.fill")
+                .foregroundStyle(isEnabled ? .orange : .secondary)
+        }
+        .frame(width: metrics.largeIconSize + 22, height: metrics.largeIconSize + 22)
+    }
+
+    private var projectText: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+            MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
+                Text(project.name)
+                    .font(.body.weight(.bold))
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                MiloStatusPillView(
+                    title: isEnabled ? "Enabled" : "Disabled",
+                    systemImage: "circle.fill",
+                    tone: isEnabled ? .success : .neutral
+                )
+            }
+
+            Text(project.path)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .truncationMode(.middle)
+
+            MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
+                if let lastActivityAt = project.lastActivityAt {
+                    Label(lastActivityAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
+                } else {
+                    Label("No activity yet", systemImage: "clock")
+                }
+                if let language = project.lastKnownTopLanguage {
+                    Label(language, systemImage: "chevron.left.forwardslash.chevron.right")
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+        }
+    }
+
+    private var rowMenu: some View {
+        Menu {
+            Button("Open in Finder") { onOpenInFinder() }
+            Divider()
+            Button("Remove", role: .destructive) { onRemove() }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.system(size: metrics.iconSize))
+        }
+        .menuStyle(.borderlessButton)
     }
 
     @ViewBuilder
     private var gitStatusSection: some View {
         let gitInfo = project.gitRepositoryInfo
 
-        HStack(spacing: 8) {
+        MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
             if let gitInfo {
                 gitStatusPill(for: gitInfo.status)
             } else {
@@ -130,8 +155,6 @@ struct WatchedProjectRowView: View {
                         .foregroundStyle(.orange)
                 }
             }
-
-            Spacer()
 
             Button {
                 onCheckGit()

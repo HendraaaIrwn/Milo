@@ -8,13 +8,21 @@
 import SwiftUI
 
 struct FileWatcherRecentActivityView: View {
+    private var metrics = MiloScaledMetrics()
+
     let snapshot: ProjectActivitySnapshot
 
+    init(snapshot: ProjectActivitySnapshot) {
+        self.snapshot = snapshot
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: metrics.smallSpacing) {
                 Text("Recent Activity")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
                 Spacer()
                 if let lastActivityAt = snapshot.lastActivityAt {
                     Text(lastActivityAt.formatted(date: .omitted, time: .shortened))
@@ -23,23 +31,38 @@ struct FileWatcherRecentActivityView: View {
                 }
             }
 
+            VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+                Text("Recent Activity")
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let lastActivityAt = snapshot.lastActivityAt {
+                    Text(lastActivityAt.formatted(date: .omitted, time: .shortened))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            }
+
             if snapshot.recentEvents.isEmpty {
                 Text("No recent file activity yet.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, 10)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, metrics.mediumSpacing)
             } else {
-                VStack(spacing: 6) {
+                VStack(spacing: metrics.smallSpacing) {
                     ForEach(snapshot.recentEvents.suffix(6)) { event in
-                        HStack(spacing: 8) {
+                        HStack(alignment: .top, spacing: metrics.smallSpacing) {
                             Image(systemName: icon(for: event.eventType))
                                 .foregroundStyle(color(for: event.eventType))
-                                .frame(width: 18)
+                                .frame(width: metrics.iconSize)
 
                             Text(event.relativePath)
                                 .font(.caption)
-                                .lineLimit(1)
+                                .lineLimit(2)
                                 .truncationMode(.middle)
+                                .fixedSize(horizontal: false, vertical: true)
 
                             Spacer()
 
@@ -53,9 +76,9 @@ struct FileWatcherRecentActivityView: View {
                 }
             }
         }
-        .padding(16)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.92))
                 .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
         )

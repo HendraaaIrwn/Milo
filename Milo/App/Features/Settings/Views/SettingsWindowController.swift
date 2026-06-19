@@ -32,17 +32,18 @@ final class SettingsWindowController {
         )
 
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 760, height: 620),
+            contentRect: NSRect(x: 0, y: 0, width: 720, height: 620),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
 
         win.title = "MILO Settings"
-        win.contentViewController = host
-        win.minSize = NSSize(width: 640, height: 520)
         win.isReleasedWhenClosed = false
+        win.minSize = NSSize(width: 640, height: 520)
         win.center()
+        win.contentViewController = host
+ 
 
         let delegate = Delegate { [weak self] in
             self?.window = nil

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct MiloPanelScaffoldView<Content: View>: View {
+    private var metrics = MiloScaledMetrics()
+
     let title: String
     let subtitle: String
     let systemImage: String
@@ -63,10 +65,10 @@ struct MiloPanelScaffoldView<Content: View>: View {
             Divider()
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: metrics.largeSpacing) {
                     content
                 }
-                .padding(24)
+                .padding(metrics.panelPadding)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .background(Color(NSColor.windowBackgroundColor))

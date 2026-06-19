@@ -9,10 +9,12 @@
 import SwiftUI
 
 struct WakaTimeConnectionView: View {
+    private var metrics = MiloScaledMetrics()
+
     @StateObject private var store = WakaTimeConnectionStore.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: metrics.largeSpacing) {
             header
             connectionCard
             apiKeyForm
@@ -28,28 +30,46 @@ struct WakaTimeConnectionView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .top) {
+        ViewThatFits(in: .horizontal) {
+        HStack(alignment: .top, spacing: metrics.mediumSpacing) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("WakaTime Connection")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.title3.weight(.bold))
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("Connect WakaTime to enrich MILO coding metrics.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
             WakaTimeConnectionStatusBadge(status: store.status)
         }
+
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+            Text("WakaTime Connection")
+                .font(.title3.weight(.bold))
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Connect WakaTime to enrich MILO coding metrics.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+            WakaTimeConnectionStatusBadge(status: store.status)
+        }
+        }
     }
 
     private var connectionCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top) {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            HStack(alignment: .top, spacing: metrics.smallSpacing) {
                 Image(systemName: statusIcon)
                     .foregroundStyle(statusColor)
-                    .font(.system(size: 22))
+                    .font(.system(size: metrics.largeIconSize))
                 VStack(alignment: .leading, spacing: 3) {
                     Text(store.status.userMessage)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.caption.weight(.medium))
+                        .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                     if let lastTestedAt = store.lastTestedAt {
                         Text("Last tested: \(lastTestedAt.formatted(date: .abbreviated, time: .shortened))")
@@ -59,7 +79,6 @@ struct WakaTimeConnectionView: View {
                             .font(.caption2).foregroundStyle(.secondary)
                     }
                 }
-                Spacer()
             }
             if store.hasSavedAPIKey {
                 HStack(spacing: 6) {
@@ -68,9 +87,9 @@ struct WakaTimeConnectionView: View {
                 }.font(.caption).foregroundStyle(.secondary)
             }
         }
-        .padding(14)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.92))
                 .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
         )
@@ -94,7 +113,7 @@ struct WakaTimeConnectionView: View {
     }
 
     private var apiKeyForm: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
             Text("API Key").font(.caption).foregroundStyle(.secondary)
             SecureField(
                 store.hasSavedAPIKey
@@ -105,39 +124,44 @@ struct WakaTimeConnectionView: View {
             .textFieldStyle(.roundedBorder)
             Text("Your API key is stored in macOS Keychain and never logged.")
                 .font(.caption2).foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     private var actionButtons: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button {
-                store.saveAndTest()
-            } label: {
-                HStack(spacing: 4) {
-                    if store.isTesting { ProgressView().scaleEffect(0.7) }
-                    Text("Save & Test Connection")
+        VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+           
+//            if store.isTesting { ProgressView().scaleEffect(0.7) }
+
+            MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
+                Button {
+                    store.saveAndTest()
+                } label: {
+                        Text("Save")  
                 }
-                .frame(maxWidth: 268)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(store.isTesting || store.apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-            HStack(spacing: 8) {
+                .buttonStyle(MiloAdaptiveButtonStyle(.primary))
+                .disabled(store.isTesting || store.apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                
                 Button("Test Connection") { store.testConnection() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                     .disabled(store.isTesting || !store.hasSavedAPIKey)
+                Spacer()
 
-                Button("Disconnect WakaTime", role: .destructive) { store.disconnect() }
+                Button("Disconnect", role: .destructive) { store.disconnect() }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
                     .disabled(store.isTesting || !store.hasSavedAPIKey)
             }
+            .padding(.top, metrics.largeSpacing)
         }
     }
 
     @ViewBuilder
     private var detailInfo: some View {
         if case .connected(let profile) = store.status {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                 Text("Account Details").font(.caption).foregroundStyle(.secondary)
-                HStack(spacing: 12) {
+                MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
                     let name = profile.displayNameOrUsername
                     if name != "WakaTime User" {
                         HStack(spacing: 4) {
@@ -149,10 +173,11 @@ struct WakaTimeConnectionView: View {
                             Image(systemName: "envelope.fill"); Text(email)
                         }.foregroundStyle(.secondary)
                     }
-                }.font(.caption)
+                }
+                .font(.caption)
             }
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(.green.opacity(0.08)))
+            .padding(metrics.cardPadding)
+            .background(RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous).fill(.green.opacity(0.08)))
         }
     }
 

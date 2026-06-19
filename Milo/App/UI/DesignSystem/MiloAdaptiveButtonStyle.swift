@@ -6,12 +6,15 @@ struct MiloAdaptiveButtonStyle: ButtonStyle {
         case secondary
         case destructive
         case subtle
+        case bubbleSecondary
+        case bubbleSubtle
     }
 
     @ScaledMetric(relativeTo: .body) private var horizontalPadding: CGFloat = 14
-    @ScaledMetric(relativeTo: .body) private var verticalPadding: CGFloat = 8
+    @ScaledMetric(relativeTo: .body) private var verticalPadding: CGFloat = 6
     @ScaledMetric(relativeTo: .body) private var cornerRadius: CGFloat = 12
-    @ScaledMetric(relativeTo: .body) private var minHeight: CGFloat = 36
+    @ScaledMetric(relativeTo: .body) private var minHeight: CGFloat = 24
+    @Environment(\.colorScheme) private var colorScheme
 
     let variant: Variant
 
@@ -41,16 +44,20 @@ struct MiloAdaptiveButtonStyle: ButtonStyle {
     private var backgroundColor: Color {
         switch variant {
         case .primary: return .orange
-        case .secondary: return .white.opacity(0.14)
+        case .secondary: return colorScheme == .dark ? .white.opacity(0.14) : .black.opacity(0.08)
         case .destructive: return .red.opacity(0.85)
-        case .subtle: return .white.opacity(0.08)
+        case .subtle: return colorScheme == .dark ? .white.opacity(0.08) : .black.opacity(0.06)
+        case .bubbleSecondary: return .white.opacity(0.14)
+        case .bubbleSubtle: return .white.opacity(0.1)
         }
     }
 
     private var foreground: Color {
         switch variant {
         case .primary: return .black
-        case .secondary, .destructive, .subtle: return .white
+        case .destructive: return .white
+        case .secondary, .subtle: return colorScheme == .dark ? .white : .primary
+        case .bubbleSecondary, .bubbleSubtle: return .white
         }
     }
 }

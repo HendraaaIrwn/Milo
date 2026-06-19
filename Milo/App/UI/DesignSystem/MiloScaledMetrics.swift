@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MiloScaledMetrics {
+struct MiloScaledMetrics: DynamicProperty {
     @ScaledMetric(relativeTo: .caption) var tinySpacing: CGFloat = 4
     @ScaledMetric(relativeTo: .body) var smallSpacing: CGFloat = 6
     @ScaledMetric(relativeTo: .body) var mediumSpacing: CGFloat = 10
@@ -18,6 +18,7 @@ struct MiloScaledMetrics {
     @ScaledMetric(relativeTo: .caption) var badgeIconSize: CGFloat = 14
     @ScaledMetric(relativeTo: .caption) var badgeMinHeight: CGFloat = 34
 
+    @ScaledMetric(relativeTo: .body) var smallIconSize: CGFloat = 12
     @ScaledMetric(relativeTo: .body) var iconSize: CGFloat = 18
     @ScaledMetric(relativeTo: .body) var largeIconSize: CGFloat = 26
 

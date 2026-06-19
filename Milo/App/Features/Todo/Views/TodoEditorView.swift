@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TodoEditorView: View {
+    private var metrics = MiloScaledMetrics()
+
     @ObservedObject var todoService: TodoService
     @ObservedObject var reminderService: ReminderService
 
@@ -48,10 +50,16 @@ struct TodoEditorView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            Divider()
-            ScrollView {
+        MiloResponsivePanelContainer(
+            minWidth: 560,
+            idealWidth: 720,
+            maxWidth: 980,
+            minHeight: 520,
+            idealHeight: 680,
+            maxHeight: 900
+        ) {
+            VStack(alignment: .leading, spacing: metrics.largeSpacing) {
+                header
                 TodoEditorContentView(
                     todoService: todoService,
                     reminderService: reminderService,
@@ -67,40 +75,53 @@ struct TodoEditorView: View {
                     dueDate: $dueDate,
                     convertToReminder: $convertToReminder
                 )
-                .padding(22)
             }
-            .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(minWidth: 520, minHeight: 560)
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.yellow.opacity(0.22))
-                Image(systemName: "checklist")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(.orange)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: metrics.mediumSpacing) {
+                headerIcon
+                headerText
+                Spacer(minLength: metrics.smallSpacing)
             }
-            .frame(width: 48, height: 48)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(existingTodo == nil ? "Add Todo" : "Edit Todo")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                Text("Capture a task and optionally turn it into a reminder.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                headerIcon
+                headerText
             }
-            Spacer()
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 16)
-        .background(.regularMaterial)
+    }
+
+    private var headerIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
+                .fill(Color.yellow.opacity(0.22))
+            Image(systemName: "checklist")
+                .font(.system(size: metrics.largeIconSize, weight: .semibold))
+                .foregroundStyle(.orange)
+        }
+        .frame(width: metrics.largeIconSize + 22, height: metrics.largeIconSize + 22)
+    }
+
+    private var headerText: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+            Text(existingTodo == nil ? "Add Todo" : "Edit Todo")
+                .font(.title3.weight(.bold))
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Capture a task and optionally turn it into a reminder.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 
 struct TodoEditorContentView: View {
+    private var metrics = MiloScaledMetrics()
+
     @ObservedObject var todoService: TodoService
     @ObservedObject var reminderService: ReminderService
 
@@ -117,14 +138,44 @@ struct TodoEditorContentView: View {
     @Binding var dueDate: Date
     @Binding var convertToReminder: Bool
 
+    init(
+        todoService: TodoService,
+        reminderService: ReminderService,
+        existingTodo: MiloTodo?,
+        source: TodoCreatedSource,
+        onSave: @escaping (MiloTodo) -> Void,
+        onCancel: @escaping () -> Void,
+        title: Binding<String>,
+        notes: Binding<String>,
+        priority: Binding<TodoPriority>,
+        hasDueDate: Binding<Bool>,
+        showEmptyWarning: Binding<Bool>,
+        dueDate: Binding<Date>,
+        convertToReminder: Binding<Bool>
+    ) {
+        self.todoService = todoService
+        self.reminderService = reminderService
+        self.existingTodo = existingTodo
+        self.source = source
+        self.onSave = onSave
+        self.onCancel = onCancel
+        self._title = title
+        self._notes = notes
+        self._priority = priority
+        self._hasDueDate = hasDueDate
+        self._showEmptyWarning = showEmptyWarning
+        self._dueDate = dueDate
+        self._convertToReminder = convertToReminder
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: metrics.largeSpacing) {
             SettingsCardView(
                 title: "Task Form",
                 subtitle: "Keep the title short and add notes only when useful.",
                 systemImage: "checklist"
             ) {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: metrics.cardPadding) {
                     TextField("Todo title", text: $title)
                         .textFieldStyle(.roundedBorder)
 
@@ -138,15 +189,16 @@ struct TodoEditorContentView: View {
                     }
                     .pickerStyle(.segmented)
 
-                    HStack {
-                        Spacer()
-                        Button("Cancel") { onCancel() }
+                    MiloAdaptiveActionRow {
                         Button { saveTodo() } label: {
                             Label("Save", systemImage: "checkmark.circle.fill")
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
                         .keyboardShortcut(.defaultAction)
+                        Button("Cancel") { onCancel() }
+                            .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
                     }
+                    .padding(.top, metrics.largeSpacing)
                 }
             }
 
@@ -156,6 +208,7 @@ struct TodoEditorContentView: View {
                     subtitle: "Please enter a todo title before saving."
                 ) {
                     Button("OK") { showEmptyWarning = false }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
                 }
             }
 
@@ -164,7 +217,7 @@ struct TodoEditorContentView: View {
                 subtitle: "A todo can become a reminder when it has a due time.",
                 systemImage: "bell.badge"
             ) {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: metrics.cardPadding) {
                     Toggle("Add due time", isOn: $hasDueDate)
                         .onChange(of: hasDueDate) { _, _ in
                             if !hasDueDate { convertToReminder = false }
@@ -181,7 +234,7 @@ struct TodoEditorContentView: View {
                     Toggle("Convert to reminder", isOn: $convertToReminder)
                         .disabled(!hasDueDate)
 
-                    HStack(spacing: 8) {
+                    MiloAdaptiveActionRow {
                         MiloStatusPillView(title: priorityLabel, systemImage: "flag.fill", tone: priorityTone)
                         MiloStatusPillView(title: hasDueDate ? dueDate.formatted(date: .abbreviated, time: .shortened) : "No due time", systemImage: "calendar.badge.clock", tone: hasDueDate ? .info : .neutral)
                         MiloStatusPillView(title: convertToReminder ? "Reminder" : "Todo Only", systemImage: convertToReminder ? "bell.fill" : "checklist", tone: convertToReminder ? .warning : .neutral)

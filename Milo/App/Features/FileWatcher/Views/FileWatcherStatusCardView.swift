@@ -6,6 +6,8 @@
 import SwiftUI
 
 struct FileWatcherStatusCardView: View {
+    private var metrics = MiloScaledMetrics()
+
     let status: FileWatcherStatus
     let snapshot: ProjectActivitySnapshot
 
@@ -16,48 +18,96 @@ struct FileWatcherStatusCardView: View {
     let onResume: () -> Void
     let onReset: () -> Void
 
+    init(
+        status: FileWatcherStatus,
+        snapshot: ProjectActivitySnapshot,
+        isGlobalEnabled: Binding<Bool>,
+        onToggleGlobal: @escaping (Bool) -> Void,
+        onPause: @escaping () -> Void,
+        onResume: @escaping () -> Void,
+        onReset: @escaping () -> Void
+    ) {
+        self.status = status
+        self.snapshot = snapshot
+        self._isGlobalEnabled = isGlobalEnabled
+        self.onToggleGlobal = onToggleGlobal
+        self.onPause = onPause
+        self.onResume = onResume
+        self.onReset = onReset
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Watcher Status")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                    Text(statusDescription)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: metrics.cardPadding) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: metrics.mediumSpacing) {
+                    statusTitle
+                    Spacer(minLength: metrics.smallSpacing)
+                    statusBadge
                 }
-                Spacer()
-                statusBadge
+
+                VStack(alignment: .leading, spacing: metrics.smallSpacing) {
+                    statusTitle
+                    statusBadge
+                }
             }
 
-            HStack(spacing: 12) {
-                metricMiniCard(title: "Active Project", value: snapshot.activeProjectName ?? "-")
-                metricMiniCard(title: "Top Language", value: snapshot.topLanguageToday ?? "-")
-                metricMiniCard(title: "Changed Files", value: "\(snapshot.changedFileCountToday)")
-                metricMiniCard(title: "LOC", value: "+\(snapshot.locSummary.linesAdded) / -\(snapshot.locSummary.linesDeleted)")
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 150), spacing: metrics.mediumSpacing)],
+                spacing: metrics.mediumSpacing
+            ) {
+                MiloMetricCardView(title: "Active Project", value: snapshot.activeProjectName ?? "-", systemImage: "folder")
+                MiloMetricCardView(title: "Top Language", value: snapshot.topLanguageToday ?? "-", systemImage: "chevron.left.forwardslash.chevron.right")
+                MiloMetricCardView(title: "Changed Files", value: "\(snapshot.changedFileCountToday)", systemImage: "doc.on.doc")
+                MiloMetricCardView(title: "LOC", value: "+\(snapshot.locSummary.linesAdded) / -\(snapshot.locSummary.linesDeleted)", systemImage: "plus.forwardslash.minus")
             }
 
-            HStack {
-                Toggle("Enable File Watcher", isOn: $isGlobalEnabled)
-                    .onChange(of: isGlobalEnabled) { _, newValue in onToggleGlobal(newValue) }
-                Spacer()
-                Button("Pause") { onPause() }.disabled(!isGlobalEnabled)
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
-                Button("Resume") { onResume() }.disabled(!isGlobalEnabled)
-                    .buttonStyle(.borderedProminent)
-                    .tint(.blue)
-                Button("Reset Activity", role: .destructive) { onReset() }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: metrics.mediumSpacing) {
+                    Toggle("Enable File Watcher", isOn: $isGlobalEnabled)
+                        .onChange(of: isGlobalEnabled) { _, newValue in onToggleGlobal(newValue) }
+                    Spacer(minLength: metrics.smallSpacing)
+                    actionButtons
+                }
+
+                VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                    Toggle("Enable File Watcher", isOn: $isGlobalEnabled)
+                        .onChange(of: isGlobalEnabled) { _, newValue in onToggleGlobal(newValue) }
+                    actionButtons
+                }
             }
         }
-        .padding(16)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.cornerRadius, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.92))
                 .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 5)
         )
+    }
+
+    private var statusTitle: some View {
+        VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+                    Text("Watcher Status")
+                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+                    Text(statusDescription)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var actionButtons: some View {
+        MiloAdaptiveActionRow {
+            Button("Pause") { onPause() }
+                .disabled(!isGlobalEnabled)
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+            Button("Resume") { onResume() }
+                .disabled(!isGlobalEnabled)
+                .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+            Button("Reset Activity", role: .destructive) { onReset() }
+                .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
+        }
     }
 
     private var statusDescription: String {
@@ -72,8 +122,10 @@ struct FileWatcherStatusCardView: View {
     private var statusBadge: some View {
         Text(status.title)
             .font(.caption.weight(.bold))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .padding(.horizontal, metrics.badgePaddingHorizontal)
+            .padding(.vertical, metrics.badgePaddingVertical)
             .background(statusColor.opacity(0.16))
             .foregroundStyle(statusColor)
             .clipShape(Capsule())
@@ -86,21 +138,5 @@ struct FileWatcherStatusCardView: View {
         case .stopped: return .secondary
         case .error: return .red
         }
-    }
-
-    private func metricMiniCard(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.caption2).foregroundStyle(.secondary)
-            Text(value)
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .lineLimit(1)
-                .truncationMode(.middle)
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.yellow.opacity(0.10))
-        )
     }
 }

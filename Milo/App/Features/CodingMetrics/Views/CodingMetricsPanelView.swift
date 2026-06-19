@@ -6,8 +6,23 @@
 import SwiftUI
 
 struct CodingMetricsPanelView: View {
+    init(
+        coordinator: CodingMetricsCoordinator,
+        service: CodingMetricsService,
+        onOpenWeeklySummary: @escaping () -> Void = {},
+        onOpenFileWatcherSettings: @escaping () -> Void = {}
+    ) {
+        self.coordinator = coordinator
+        self.service = service
+        self.onOpenWeeklySummary = onOpenWeeklySummary
+        self.onOpenFileWatcherSettings = onOpenFileWatcherSettings
+    }
+
+    private var metrics = MiloScaledMetrics()
+    
     @ObservedObject var coordinator: CodingMetricsCoordinator
     @ObservedObject var service: CodingMetricsService
+    
 
     var onOpenWeeklySummary: () -> Void = {}
     var onOpenFileWatcherSettings: () -> Void = {}
@@ -100,12 +115,15 @@ struct CodingMetricsPanelView: View {
                         onOpenFileWatcherSettings()
                     }
                     .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                    
+                    Spacer()
 
                     Button("Reset Local Stats", role: .destructive) {
                         coordinator.localMetricsService.resetLocalStats()
                     }
                     .buttonStyle(MiloAdaptiveButtonStyle(.destructive))
                 }
+                .padding(.top, metrics.largeSpacing)
             }
         } footer: {
             MiloPanelFooterView(
@@ -277,6 +295,8 @@ struct CodingMetricsPanelView: View {
 // MARK: - LOC Status Message View
 
 struct MILOLOCStatusMessageView: View {
+    private var metrics = MiloScaledMetrics()
+
     let icon: String
     let iconColor: Color
     let title: String
@@ -284,32 +304,51 @@ struct MILOLOCStatusMessageView: View {
     let actionTitle: String
     let action: () -> Void
 
+    init(
+        icon: String,
+        iconColor: Color,
+        title: String,
+        message: String,
+        actionTitle: String,
+        action: @escaping () -> Void
+    ) {
+        self.icon = icon
+        self.iconColor = iconColor
+        self.title = title
+        self.message = message
+        self.actionTitle = actionTitle
+        self.action = action
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+            HStack(alignment: .top, spacing: metrics.smallSpacing) {
                 Image(systemName: icon)
                     .font(.title2)
                     .foregroundStyle(iconColor)
 
                 Text(title)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.body.weight(.bold))
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Text(message)
-                .font(.system(size: 12))
+                .font(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
             Button(actionTitle) {
                 action()
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+            .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
         }
-        .padding(12)
+        .padding(metrics.cardPadding)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
                 .fill(Color.yellow.opacity(0.08))
         )
     }
 }
+

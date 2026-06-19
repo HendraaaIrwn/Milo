@@ -8,11 +8,18 @@
 import SwiftUI
 
 struct ReminderRescheduleView: View {
+    private var metrics = MiloScaledMetrics()
+
     let reminder: MiloReminder
     let onSave: @MainActor (Date) -> Void
     let onCancel: @MainActor () -> Void
 
     @State private var dueDate: Date
+    @State private var showPastWarning = false
+
+    private var canSave: Bool {
+        dueDate > Date()
+    }
 
     init(
         reminder: MiloReminder,
@@ -26,31 +33,94 @@ struct ReminderRescheduleView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Reschedule Reminder")
-                .font(.title2.weight(.semibold))
+        MiloPanelScaffoldView(
+            title: "Reschedule Reminder",
+            subtitle: "Pick a new time for this reminder.",
+            systemImage: "calendar.badge.clock"
+        ) {
+            MiloPanelCardView(
+                title: "Reminder",
+                subtitle: "MILO will show this again at the new time."
+            ) {
+                VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                    Text(reminder.message)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
 
-            Text(reminder.message)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-
-            DatePicker("New time", selection: $dueDate)
-
-            HStack {
-                Spacer()
-
-                Button("Cancel") {
-                    onCancel()
+                    MiloStatusPillView(
+                        title: "Current: \(reminder.dueDate.formatted(date: .abbreviated, time: .shortened))",
+                        systemImage: "clock",
+                        tone: .neutral
+                    )
                 }
-
-                Button("Save") {
-                    onSave(dueDate)
-                }
-                .keyboardShortcut(.defaultAction)
             }
+
+            MiloPanelCardView(
+                title: "New Time",
+                subtitle: "Choose a future date and time."
+            ) {
+                VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
+                    DatePicker(
+                        "Due time",
+                        selection: $dueDate,
+                        displayedComponents: [.date, .hourAndMinute]
+                    )
+                    .datePickerStyle(.compact)
+
+                    MiloStatusPillView(
+                        title: "New: \(dueDate.formatted(date: .abbreviated, time: .shortened))",
+                        systemImage: "calendar",
+                        tone: canSave ? .success : .warning
+                    )
+
+                    if showPastWarning {
+                        Text("Choose a future time before saving.")
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
+                        Button("Cancel") {
+                            onCancel()
+                        }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.secondary))
+                        Button {
+                            guard canSave else {
+                                showPastWarning = true
+                                return
+                            }
+                            onSave(dueDate)
+                        } label: {
+                            Label("Save New Time", systemImage: "checkmark.circle.fill")
+                        }
+                        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
+                        .keyboardShortcut(.defaultAction)
+                    }
+                }
+            }
+        } footer: {
+            MiloPanelFooterView(
+                message: "Reminder data stays local on this Mac.",
+                statusTitle: canSave ? "Ready" : "Future Time Required",
+                statusTone: canSave ? .success : .warning
+            )
         }
-        .padding(20)
-        .frame(width: 380)
     }
 }
+
+#if DEBUG
+#Preview {
+    ReminderRescheduleView(
+        reminder: MiloReminder(
+            title: "Stretch",
+            message: "Stretch and drink water.",
+            dueDate: Date().addingTimeInterval(60),
+            createdSource: .rightClick
+        ),
+        onSave: { _ in },
+        onCancel: {}
+    )
+}
+#endif

@@ -89,6 +89,8 @@ struct SettingsView: View {
             Text("MILO only detects keyboard timing, not what you type.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -124,6 +126,8 @@ struct SettingsView: View {
             Text("Reminders stay local and are saved on this Mac only.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -174,8 +178,9 @@ struct SettingsView: View {
                 .pickerStyle(.radioGroup)
 
                 Text(responseModeDescription)
-                    .font(.system(size: 11))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
             } header: {
                 Text("MILO Personality")

@@ -6,16 +6,25 @@
 import SwiftUI
 
 struct CodingBreakdownListView: View {
+    private var metrics = MiloScaledMetrics()
+
     let items: [CategoryBreakdown]
     let color: Color
 
+    init(items: [CategoryBreakdown], color: Color) {
+        self.items = items
+        self.color = color
+    }
+
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: metrics.smallSpacing) {
             if items.isEmpty {
                 Text("No data yet")
-                    .font(.system(size: 13))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, 8)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, metrics.smallSpacing)
             } else {
                 ForEach(items.prefix(5)) { item in
                     breakdownRow(item)
@@ -25,19 +34,20 @@ struct CodingBreakdownListView: View {
     }
 
     private func breakdownRow(_ item: CategoryBreakdown) -> some View {
-        VStack(spacing: 4) {
-            HStack {
-                Text(item.name)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                Spacer()
-                Text("\(formatMinutes(item.minutes))")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.secondary)
-                Text(String(format: "%.0f%%", item.percentage))
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 36, alignment: .trailing)
+        VStack(spacing: metrics.tinySpacing) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: metrics.smallSpacing) {
+                    rowTitle(item)
+                    Spacer(minLength: metrics.smallSpacing)
+                    rowValues(item)
+                }
+
+                VStack(alignment: .leading, spacing: metrics.tinySpacing) {
+                    rowTitle(item)
+                    rowValues(item)
+                }
             }
+
             GeometryReader { geo in
                 Capsule()
                     .fill(color.opacity(0.18))
@@ -48,6 +58,24 @@ struct CodingBreakdownListView: View {
                     }
             }
             .frame(height: 6)
+        }
+    }
+
+    private func rowTitle(_ item: CategoryBreakdown) -> some View {
+                Text(item.name)
+            .font(.caption.weight(.medium))
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func rowValues(_ item: CategoryBreakdown) -> some View {
+        HStack(spacing: metrics.smallSpacing) {
+                Text("\(formatMinutes(item.minutes))")
+                .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Text(String(format: "%.0f%%", item.percentage))
+                .font(.caption2.weight(.medium))
+                    .foregroundStyle(.secondary)
         }
     }
 

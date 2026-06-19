@@ -46,7 +46,7 @@ final class MiloWindowController {
 
     private var chatReminderWindow: NSWindow?
     private var historyWindow: NSWindow?
-    private var rescheduleWindow: NSWindow?
+    private var rescheduleWindow: UtilityWindowController?
     private var todoWindow: NSWindow?
     private var todoEditorWindow: NSWindow?
     private var codingMetricsWindow: NSWindow?
@@ -147,6 +147,7 @@ final class MiloWindowController {
 
     func showMilo() {
         panelRouter.onOpenSettings = { [weak self] in self?.openSettings() }
+        panelRouter.onOpenFileWatcherSettings = { [weak self] in self?.openFileWatcherSettings() }
         panelRouter.onHideMilo = { [weak self] in self?.hideMilo() }
 
         if petPanel == nil {
@@ -557,26 +558,28 @@ final class MiloWindowController {
 
     func openRescheduleReminder(_ reminder: MiloReminder) {
         if let rescheduleWindow {
-            NSApp.activate(ignoringOtherApps: true)
-            rescheduleWindow.makeKeyAndOrderFront(nil)
+            rescheduleWindow.show()
             return
         }
 
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 400, height: 220),
-            styleMask: [.titled, .closable],
-            backing: .buffered,
-            defer: false
+        let ctrl = UtilityWindowController(
+            title: "Reschedule Reminder",
+            sizing: .rescheduleReminder,
+            rootView: ReminderRescheduleView(
+                reminder: reminder,
+                onSave: { [weak self] newDate in
+                    self?.reminderSchedulerService.reschedule(reminder, newDate: newDate)
+                    self?.showBubble("Reminder rescheduled.", mood: .reminder, source: .system)
+                    self?.rescheduleWindow?.close()
+                },
+                onCancel: { [weak self] in
+                    self?.rescheduleWindow?.close()
+                }
+            )
         )
-
-        window.title = "Reschedule"
-        window.isReleasedWhenClosed = false
-        window.center()
-        // Placeholder for reschedule UI
-
-        rescheduleWindow = window
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
+        ctrl.onClose = { [weak self] in self?.rescheduleWindow = nil }
+        rescheduleWindow = ctrl
+        ctrl.show()
     }
 
     func openCodingMetrics() {

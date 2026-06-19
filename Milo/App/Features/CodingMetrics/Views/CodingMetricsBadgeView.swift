@@ -13,7 +13,7 @@ struct CodingMetricsBadgeView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .center, spacing: 4) {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left.forwardslash.chevron.right")
                     .foregroundStyle(.primary)

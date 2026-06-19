@@ -6,14 +6,20 @@
 import SwiftUI
 
 struct SettingsSidebarView: View {
+    private var metrics = MiloScaledMetrics()
+
     @Binding var selectedSection: SettingsSection
+
+    init(selectedSection: Binding<SettingsSection>) {
+        self._selectedSection = selectedSection
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             sidebarHeader
 
             ScrollView {
-                VStack(spacing: 4) {
+                LazyVStack(spacing: metrics.tinySpacing) {
                     ForEach(SettingsSection.allCases) { section in
                         SettingsSidebarRow(
                             section: section,
@@ -23,14 +29,14 @@ struct SettingsSidebarView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
+                .padding(.horizontal, metrics.mediumSpacing)
+                .padding(.vertical, metrics.smallSpacing)
             }
         }
     }
 
     private var sidebarHeader: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: metrics.mediumSpacing) {
             ZStack {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color.yellow.opacity(0.25))
@@ -38,41 +44,57 @@ struct SettingsSidebarView: View {
                     .font(.system(size: 16, weight: .black, design: .rounded))
                     .foregroundStyle(.orange)
             }
-            .frame(width: 34, height: 34)
+            .frame(width: metrics.largeIconSize + 10, height: metrics.largeIconSize + 10)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("MILO")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.headline.weight(.bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 Text("Settings")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             Spacer()
         }
-        .padding(14)
+        .padding(metrics.cardPadding)
     }
 }
 
 private struct SettingsSidebarRow: View {
+    private var metrics = MiloScaledMetrics()
+
     let section: SettingsSection
     let isSelected: Bool
     let action: () -> Void
 
+    init(
+        section: SettingsSection,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) {
+        self.section = section
+        self.isSelected = isSelected
+        self.action = action
+    }
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 10) {
+            HStack(spacing: metrics.mediumSpacing) {
                 Image(systemName: section.iconName)
-                    .frame(width: 18)
+                    .frame(width: metrics.iconSize)
                     .foregroundStyle(isSelected ? .orange : .secondary)
                 Text(section.title)
-                    .font(.system(size: 13, weight: isSelected ? .semibold : .regular, design: .rounded))
+                    .font(.body.weight(isSelected ? .semibold : .regular))
                     .foregroundStyle(isSelected ? .primary : .secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 Spacer()
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            .padding(.horizontal, metrics.mediumSpacing)
+            .padding(.vertical, metrics.smallSpacing)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: metrics.smallCornerRadius, style: .continuous)
                     .fill(isSelected ? Color.yellow.opacity(0.22) : Color.clear)
             )
         }
