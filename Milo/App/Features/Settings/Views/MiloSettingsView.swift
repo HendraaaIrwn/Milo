@@ -24,7 +24,7 @@ struct MiloSettingsView: View {
                 }
             }
         }
-        .frame(minWidth: 640, idealWidth: 720, maxWidth: 980, minHeight: 520, idealHeight: 680, maxHeight: 900)
+        .frame(minWidth: 680, idealWidth: 760, maxWidth: 1020, minHeight: 560, idealHeight: 720, maxHeight: 940)
         .miloPanelDynamicTypeLimit()
     }
 

@@ -16,7 +16,15 @@ struct SoundSettingsView: View {
                 Toggle("Mute All", isOn: $settingsStore.isMuted)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Volume").miloFont(.caption).foregroundStyle(.secondary)
+                    HStack {
+                        Text("Volume")
+                        Spacer()
+                        Text(volumePercentage)
+                            .monospacedDigit()
+                    }
+                    .miloFont(.caption)
+                    .foregroundStyle(.secondary)
+
                     Slider(value: $settingsStore.soundVolume, in: 0...1)
                 }
 
@@ -28,5 +36,9 @@ struct SoundSettingsView: View {
                 }
             }
         }
+    }
+
+    private var volumePercentage: String {
+        "\(Int((settingsStore.soundVolume * 100).rounded()))%"
     }
 }
