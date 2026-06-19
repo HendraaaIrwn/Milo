@@ -80,11 +80,11 @@ struct PrivacySettingsView: View {
     private var privacyIntro: some View {
         VStack(alignment: .leading, spacing: metrics.smallSpacing) {
             Text("MILO does not read what you type.")
-                .font(.title3.weight(.bold))
+                .miloFont(.title3, weight: .bold)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text("Typing reactions use activity timing only. Coding metrics use project metadata and Git summaries only. Source code content, typed characters, and clipboard data are not stored.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -114,7 +114,7 @@ struct PrivacySettingsView: View {
                 }
 
                 Text("Typing bubbles use intensity and timing only. MILO does not know what you typed.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -158,7 +158,7 @@ struct PrivacySettingsView: View {
         ) {
             VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
                 Text("MILO tracks active editor, approximate project folder, language estimation from file extensions, and Git LOC summaries. Source code content is never read or stored.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -182,7 +182,7 @@ struct PrivacySettingsView: View {
         ) {
             VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
                 Text("Global typing detection needs Input Monitoring permission. MILO still runs without it, but can only use local keyboard monitoring when available.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -253,7 +253,7 @@ struct PrivacySettingsView: View {
                 .frame(width: metrics.iconSize, alignment: .center)
 
             Text(text)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -274,7 +274,7 @@ struct PrivacySettingsView: View {
                 .padding(.top, 6)
 
             Text(text)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)

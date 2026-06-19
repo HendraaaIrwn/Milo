@@ -39,11 +39,11 @@ struct WeeklyCodingDayRowView: View {
     private var dateBlock: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(record.date.formatted(.dateTime.weekday(.wide)))
-                .font(.caption.weight(.semibold))
+                .miloFont(.captionBold)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(record.date.formatted(date: .abbreviated, time: .omitted))
-                .font(.caption2)
+                .miloFont(.caption2)
                 .foregroundStyle(.secondary)
         }
     }
@@ -51,11 +51,11 @@ struct WeeklyCodingDayRowView: View {
     private var detailBlock: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(formatSeconds(record.codingSeconds))
-                .font(.caption.weight(.bold))
+                .miloFont(.captionBold)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text("\(record.topLanguage ?? "No language") • \(record.topProject ?? "No project")")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -70,7 +70,7 @@ struct WeeklyCodingDayRowView: View {
             Text("-\(record.locSummary.linesDeleted)")
                 .foregroundStyle(.red)
         }
-        .font(.caption)
+        .miloFont(.caption)
     }
 
     private func formatSeconds(_ seconds: Int) -> String {

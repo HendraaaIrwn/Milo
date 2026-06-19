@@ -87,10 +87,10 @@ struct FileWatcherStatusCardView: View {
     private var statusTitle: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
                     Text("Watcher Status")
-                .font(.headline)
+                .miloFont(.headline)
                 .fixedSize(horizontal: false, vertical: true)
                     Text(statusDescription)
-                        .font(.caption)
+                        .miloFont(.caption)
                         .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -121,7 +121,7 @@ struct FileWatcherStatusCardView: View {
 
     private var statusBadge: some View {
         Text(status.title)
-            .font(.caption.weight(.bold))
+            .miloFont(.captionBold)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .padding(.horizontal, metrics.badgePaddingHorizontal)

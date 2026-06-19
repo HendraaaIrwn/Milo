@@ -71,7 +71,7 @@ struct MiloReactionBubbleView: View {
             trafficLight(.green)
 
             Text("milo.term")
-                .font(.caption2.monospaced().weight(.semibold))
+                .miloFont(.monospacedCaption, weight: .semibold)
                 .foregroundStyle(.white.opacity(0.45))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)

@@ -44,7 +44,7 @@ struct MiloPanelFooterView: View {
 
     private var messageText: some View {
         Text(message)
-            .font(.caption.weight(.medium))
+            .miloFont(.caption, weight: .medium)
             .foregroundStyle(.secondary)
             .lineLimit(nil)
             .fixedSize(horizontal: false, vertical: true)

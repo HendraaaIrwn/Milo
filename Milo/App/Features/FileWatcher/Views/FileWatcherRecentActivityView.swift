@@ -21,23 +21,23 @@ struct FileWatcherRecentActivityView: View {
             ViewThatFits(in: .horizontal) {
             HStack(alignment: .firstTextBaseline, spacing: metrics.smallSpacing) {
                 Text("Recent Activity")
-                    .font(.headline)
+                    .miloFont(.headline)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
                 if let lastActivityAt = snapshot.lastActivityAt {
                     Text(lastActivityAt.formatted(date: .omitted, time: .shortened))
-                        .font(.caption)
+                        .miloFont(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
 
             VStack(alignment: .leading, spacing: metrics.tinySpacing) {
                 Text("Recent Activity")
-                    .font(.headline)
+                    .miloFont(.headline)
                     .fixedSize(horizontal: false, vertical: true)
                 if let lastActivityAt = snapshot.lastActivityAt {
                     Text(lastActivityAt.formatted(date: .omitted, time: .shortened))
-                        .font(.caption)
+                        .miloFont(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -45,7 +45,7 @@ struct FileWatcherRecentActivityView: View {
 
             if snapshot.recentEvents.isEmpty {
                 Text("No recent file activity yet.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -59,7 +59,7 @@ struct FileWatcherRecentActivityView: View {
                                 .frame(width: metrics.iconSize)
 
                             Text(event.relativePath)
-                                .font(.caption)
+                                .miloFont(.caption)
                                 .lineLimit(2)
                                 .truncationMode(.middle)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -68,7 +68,7 @@ struct FileWatcherRecentActivityView: View {
 
                             if let language = event.language {
                                 Text(language)
-                                    .font(.caption2)
+                                    .miloFont(.caption2)
                                     .foregroundStyle(.secondary)
                             }
                         }

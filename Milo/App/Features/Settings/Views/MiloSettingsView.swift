@@ -15,11 +15,13 @@ struct MiloSettingsView: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            if proxy.size.width < 640 {
-                verticalLayout
-            } else {
-                horizontalLayout
+        MiloDynamicTypeDebugWrapper {
+            GeometryReader { proxy in
+                if proxy.size.width < 640 {
+                    verticalLayout
+                } else {
+                    horizontalLayout
+                }
             }
         }
         .frame(minWidth: 640, idealWidth: 720, maxWidth: 980, minHeight: 520, idealHeight: 680, maxHeight: 900)
@@ -29,7 +31,7 @@ struct MiloSettingsView: View {
     private var horizontalLayout: some View {
         HStack(spacing: 0) {
             SettingsSidebarView(selectedSection: $selectedSection)
-                .frame(minWidth: 160, idealWidth: 180, maxWidth: 210)
+                .frame(minWidth: 190, idealWidth: 210, maxWidth: 240)
                 .background(.regularMaterial)
 
             Divider()

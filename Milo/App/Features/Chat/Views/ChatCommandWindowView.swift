@@ -95,10 +95,10 @@ struct ChatCommandWindowView: View {
                         HStack(alignment: .top, spacing: metrics.smallSpacing) {
                             Image(systemName: "quote.bubble.fill")
                                 .foregroundStyle(.orange)
-                                .font(.caption)
+                                .miloFont(.caption)
                             
                             Text(example)
-                                .font(.caption.weight(.medium))
+                                .miloFont(.caption, weight: .medium)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(nil)
                                 .fixedSize(horizontal: false, vertical: true)

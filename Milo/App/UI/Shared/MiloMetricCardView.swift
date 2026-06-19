@@ -23,16 +23,17 @@ struct MiloMetricCardView: View {
                 }
 
                 Text(title)
-                    .font(.subheadline)
+                    .miloFont(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             Text(value)
-                .font(.title3.weight(.bold).monospacedDigit())
+                .miloFont(.title3, weight: .bold)
+                .fontDesign(.monospaced)
                 .foregroundStyle(.primary)
                 .minimumScaleFactor(0.75)
-                .lineLimit(2)
+                .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(metrics.cardPadding)

@@ -26,11 +26,13 @@ final class UtilityWindowController {
         self.sizing = sizing
         self.rootViewProvider = {
             AnyView(
-                rootView
-                    .frame(
-                        minWidth: sizing.minSize.width,
-                        minHeight: sizing.minSize.height
-                    )
+                MiloDynamicTypeDebugWrapper {
+                    rootView
+                        .frame(
+                            minWidth: sizing.minSize.width,
+                            minHeight: sizing.minSize.height
+                        )
+                }
             )
         }
     }

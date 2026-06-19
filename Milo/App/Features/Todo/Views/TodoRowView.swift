@@ -23,13 +23,13 @@ struct TodoRowView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(todo.title)
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .miloFont(.roundedCallout, weight: .semibold)
                     .strikethrough(todo.status == .done)
                     .foregroundStyle(todo.status == .done ? .secondary : .primary)
 
                 if let notes = todo.notes, !notes.isEmpty {
                     Text(notes)
-                        .font(.caption)
+                        .miloFont(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
@@ -43,7 +43,7 @@ struct TodoRowView: View {
                         Text("🔔")
                     }
                 }
-                .font(.caption2)
+                .miloFont(.caption2)
                 .foregroundStyle(.secondary)
             }
 

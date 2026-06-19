@@ -47,11 +47,11 @@ struct SettingsContentContainerView: View {
                 HStack(spacing: metrics.mediumSpacing) {
                     headerIcon
                     Text(section.title)
-                        .font(.title3.weight(.bold))
+                        .miloFont(.title3, weight: .bold)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Text(section.subtitle)
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -76,10 +76,10 @@ struct SettingsContentContainerView: View {
     private var headerText: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(section.title)
-                .font(.title3.weight(.bold))
+                .miloFont(.title3, weight: .bold)
                 .fixedSize(horizontal: false, vertical: true)
             Text(section.subtitle)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)

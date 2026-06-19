@@ -34,12 +34,12 @@ struct MiloEmptyStateView: View {
 
             VStack(spacing: metrics.smallSpacing) {
                 Text(title)
-                    .font(.headline.weight(.bold))
+                    .miloFont(.headline, weight: .bold)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(message)
-                    .font(.body.weight(.medium))
+                    .miloFont(.body, weight: .medium)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(nil)

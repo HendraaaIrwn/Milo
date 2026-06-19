@@ -22,7 +22,7 @@ struct MiloTerminalTextView: View {
 
     var body: some View {
         Text(renderedText)
-            .font(textFont)
+            .miloFont(.monospacedCallout, weight: .medium)
             .lineLimit(maxLines)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)

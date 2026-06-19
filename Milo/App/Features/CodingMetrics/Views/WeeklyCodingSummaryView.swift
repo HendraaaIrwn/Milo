@@ -67,7 +67,7 @@ struct WeeklyCodingSummaryView: View {
             MiloPanelCardView(title: "Source Control", subtitle: "Reset only local weekly aggregates when needed.") {
                 MiloAdaptiveActionRow(spacing: metrics.mediumSpacing) {
                     Text("MILO stores weekly coding summaries locally on this Mac.")
-                        .font(.body.weight(.medium))
+                        .miloFont(.body, weight: .medium)
                         .foregroundStyle(.secondary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
@@ -244,7 +244,7 @@ private struct WeeklyCodingSummaryDayCardView: View {
             }
 
             Text([record.topProject, record.topEditor].compactMap { $0 }.joined(separator: " • "))
-                .font(.subheadline.weight(.medium))
+                .miloFont(.subheadline, weight: .medium)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -253,7 +253,7 @@ private struct WeeklyCodingSummaryDayCardView: View {
 
     private var dateTitle: some View {
         Text(record.date.formatted(date: .abbreviated, time: .omitted))
-            .font(.headline.weight(.bold))
+            .miloFont(.headline, weight: .bold)
             .fixedSize(horizontal: false, vertical: true)
     }
 

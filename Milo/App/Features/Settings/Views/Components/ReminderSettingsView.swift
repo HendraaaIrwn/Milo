@@ -15,7 +15,7 @@ struct ReminderSettingsView: View {
                 Toggle("Reminder Notifications Enabled", isOn: $notificationsEnabled)
                 Toggle("Reminder Sound Enabled", isOn: $reminderSoundEnabled)
                 Text("Reminders stay local and are saved on this Mac only.")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .miloFont(.caption).foregroundStyle(.secondary)
             }
         }
     }

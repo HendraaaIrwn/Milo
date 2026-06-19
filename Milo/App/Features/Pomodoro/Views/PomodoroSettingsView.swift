@@ -54,10 +54,10 @@ struct PomodoroSettingsView: View {
     private var headerText: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text("Pomodoro")
-                .font(.title3.weight(.bold))
+                .miloFont(.title3, weight: .bold)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Start focus sessions, tune alerts, and review today’s progress.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -154,10 +154,10 @@ struct PomodoroSettingsContentView: View {
     private var sessionText: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(sessionTitle)
-                .font(.body.weight(.semibold))
+                .miloFont(.bodyBold)
                 .fixedSize(horizontal: false, vertical: true)
             Text(timeRemaining)
-                .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                .miloFont(.largeTitle, weight: .bold)
                 .monospacedDigit()
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
@@ -193,7 +193,7 @@ struct PomodoroSettingsContentView: View {
                         .frame(width: metrics.badgeIconSize, alignment: .center)
                     
                     Text("Custom Timer")
-                        .font(.body.weight(.semibold))
+                        .miloFont(.bodyBold)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .contentShape(Rectangle())

@@ -26,16 +26,16 @@ struct MiloStatusPillView: View {
             Image(systemName: systemImage)
                 .font(.caption.weight(.semibold))
             Text(title)
-                .font(.caption.weight(.semibold))
-                .lineLimit(1)
+                .miloFont(.caption, weight: .semibold)
+                .lineLimit(2)
                 .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, metrics.badgePaddingHorizontal)
         .padding(.vertical, metrics.badgePaddingVertical)
         .frame(minHeight: metrics.badgeMinHeight)
         .background(Capsule().fill(color.opacity(0.16)))
         .foregroundStyle(color)
-        .miloSmallOverlayDynamicTypeLimit()
     }
 
     private var color: Color {

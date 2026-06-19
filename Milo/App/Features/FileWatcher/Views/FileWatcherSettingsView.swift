@@ -104,10 +104,10 @@ struct FileWatcherSettingsView: View {
     private var headerText: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text("File Watcher")
-                .font(.title3.weight(.bold))
+                .miloFont(.title3, weight: .bold)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Watch project folders for real-time coding activity.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -163,10 +163,10 @@ struct FileWatcherSettingsView: View {
     private var watchedProjectsTitle: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text("Watched Projects")
-                .font(.headline)
+                .miloFont(.headline)
                 .fixedSize(horizontal: false, vertical: true)
             Text("\(fileWatcherService.watchedProjects.count) folder(s) added")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -183,9 +183,9 @@ struct FileWatcherSettingsView: View {
     private var privacyNote: some View {
         VStack(alignment: .leading, spacing: metrics.smallSpacing) {
             Label("Privacy-first local watcher", systemImage: "lock.shield")
-                .font(.caption.weight(.semibold))
+                .miloFont(.captionBold)
             Text("MILO watches file activity metadata only: path, extension, event type, timestamp, language estimate, and Git LOC summary. MILO does not store source code content or upload project activity.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -214,7 +214,7 @@ struct FileWatcherSettingsView: View {
 
     private var footerMessage: some View {
         Text(lastUIMessage ?? "Ignored: node_modules, .git, build, dist, DerivedData, vendor")
-            .font(.caption)
+            .miloFont(.caption)
             .foregroundStyle(.secondary)
             .lineLimit(nil)
             .fixedSize(horizontal: false, vertical: true)

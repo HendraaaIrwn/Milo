@@ -24,7 +24,7 @@ struct PrivacySettingsSectionView: View {
                     bullet("Git diff shortstat and numstat summaries")
                     bullet("Session duration and LOC summary")
                 }
-                .font(.caption)
+                .miloFont(.caption)
             }
 
             SettingsCardView(title: "Never Stored or Sent", subtitle: "MILO does not collect or upload these.", systemImage: "xmark.shield") {
@@ -35,7 +35,7 @@ struct PrivacySettingsSectionView: View {
                     bullet("App or window focus information")
                     bullet("File contents from watched folders")
                 }
-                .font(.caption)
+                .miloFont(.caption)
             }
 
             SettingsCardView(title: "Input Monitoring Permission", subtitle: "Global typing detection needs permission.", systemImage: "hand.raised") {
@@ -43,7 +43,7 @@ struct PrivacySettingsSectionView: View {
                     permissionStatus
 
                     Text("MILO still runs without this permission, but typing reactions use local monitoring only.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .miloFont(.caption).foregroundStyle(.secondary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -70,10 +70,10 @@ struct PrivacySettingsSectionView: View {
         Group {
             if hasKeyboardPermission {
                 Label("Permission granted", systemImage: "checkmark.circle.fill")
-                    .font(.caption).foregroundStyle(.green)
+                    .miloFont(.caption).foregroundStyle(.green)
             } else {
                 Label("Permission not granted.", systemImage: "exclamationmark.triangle.fill")
-                    .font(.caption).foregroundStyle(.orange)
+                    .miloFont(.caption).foregroundStyle(.orange)
             }
         }
     }

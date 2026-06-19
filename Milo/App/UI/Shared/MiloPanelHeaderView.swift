@@ -70,12 +70,12 @@ struct MiloPanelHeaderView: View {
     private var titleBlock: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(title)
-                .font(.title3.weight(.bold))
+                .miloFont(.title3, weight: .bold)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(subtitle)
-                .font(.caption.weight(.medium))
+                .miloFont(.caption, weight: .medium)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -96,7 +96,7 @@ struct MiloPanelHeaderView: View {
                         .frame(width: metrics.largeIconSize + 4 , height: metrics.largeIconSize + 4 )
                 } else {
                     Text(primaryActionTitle)
-                        .font(.caption.weight(.semibold))
+                        .miloFont(.caption, weight: .semibold)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                         .frame(width: metrics.largeIconSize + 4, height: metrics.largeIconSize + 4)

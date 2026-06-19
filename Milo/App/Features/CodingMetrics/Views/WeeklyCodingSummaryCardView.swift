@@ -14,13 +14,13 @@ struct WeeklyCodingSummaryCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(title)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(value)
-                .font(.body.weight(.bold))
+                .miloFont(.bodyBold)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
         }

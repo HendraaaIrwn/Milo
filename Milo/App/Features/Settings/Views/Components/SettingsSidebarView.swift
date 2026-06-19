@@ -41,18 +41,18 @@ struct SettingsSidebarView: View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color.yellow.opacity(0.25))
                 Text("M")
-                    .font(.system(size: 16, weight: .black, design: .rounded))
+                    .miloFont(.roundedTitle3, weight: .black)
                     .foregroundStyle(.orange)
             }
             .frame(width: metrics.largeIconSize + 10, height: metrics.largeIconSize + 10)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("MILO")
-                    .font(.headline.weight(.bold))
+                    .miloFont(.headline, weight: .bold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Text("Settings")
-                    .font(.caption2)
+                    .miloFont(.caption2)
                     .foregroundStyle(.secondary)
             }
             Spacer()
@@ -85,7 +85,7 @@ private struct SettingsSidebarRow: View {
                     .frame(width: metrics.iconSize)
                     .foregroundStyle(isSelected ? .orange : .secondary)
                 Text(section.title)
-                    .font(.body.weight(isSelected ? .semibold : .regular))
+                    .miloFont(.body, weight: isSelected ? .semibold : .regular)
                     .foregroundStyle(isSelected ? .primary : .secondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)

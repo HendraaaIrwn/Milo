@@ -21,12 +21,12 @@ struct MiloPanelSection<Content: View>: View {
         VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
             VStack(alignment: .leading, spacing: metrics.tinySpacing) {
                 Text(title)
-                    .font(.headline)
+                    .miloFont(.headline)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if let subtitle {
                     Text(subtitle)
-                        .font(.caption)
+                        .miloFont(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)

@@ -44,7 +44,7 @@ struct ReminderRescheduleView: View {
             ) {
                 VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
                     Text(reminder.message)
-                        .font(.body.weight(.semibold))
+                        .miloFont(.bodyBold)
                         .foregroundStyle(.primary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
@@ -77,7 +77,7 @@ struct ReminderRescheduleView: View {
 
                     if showPastWarning {
                         Text("Choose a future time before saving.")
-                            .font(.callout.weight(.semibold))
+                            .miloFont(.roundedCallout, weight: .semibold)
                             .foregroundStyle(.orange)
                             .fixedSize(horizontal: false, vertical: true)
                     }

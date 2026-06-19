@@ -26,11 +26,11 @@ struct WeeklyActivityBarView: View {
                 ForEach(days) { day in
                     HStack(alignment: .top, spacing: metrics.smallSpacing) {
                         Text(day.label)
-                            .font(.caption.weight(.semibold))
+                            .miloFont(.captionBold)
                             .frame(minWidth: 42, alignment: .leading)
 
                         Text(formatLongMinutes(day.minutes))
-                            .font(.caption)
+                            .miloFont(.caption)
                             .foregroundStyle(day.minutes > 0 ? Color.primary : Color.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -43,7 +43,7 @@ struct WeeklyActivityBarView: View {
             ForEach(days) { day in
                 VStack(spacing: 6) {
                     Text(formatMinutes(day.minutes))
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .miloFont(.roundedCaption2, weight: .semibold)
                         .foregroundStyle(day.minutes > 0 ? Color.primary : Color.secondary.opacity(0.4))
 
                     Capsule()
@@ -59,7 +59,7 @@ struct WeeklyActivityBarView: View {
                         .frame(width: 28, height: barHeight(day.minutes, max: maxMinutes))
 
                     Text(day.label)
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .miloFont(.roundedCaption2, weight: .medium)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)

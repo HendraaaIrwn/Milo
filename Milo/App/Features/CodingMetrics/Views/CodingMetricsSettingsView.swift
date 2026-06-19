@@ -40,12 +40,12 @@ struct CodingMetricsSettingsView: View {
                     Section("LOC Tracking") {
                         VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                             Label("Project folders are managed in File Watcher Settings.", systemImage: "folder.badge.gearshape")
-                                .font(.subheadline)
+                                .miloFont(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
 
                             Label("LOC tracking uses Git. Install Git CLI tools and make sure your project folder is a Git repository.", systemImage: "info.circle")
-                                .font(.caption)
+                                .miloFont(.caption)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
 
@@ -60,7 +60,7 @@ struct CodingMetricsSettingsView: View {
                 .formStyle(.grouped)
 
                 Text("WakaTime Connection")
-                    .font(.headline)
+                    .miloFont(.headline)
                     .padding(.top, metrics.smallSpacing)
 
                 WakaTimeConnectionView()

@@ -49,10 +49,11 @@ struct MiloTodoBubbleView: View {
                 }
                 .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, metrics.bubblePaddingHorizontal)
         .padding(.vertical, metrics.bubblePaddingVertical)
-        .frame(minWidth: 280, idealWidth: 340, maxWidth: bubbleWidth, alignment: .leading)
+        .frame(width: bubbleWidth, alignment: .leading)
         .fixedSize(horizontal: false, vertical: true)
         .background(bubbleBackground)
         .miloBubbleDynamicTypeLimit()
@@ -69,7 +70,7 @@ struct MiloTodoBubbleView: View {
             trafficLight(.green)
 
             Text("milo.todo")
-                .font(.caption2.monospaced().weight(.semibold))
+                .miloFont(.monospacedCaption, weight: .semibold)
                 .foregroundStyle(.white.opacity(0.45))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)

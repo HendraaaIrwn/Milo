@@ -9,7 +9,7 @@ import SwiftUI
 @MainActor
 final class MiloOverlayWindowController<Content: View> {
     private var window: NSWindow?
-    private var hostingController: NSHostingController<Content>?
+    private var hostingController: NSHostingController<AnyView>?
     private var hideTask: Task<Void, Never>?
 
     private let defaultSize: NSSize
@@ -27,12 +27,18 @@ final class MiloOverlayWindowController<Content: View> {
     }
 
     func configure(rootView: Content, initialOrigin: NSPoint = .zero) {
+        let wrappedRoot = AnyView(
+            MiloHostingRoot.wrap {
+                rootView
+            }
+        )
+
         if let hostingController {
-            hostingController.rootView = rootView
+            hostingController.rootView = wrappedRoot
             return
         }
 
-        let hosting = NSHostingController(rootView: rootView)
+        let hosting = NSHostingController(rootView: wrappedRoot)
 
         let newWindow = NSWindow(
             contentRect: NSRect(origin: initialOrigin, size: defaultSize),

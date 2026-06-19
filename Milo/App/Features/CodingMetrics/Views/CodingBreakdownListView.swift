@@ -20,7 +20,7 @@ struct CodingBreakdownListView: View {
         VStack(spacing: metrics.smallSpacing) {
             if items.isEmpty {
                 Text("No data yet")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -63,7 +63,7 @@ struct CodingBreakdownListView: View {
 
     private func rowTitle(_ item: CategoryBreakdown) -> some View {
                 Text(item.name)
-            .font(.caption.weight(.medium))
+            .miloFont(.caption, weight: .medium)
             .lineLimit(nil)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -71,10 +71,10 @@ struct CodingBreakdownListView: View {
     private func rowValues(_ item: CategoryBreakdown) -> some View {
         HStack(spacing: metrics.smallSpacing) {
                 Text("\(formatMinutes(item.minutes))")
-                .font(.caption.weight(.semibold))
+                .miloFont(.captionBold)
                     .foregroundStyle(.secondary)
                 Text(String(format: "%.0f%%", item.percentage))
-                .font(.caption2.weight(.medium))
+                .miloFont(.caption2, weight: .medium)
                     .foregroundStyle(.secondary)
         }
     }

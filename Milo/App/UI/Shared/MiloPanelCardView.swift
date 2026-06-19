@@ -28,6 +28,7 @@ struct MiloPanelCardView<Content: View>: View {
             }
 
             content
+                .miloFont(.body)
         }
         .padding(metrics.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -56,13 +57,13 @@ struct MiloPanelCardView<Content: View>: View {
     private var titleBlock: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(title)
-                .font(.headline.weight(.bold))
+                .miloFont(.headline, weight: .bold)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if let subtitle {
                 Text(subtitle)
-                    .font(.caption.weight(.medium))
+                    .miloFont(.caption, weight: .medium)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

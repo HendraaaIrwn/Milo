@@ -36,11 +36,11 @@ struct SettingsCardView<Content: View>: View {
                 }
                 VStack(alignment: .leading, spacing: metrics.tinySpacing) {
                     Text(title)
-                        .font(.body.weight(.bold))
+                        .miloFont(.bodyBold)
                         .fixedSize(horizontal: false, vertical: true)
                     if let subtitle {
                         Text(subtitle)
-                            .font(.caption)
+                            .miloFont(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(nil)
                             .fixedSize(horizontal: false, vertical: true)
@@ -49,6 +49,7 @@ struct SettingsCardView<Content: View>: View {
                 Spacer()
             }
             content()
+                .miloFont(.body)
         }
         .padding(metrics.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -146,12 +146,7 @@ struct TodoListView: View {
     }
 
     private var metricColumns: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16)
-        ]
+        [GridItem(.adaptive(minimum: 160), spacing: metrics.mediumSpacing)]
     }
 
     private var emptyTitle: String {
@@ -249,7 +244,7 @@ private struct TodoStyledRowView: View {
             VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(todo.title)
-                        .font(.body.weight(.bold))
+                        .miloFont(.bodyBold)
                         .strikethrough(todo.status == .done)
                         .foregroundStyle(todo.status == .done ? .secondary : .primary)
                         .lineLimit(nil)
@@ -274,7 +269,7 @@ private struct TodoStyledRowView: View {
 
                 if let notes = todo.notes, !notes.isEmpty {
                     Text(notes)
-                        .font(.body.weight(.medium))
+                        .miloFont(.body, weight: .medium)
                         .foregroundStyle(.secondary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)

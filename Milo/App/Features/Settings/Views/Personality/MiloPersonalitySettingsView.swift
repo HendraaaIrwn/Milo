@@ -46,10 +46,10 @@ struct MiloPersonalitySettingsView: View {
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text("MILO Personality")
-                .font(.title2.bold())
+                .miloFont(.title2, weight: .bold)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Choose how MILO talks while you code.")
-                .font(.subheadline)
+                .miloFont(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -68,7 +68,7 @@ struct MiloPersonalitySettingsView: View {
             .labelsHidden()
 
             Text(settingsStore.settings.responseMode.subtitle)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -118,7 +118,7 @@ struct MiloPersonalitySettingsView: View {
         MiloPanelCardView(title: "Privacy") {
         VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
             Text("MILO only uses safe coding metadata like focus time, language, Pomodoro state, and todo counts. It never reads typed text, source code, clipboard, passwords, or file contents.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -131,7 +131,7 @@ struct MiloPersonalitySettingsView: View {
                 Toggle("Use todo/reminder counts in responses", isOn: $settingsStore.settings.allowTodoCounts)
                 Toggle("Use Pomodoro state in responses", isOn: $settingsStore.settings.allowPomodoroState)
             }
-            .font(.caption)
+            .miloFont(.caption)
             .disabled(!settingsStore.settings.smartPersonalityEnabled)
         }
         }
@@ -163,7 +163,7 @@ struct MiloPersonalitySettingsView: View {
 
             if let testResponse {
                 Text("milo> \(testResponse)")
-                    .font(.body.monospaced().weight(.medium))
+                    .miloFont(.monospacedCallout, weight: .medium)
                     .foregroundStyle(.green)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)

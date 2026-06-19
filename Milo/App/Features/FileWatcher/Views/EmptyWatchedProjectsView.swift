@@ -22,10 +22,10 @@ struct EmptyWatchedProjectsView: View {
 
             VStack(spacing: metrics.tinySpacing) {
                 Text("No project folders yet")
-                    .font(.headline.weight(.bold))
+                    .miloFont(.headline, weight: .bold)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("Add a project folder so MILO can detect real-time coding activity.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(nil)

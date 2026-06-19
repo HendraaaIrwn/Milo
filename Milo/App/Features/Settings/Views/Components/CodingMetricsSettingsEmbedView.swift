@@ -153,13 +153,13 @@ struct CodingMetricsSettingsEmbedView: View {
                     .foregroundStyle(iconColor)
 
                 Text(title)
-                    .font(.body.weight(.bold))
+                    .miloFont(.bodyBold)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             Text(message)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -174,11 +174,11 @@ struct CodingMetricsSettingsEmbedView: View {
     private func unavailableMessage(title: String, message: String) -> some View {
         VStack(alignment: .leading, spacing: metrics.smallSpacing) {
             Text(title)
-                .font(.body.weight(.semibold))
+                .miloFont(.bodyBold)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(message)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)

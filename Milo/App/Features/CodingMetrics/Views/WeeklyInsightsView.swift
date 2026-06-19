@@ -18,7 +18,7 @@ struct WeeklyInsightsView: View {
         VStack(alignment: .leading, spacing: metrics.smallSpacing) {
             if insights.isEmpty {
                 Text("No insights yet. Start coding to generate weekly patterns.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -34,17 +34,17 @@ struct WeeklyInsightsView: View {
     private func insightRow(_ insight: WeeklyInsight) -> some View {
         HStack(alignment: .top, spacing: metrics.smallSpacing) {
             Image(systemName: insight.icon)
-                .font(.body.weight(.semibold))
+                .miloFont(.body, weight: .semibold)
                 .foregroundStyle(severityColor(insight.severity))
                 .frame(width: metrics.iconSize)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(insight.title)
-                    .font(.caption.weight(.bold))
+                    .miloFont(.captionBold)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(insight.message)
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)

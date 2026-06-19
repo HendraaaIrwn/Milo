@@ -80,11 +80,11 @@ struct FileWatcherSettingsEmbedView: View {
 
                 VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                     Text("Source code content is never stored or uploaded.")
-                        .font(.body.weight(.semibold))
+                        .miloFont(.bodyBold)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text("MILO stores path, extension, event type, timestamp, language estimate, and Git LOC summary so Coding Metrics can work locally.")
-                        .font(.caption)
+                        .miloFont(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
@@ -144,7 +144,7 @@ struct FileWatcherSettingsEmbedView: View {
                 .font(.caption.weight(.semibold))
 
             Text("\(title): \(value)")
-                .font(.caption.weight(.semibold))
+                .miloFont(.captionBold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
@@ -169,12 +169,12 @@ struct FileWatcherSettingsEmbedView: View {
                         .frame(width: 6, height: 6)
 
                     Text(language)
-                        .font(.caption.weight(.semibold))
+                        .miloFont(.captionBold)
                         .lineLimit(1)
                         .truncationMode(.middle)
 
                     Text("\(count)")
-                        .font(.caption2.monospacedDigit())
+                        .miloFont(.caption, weight: .medium)
                         .foregroundStyle(.secondary)
                 }
                 .padding(.horizontal, metrics.badgePaddingHorizontal)

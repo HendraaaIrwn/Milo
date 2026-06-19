@@ -24,9 +24,9 @@ struct MiloAdaptiveButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.body.weight(.semibold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.85)
+            .miloFont(.bodyBold)
+            .lineLimit(2)
+            .minimumScaleFactor(0.7)
             .padding(.horizontal, horizontalPadding)
             .padding(.vertical, verticalPadding)
             .frame(minHeight: minHeight)

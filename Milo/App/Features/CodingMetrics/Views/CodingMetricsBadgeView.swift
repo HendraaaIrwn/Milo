@@ -17,11 +17,11 @@ struct CodingMetricsBadgeView: View {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left.forwardslash.chevron.right")
                     .foregroundStyle(.primary)
-                    .font(.system(size: 10, weight: .bold))
+                    .miloFont(.captionBold)
 
                 Text(formatSeconds(snapshot.codingSecondsToday))
                     .foregroundStyle(.primary)
-                    .font(.system(size : 11, weight: .bold, design: .rounded))
+                    .miloFont(.captionBold)
             }
             .foregroundStyle(.primary)
 
@@ -33,7 +33,7 @@ struct CodingMetricsBadgeView: View {
                 Text("-\(snapshot.locToday.linesDeleted)")
                     .foregroundStyle(Color.red)
             }
-            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .miloFont(.roundedCaption2, weight: .medium)
             .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 9)

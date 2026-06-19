@@ -266,14 +266,11 @@ struct CodingMetricsPanelView: View {
     }
 
     private var metricColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: 150), spacing: 16)]
+        [GridItem(.adaptive(minimum: 180), spacing: metrics.mediumSpacing)]
     }
 
     private var metricColumnsWaka: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: 16),
-            GridItem(.flexible(), spacing: 16),
-        ]
+        [GridItem(.adaptive(minimum: 180), spacing: metrics.mediumSpacing)]
     }
 
     private func topEditor(from usage: [String: Int]) -> String? {
@@ -324,17 +321,17 @@ struct MILOLOCStatusMessageView: View {
         VStack(alignment: .leading, spacing: metrics.mediumSpacing) {
             HStack(alignment: .top, spacing: metrics.smallSpacing) {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .miloFont(.title2)
                     .foregroundStyle(iconColor)
 
                 Text(title)
-                    .font(.body.weight(.bold))
+                    .miloFont(.bodyBold)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             Text(message)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -351,4 +348,3 @@ struct MILOLOCStatusMessageView: View {
         )
     }
 }
-

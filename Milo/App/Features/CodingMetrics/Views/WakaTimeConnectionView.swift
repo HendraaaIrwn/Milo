@@ -34,10 +34,10 @@ struct WakaTimeConnectionView: View {
         HStack(alignment: .top, spacing: metrics.mediumSpacing) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("WakaTime Connection")
-                    .font(.title3.weight(.bold))
+                    .miloFont(.title3, weight: .bold)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("Connect WakaTime to enrich MILO coding metrics.")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -48,10 +48,10 @@ struct WakaTimeConnectionView: View {
 
         VStack(alignment: .leading, spacing: metrics.smallSpacing) {
             Text("WakaTime Connection")
-                .font(.title3.weight(.bold))
+                .miloFont(.title3, weight: .bold)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Connect WakaTime to enrich MILO coding metrics.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -68,15 +68,15 @@ struct WakaTimeConnectionView: View {
                     .font(.system(size: metrics.largeIconSize))
                 VStack(alignment: .leading, spacing: 3) {
                     Text(store.status.userMessage)
-                        .font(.caption.weight(.medium))
+                        .miloFont(.caption, weight: .medium)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                     if let lastTestedAt = store.lastTestedAt {
                         Text("Last tested: \(lastTestedAt.formatted(date: .abbreviated, time: .shortened))")
-                            .font(.caption2).foregroundStyle(.secondary)
+                            .miloFont(.caption2).foregroundStyle(.secondary)
                     } else if !store.hasSavedAPIKey {
                         Text("Connection has not been tested yet.")
-                            .font(.caption2).foregroundStyle(.secondary)
+                            .miloFont(.caption2).foregroundStyle(.secondary)
                     }
                 }
             }
@@ -114,7 +114,7 @@ struct WakaTimeConnectionView: View {
 
     private var apiKeyForm: some View {
         VStack(alignment: .leading, spacing: metrics.smallSpacing) {
-            Text("API Key").font(.caption).foregroundStyle(.secondary)
+            Text("API Key").miloFont(.caption).foregroundStyle(.secondary)
             SecureField(
                 store.hasSavedAPIKey
                     ? "Enter a new API key to replace existing key"
@@ -123,7 +123,7 @@ struct WakaTimeConnectionView: View {
             )
             .textFieldStyle(.roundedBorder)
             Text("Your API key is stored in macOS Keychain and never logged.")
-                .font(.caption2).foregroundStyle(.secondary)
+                .miloFont(.caption2).foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -160,7 +160,7 @@ struct WakaTimeConnectionView: View {
     private var detailInfo: some View {
         if case .connected(let profile) = store.status {
             VStack(alignment: .leading, spacing: metrics.smallSpacing) {
-                Text("Account Details").font(.caption).foregroundStyle(.secondary)
+                Text("Account Details").miloFont(.caption).foregroundStyle(.secondary)
                 MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
                     let name = profile.displayNameOrUsername
                     if name != "WakaTime User" {
@@ -186,7 +186,7 @@ struct WakaTimeConnectionView: View {
         #if DEBUG
         Divider()
         VStack(alignment: .leading, spacing: 4) {
-            Text("Debug").font(.caption.bold())
+            Text("Debug").miloFont(.captionBold)
             Text("Has saved key: \(store.hasSavedAPIKey ? "Yes" : "No")")
             Text("Keychain: \(store.keychainDebug)")
             Text("Key length: \(store.savedKeyLength)")
@@ -194,7 +194,7 @@ struct WakaTimeConnectionView: View {
             Text("HTTP status: \(store.lastHTTPStatusDescription)")
             Text("Last error: \(store.lastErrorBody ?? "-")")
         }
-        .font(.caption2)
+        .miloFont(.caption2)
         .foregroundStyle(.secondary)
         #endif
     }
@@ -205,6 +205,6 @@ struct WakaTimeConnectionView: View {
             Label("WakaTime is optional enrichment for summaries.", systemImage: "chart.bar")
             Label("No source code is uploaded by MILO local metrics.", systemImage: "lock.shield")
         }
-        .font(.caption).foregroundStyle(.secondary)
+        .miloFont(.caption).foregroundStyle(.secondary)
     }
 }

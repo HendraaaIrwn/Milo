@@ -88,7 +88,6 @@ struct ReminderEntryView: View {
             //            ) {
             //                VStack(alignment: .leading, spacing: 10) {
             //                    Text(cleanMessage.isEmpty ? "Reminder message preview" : cleanMessage)
-            //                        .font(.system(size: 14, weight: .black, design: .rounded))
             //                        .foregroundStyle(cleanMessage.isEmpty ? .secondary : .primary)
             //                        .lineLimit(2)
             //

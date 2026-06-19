@@ -56,7 +56,7 @@ struct AboutSettingsView: View {
                 )
 
             Text("M")
-                .font(.system(size: 30, weight: .black, design: .rounded))
+                .miloFont(.largeTitle, weight: .bold)
                 .foregroundStyle(.orange)
         }
         .frame(width: 68, height: 68)
@@ -65,11 +65,12 @@ struct AboutSettingsView: View {
     private var appText: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text("MILO")
-                .font(.title2.weight(.black).monospaced())
+                .miloFont(.title2, weight: .black)
+                .fontDesign(.monospaced)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text("Floating desktop helper for reminders, Pomodoro, coding metrics, and local agent signals.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -129,11 +130,11 @@ struct AboutSettingsView: View {
 
             VStack(alignment: .leading, spacing: metrics.tinySpacing) {
                 Text(title)
-                    .font(.caption.weight(.semibold))
+                    .miloFont(.captionBold)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(value)
-                    .font(.caption2)
+                    .miloFont(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -155,7 +156,7 @@ struct AboutSettingsView: View {
                 .frame(width: metrics.largeIconSize, alignment: .center)
 
             Text(text)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)

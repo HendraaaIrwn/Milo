@@ -30,20 +30,20 @@ struct MiloChatInputView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: metrics.cardPadding) {
             Text("Chat Reminder and Todo")
-                .font(.title2.weight(.semibold))
+                .miloFont(.title2, weight: .semibold)
                 .fixedSize(horizontal: false, vertical: true)
             
             VStack(alignment: .leading, spacing: metrics.tinySpacing) {
                 Text("Try:")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                 Text("remind me in 30 min to take a break")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("buat todo reminder untuk deploy jam 7 am")
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)

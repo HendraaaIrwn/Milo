@@ -85,7 +85,7 @@ struct WatchedProjectRowView: View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
                 Text(project.name)
-                    .font(.body.weight(.bold))
+                    .miloFont(.bodyBold)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -97,7 +97,7 @@ struct WatchedProjectRowView: View {
             }
 
             Text(project.path)
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
                 .truncationMode(.middle)
@@ -112,7 +112,7 @@ struct WatchedProjectRowView: View {
                     Label(language, systemImage: "chevron.left.forwardslash.chevron.right")
                 }
             }
-            .font(.caption2)
+            .miloFont(.caption2)
             .foregroundStyle(.tertiary)
         }
     }
@@ -148,10 +148,10 @@ struct WatchedProjectRowView: View {
                         Label("-\(loc.linesDeleted)", systemImage: "minus.circle.fill")
                             .foregroundStyle(.red)
                     }
-                    .font(.caption2.weight(.semibold))
+                    .miloFont(.caption2, weight: .semibold)
                 } else {
                     Label(loc.status.title, systemImage: "exclamationmark.triangle.fill")
-                        .font(.caption2)
+                        .miloFont(.caption2)
                         .foregroundStyle(.orange)
                 }
             }
@@ -160,7 +160,7 @@ struct WatchedProjectRowView: View {
                 onCheckGit()
             } label: {
                 Label("Check Git", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
-                    .font(.caption2)
+                    .miloFont(.caption2)
             }
             .buttonStyle(.plain)
             .foregroundStyle(.blue)

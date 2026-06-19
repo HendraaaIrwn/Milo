@@ -63,11 +63,11 @@ struct MiloHomeView: View {
 
             VStack(spacing: 8) {
                 Text("Hi, I'm Milo")
-                    .font(.title2.weight(.semibold))
+                    .miloFont(.title2, weight: .semibold)
                     .foregroundStyle(.primary)
 
                 Text("Your friendly assistant")
-                    .font(.subheadline)
+                    .miloFont(.subheadline)
                     .foregroundStyle(.secondary)
             }
             .multilineTextAlignment(.center)

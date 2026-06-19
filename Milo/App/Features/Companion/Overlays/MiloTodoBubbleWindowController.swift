@@ -37,20 +37,26 @@ private struct MiloTodoBubbleWrapperView: View {
                  onOpenTodoList: onOpenTodoList
              )
              .environment(\.controlActiveState, .active)
-             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
          } else {
-             Color.clear.frame(width: 420, height: 170)
+             Color.clear.frame(width: 450, height: 180)
          }
      }
  }
 
  @MainActor
  final class MiloTodoBubbleWindowController {
-     private let bubbleSize = NSSize(width: 420, height: 170)
+     private var bubbleSize: NSSize {
+         MiloMacDynamicTypeObserver.currentDynamicTypeSize().isAccessibilitySize
+             ? NSSize(width: 610, height: 240)
+             : NSSize(width: 450, height: 180)
+     }
      private let bubbleState = MiloTodoBubbleState()
+     private var latestCharacterFrame: NSRect = .zero
+     private var dynamicTypeObservers: [NSObjectProtocol] = []
 
      private let overlay = MiloOverlayWindowController<AnyView>(
-         defaultSize: NSSize(width: 420, height: 170),
+         defaultSize: NSSize(width: 450, height: 180),
          ignoresMouseEventsWhenVisible: false
      )
 
@@ -60,6 +66,7 @@ private struct MiloTodoBubbleWrapperView: View {
                 MiloTodoBubbleWrapperView(state: bubbleState)
             )
         )
+        observeDynamicTypeChanges()
     }
 
     func show(
@@ -69,6 +76,7 @@ private struct MiloTodoBubbleWrapperView: View {
         onDone: @escaping () -> Void,
         onOpenTodoList: @escaping () -> Void
     ) {
+        latestCharacterFrame = characterFrame
         bubbleState.configure(
             todo: todo,
             onDone: onDone,
@@ -86,10 +94,16 @@ private struct MiloTodoBubbleWrapperView: View {
     }
 
     func updatePosition(relativeTo characterFrame: NSRect) {
+        latestCharacterFrame = characterFrame
         overlay.updatePosition(origin(relativeTo: characterFrame))
     }
 
     func destroy() {
+        for observer in dynamicTypeObservers {
+            NotificationCenter.default.removeObserver(observer)
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+        }
+        dynamicTypeObservers.removeAll()
         overlay.destroy()
     }
 
@@ -98,7 +112,39 @@ private struct MiloTodoBubbleWrapperView: View {
     private func origin(relativeTo characterFrame: NSRect) -> NSPoint {
         NSPoint(
             x: characterFrame.midX - bubbleSize.width / 2,
-            y: characterFrame.maxY - 52
+            y: characterFrame.maxY + 8
+        )
+    }
+
+    private func observeDynamicTypeChanges() {
+        guard dynamicTypeObservers.isEmpty else { return }
+
+        dynamicTypeObservers.append(
+            NotificationCenter.default.addObserver(
+                forName: UserDefaults.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.refreshDynamicTypeSize() }
+            }
+        )
+        dynamicTypeObservers.append(
+            NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.refreshDynamicTypeSize() }
+            }
+        )
+    }
+
+    private func refreshDynamicTypeSize() {
+        guard isVisible else { return }
+        overlay.show(
+            at: origin(relativeTo: latestCharacterFrame),
+            size: bubbleSize,
+            duration: nil
         )
     }
 }

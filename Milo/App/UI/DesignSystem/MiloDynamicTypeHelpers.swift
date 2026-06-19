@@ -16,14 +16,14 @@ struct MiloDynamicTypeClampModifier: ViewModifier {
 
 extension View {
     func miloSmallOverlayDynamicTypeLimit() -> some View {
-        modifier(MiloDynamicTypeClampModifier(range: .small ... .accessibility1))
+        modifier(MiloDynamicTypeClampModifier(range: .small ... .accessibility5))
     }
 
     func miloBubbleDynamicTypeLimit() -> some View {
-        modifier(MiloDynamicTypeClampModifier(range: .small ... .accessibility2))
+        modifier(MiloDynamicTypeClampModifier(range: .small ... .accessibility5))
     }
 
     func miloPanelDynamicTypeLimit() -> some View {
-        modifier(MiloDynamicTypeClampModifier(range: .small ... .accessibility5))
+        modifier(MiloDynamicTypeClampModifier(range: .xSmall ... .accessibility5))
     }
 }

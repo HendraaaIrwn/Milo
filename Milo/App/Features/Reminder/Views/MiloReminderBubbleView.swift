@@ -46,32 +46,31 @@ struct MiloReminderBubbleView: View {
                 .foregroundStyle(.green.opacity(0.92))
                 
                 MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
-                    HStack(spacing: metrics.smallSpacing) {
-                        Button { onDone() } label: {
-                            Label("Done", systemImage: "checkmark.circle.fill")
-                        }
-                        .buttonStyle(MiloAdaptiveButtonStyle(.primary))
-                        
-                        Button { onSnooze5() } label: {
-                            Label("+5", systemImage: "clock.fill")
-                        }
-                        .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
-                        
-                        Button { onSnooze15() } label: {
-                            Label("+15", systemImage: "clock.fill")
-                        }
-                        .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
-                        
-                        Button { onReschedule() } label: {
-                            Label("Reschedule", systemImage: "calendar")
-                        }
-                        .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSubtle))
+                    Button { onDone() } label: {
+                        Label("Done", systemImage: "checkmark.circle.fill")
                     }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.primary))
+                    
+                    Button { onSnooze5() } label: {
+                        Label("+5", systemImage: "clock.fill")
+                    }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
+                    
+//                    Button { onSnooze15() } label: {
+//                        Label("+15", systemImage: "clock.fill")
+//                    }
+//                    .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSecondary))
+                    
+                    Button { onReschedule() } label: {
+                        Label("Reschedule", systemImage: "calendar")
+                    }
+                    .buttonStyle(MiloAdaptiveButtonStyle(.bubbleSubtle))
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, metrics.bubblePaddingHorizontal)
             .padding(.vertical, metrics.bubblePaddingVertical)
-            .frame(minWidth: 320, idealWidth: 380, maxWidth: bubbleWidth, alignment: .leading)
+            .frame(width: bubbleWidth, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)
             .background(bubbleBackground)
             
@@ -84,7 +83,7 @@ struct MiloReminderBubbleView: View {
     }
     
     private func maxBubbleWidth(for dynamicTypeSize: DynamicTypeSize) -> CGFloat {
-        dynamicTypeSize.isAccessibilitySize ? 460 : 380
+        dynamicTypeSize.isAccessibilitySize ? 500 : 368
     }
     
     private var titleBar: some View {

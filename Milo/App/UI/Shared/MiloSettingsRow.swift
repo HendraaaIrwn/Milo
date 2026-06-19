@@ -30,18 +30,19 @@ struct MiloSettingsRow<Content: View>: View {
                 content
             }
         }
+        .miloFont(.body)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var label: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(title)
-                .font(.body.weight(.semibold))
+                .miloFont(.bodyBold)
                 .fixedSize(horizontal: false, vertical: true)
 
             if let subtitle {
                 Text(subtitle)
-                    .font(.caption)
+                    .miloFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)

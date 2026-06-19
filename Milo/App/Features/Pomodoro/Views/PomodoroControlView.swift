@@ -19,7 +19,7 @@ struct PomodoroControlView: View {
         ) {
             VStack(alignment: .leading, spacing: metrics.largeSpacing) {
                 Text("Pomodoro")
-                    .font(.title2.weight(.bold))
+                    .miloFont(.title2, weight: .bold)
                     .fixedSize(horizontal: false, vertical: true)
 
                 MiloAdaptiveActionRow(spacing: metrics.smallSpacing) {
@@ -62,13 +62,13 @@ struct PomodoroControlView: View {
 
                 VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                     Text("Stats")
-                        .font(.headline)
+                        .miloFont(.headline)
                     Text("Pomodoros today: \(pomodoroService.stats.pomodorosToday)")
                     Text("Focus time today: \(pomodoroService.stats.totalFocusSecondsToday / 60) min")
                     Text("Streak: \(pomodoroService.stats.streakDays) day(s)")
                     Text("Skipped breaks: \(pomodoroService.stats.skippedBreaksToday)")
                 }
-                .font(.body)
+                .miloFont(.body)
                 .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

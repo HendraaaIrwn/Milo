@@ -10,6 +10,7 @@ import SwiftUI
 final class FileWatcherSettingsWindowController {
     private var window: NSWindow?
     private var windowDelegate: Delegate?
+    private let sizing = MiloPanelSizing.fileWatcherSettings
 
     private let fileWatcherService: ProjectFileWatcherService
 
@@ -19,17 +20,25 @@ final class FileWatcherSettingsWindowController {
 
     func show() {
         if let window {
+            centerOnCurrentScreen(window)
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             return
         }
 
         let host = NSHostingController(
-            rootView: FileWatcherSettingsView(fileWatcherService: fileWatcherService)
+            rootView: MiloDynamicTypeDebugWrapper {
+                FileWatcherSettingsView(fileWatcherService: fileWatcherService)
+            }
         )
 
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 680, height: 620),
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: sizing.defaultSize.width,
+                height: sizing.defaultSize.height
+            ),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -37,9 +46,9 @@ final class FileWatcherSettingsWindowController {
 
         win.title = "File Watcher Settings"
         win.contentViewController = host
-        win.minSize = NSSize(width: 560, height: 500)
+        win.minSize = sizing.minSize
         win.isReleasedWhenClosed = false
-        win.center()
+        centerOnCurrentScreen(win)
 
         let delegate = Delegate { [weak self] in
             self?.window = nil
@@ -51,6 +60,21 @@ final class FileWatcherSettingsWindowController {
 
         win.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func centerOnCurrentScreen(_ window: NSWindow) {
+        let screenFrame = (NSScreen.main ?? window.screen)?.visibleFrame ?? .zero
+        guard screenFrame != .zero else {
+            window.center()
+            return
+        }
+
+        var frame = window.frame
+        frame.origin = NSPoint(
+            x: screenFrame.midX - frame.width / 2,
+            y: screenFrame.midY - frame.height / 2
+        )
+        window.setFrame(frame, display: true)
     }
 }
 

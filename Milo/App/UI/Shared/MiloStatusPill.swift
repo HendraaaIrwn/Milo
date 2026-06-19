@@ -25,7 +25,7 @@ struct MiloStatusPill: View {
             }
 
             Text(title)
-                .font(.caption.weight(.semibold))
+                .miloFont(.caption, weight: .semibold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }

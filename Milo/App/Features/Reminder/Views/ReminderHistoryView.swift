@@ -195,7 +195,7 @@ private struct ReminderHistoryStyledRowView: View {
             VStack(alignment: .leading, spacing: metrics.smallSpacing) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(event.title)
-                        .font(.body.weight(.bold))
+                        .miloFont(.bodyBold)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -210,12 +210,6 @@ private struct ReminderHistoryStyledRowView: View {
                     }
                     .menuStyle(.borderlessButton)
                 }
-
-//                Text(event.message)
-//                    .font(.system(size: 14, weight: .medium, design: .rounded))
-//                    .foregroundStyle(.secondary)
-//                    .lineLimit(2)
-
                 MiloAdaptiveActionRow {
                     MiloStatusPillView(title: statusLabel, systemImage: "circle.fill", tone: statusTone)
                     MiloStatusPillView(title: sourceLabel, systemImage: "person.crop.circle.badge.checkmark", tone: .neutral)
@@ -223,7 +217,7 @@ private struct ReminderHistoryStyledRowView: View {
                 }
 
                 Text("Due \(event.dueDate.formatted(date: .abbreviated, time: .shortened)) • Updated \(event.updatedAt.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.caption.weight(.medium))
+                    .miloFont(.caption, weight: .medium)
                     .foregroundStyle(.tertiary)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)

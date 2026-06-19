@@ -11,7 +11,7 @@ struct LOCSummaryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Lines of Code")
-                .font(.headline)
+                .miloFont(.headline)
 
             HStack {
                 Label("+\(loc.linesAdded)", systemImage: "plus.circle.fill")
@@ -21,7 +21,7 @@ struct LOCSummaryView: View {
                 Label("Net \(loc.netLines)", systemImage: "equal.circle.fill")
                     .foregroundStyle(Color.blue)
             }
-            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .miloFont(.roundedCallout, weight: .semibold)
         }
     }
 }

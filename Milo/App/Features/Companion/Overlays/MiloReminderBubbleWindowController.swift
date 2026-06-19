@@ -49,18 +49,24 @@ private struct MiloReminderBubbleWrapperView: View {
             .environment(\.controlActiveState, .active)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         } else {
-            Color.clear.frame(width: 460, height: 190)
+            Color.clear.frame(width: 660, height: 200)
         }
     }
 }
 
 @MainActor
 final class MiloReminderBubbleWindowController {
-    private let bubbleSize = NSSize(width: 460, height: 190)
+    private var bubbleSize: NSSize {
+        MiloMacDynamicTypeObserver.currentDynamicTypeSize().isAccessibilitySize
+            ? NSSize(width: 800, height: 280)
+            : NSSize(width: 660, height: 210)
+    }
     private let bubbleState = MiloReminderBubbleState()
+    private var latestCharacterFrame: NSRect = .zero
+    private var dynamicTypeObservers: [NSObjectProtocol] = []
 
     private let overlay = MiloOverlayWindowController<AnyView>(
-        defaultSize: NSSize(width: 460, height: 190),
+        defaultSize: NSSize(width: 660, height: 210),
         ignoresMouseEventsWhenVisible: false
     )
 
@@ -70,6 +76,7 @@ final class MiloReminderBubbleWindowController {
                 MiloReminderBubbleWrapperView(state: bubbleState)
             )
         )
+        observeDynamicTypeChanges()
     }
 
     func show(
@@ -81,6 +88,7 @@ final class MiloReminderBubbleWindowController {
         onSnooze15: @escaping () -> Void,
         onReschedule: @escaping () -> Void
     ) {
+        latestCharacterFrame = characterFrame
         bubbleState.configure(
             reminder: reminder,
             onDone: onDone,
@@ -100,10 +108,16 @@ final class MiloReminderBubbleWindowController {
     }
 
     func updatePosition(relativeTo characterFrame: NSRect) {
+        latestCharacterFrame = characterFrame
         overlay.updatePosition(origin(relativeTo: characterFrame))
     }
 
     func destroy() {
+        for observer in dynamicTypeObservers {
+            NotificationCenter.default.removeObserver(observer)
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+        }
+        dynamicTypeObservers.removeAll()
         overlay.destroy()
     }
 
@@ -113,6 +127,38 @@ final class MiloReminderBubbleWindowController {
         NSPoint(
             x: characterFrame.midX - bubbleSize.width / 2,
             y: characterFrame.maxY + 8 
+        )
+    }
+
+    private func observeDynamicTypeChanges() {
+        guard dynamicTypeObservers.isEmpty else { return }
+
+        dynamicTypeObservers.append(
+            NotificationCenter.default.addObserver(
+                forName: UserDefaults.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.refreshDynamicTypeSize() }
+            }
+        )
+        dynamicTypeObservers.append(
+            NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.refreshDynamicTypeSize() }
+            }
+        )
+    }
+
+    private func refreshDynamicTypeSize() {
+        guard isVisible else { return }
+        overlay.show(
+            at: origin(relativeTo: latestCharacterFrame),
+            size: bubbleSize,
+            duration: nil
         )
     }
 }

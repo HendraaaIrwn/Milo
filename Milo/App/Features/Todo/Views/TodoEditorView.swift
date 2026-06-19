@@ -52,7 +52,7 @@ struct TodoEditorView: View {
     var body: some View {
         MiloResponsivePanelContainer(
             minWidth: 560,
-            idealWidth: 720,
+            idealWidth: 760,
             maxWidth: 980,
             minHeight: 520,
             idealHeight: 680,
@@ -108,10 +108,10 @@ struct TodoEditorView: View {
     private var headerText: some View {
         VStack(alignment: .leading, spacing: metrics.tinySpacing) {
             Text(existingTodo == nil ? "Add Todo" : "Edit Todo")
-                .font(.title3.weight(.bold))
+                .miloFont(.title3, weight: .bold)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Capture a task and optionally turn it into a reminder.")
-                .font(.caption)
+                .miloFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
