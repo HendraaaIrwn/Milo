@@ -31,6 +31,7 @@ private final class MiloReminderBubbleState: ObservableObject {
 
 private struct MiloReminderBubbleWrapperView: View {
     @ObservedObject var state: MiloReminderBubbleState
+    let onVisualFrameChange: (CGRect) -> Void
 
     var body: some View {
         if let reminder = state.reminder,
@@ -44,7 +45,8 @@ private struct MiloReminderBubbleWrapperView: View {
                 onDone: onDone,
                 onSnooze5: onSnooze5,
                 onSnooze15: onSnooze15,
-                onReschedule: onReschedule
+                onReschedule: onReschedule,
+                onVisualFrameChange: onVisualFrameChange
             )
             .environment(\.controlActiveState, .active)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -73,9 +75,22 @@ final class MiloReminderBubbleWindowController {
     func configure() {
         overlay.configure(
             rootView: AnyView(
-                MiloReminderBubbleWrapperView(state: bubbleState)
+                MiloReminderBubbleWrapperView(
+                    state: bubbleState,
+                    onVisualFrameChange: { [weak self] rect in
+                        self?.overlay.updateHitTestRegion(
+                            NSRect(
+                                x: rect.origin.x,
+                                y: rect.origin.y,
+                                width: rect.width,
+                                height: rect.height
+                            )
+                        )
+                    }
+                )
             )
         )
+        overlay.updateHitTestRegion(.zero)
         observeDynamicTypeChanges()
     }
 

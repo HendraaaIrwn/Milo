@@ -14,19 +14,22 @@ struct MiloReminderBubbleView: View {
     let onSnooze5: () -> Void
     let onSnooze15: () -> Void
     let onReschedule: () -> Void
+    let onVisualFrameChange: (CGRect) -> Void
     
     init(
         reminder: MiloReminder,
         onDone: @escaping () -> Void,
         onSnooze5: @escaping () -> Void,
         onSnooze15: @escaping () -> Void,
-        onReschedule: @escaping () -> Void
+        onReschedule: @escaping () -> Void,
+        onVisualFrameChange: @escaping (CGRect) -> Void = { _ in }
     ) {
         self.reminder = reminder
         self.onDone = onDone
         self.onSnooze5 = onSnooze5
         self.onSnooze15 = onSnooze15
         self.onReschedule = onReschedule
+        self.onVisualFrameChange = onVisualFrameChange
     }
     
     var body: some View {
@@ -79,6 +82,7 @@ struct MiloReminderBubbleView: View {
                 .frame(width: 14, height: 8)
                 .offset(y: -1)
         }
+        .miloReportVisualFrame(onChange: onVisualFrameChange)
         .miloBubbleDynamicTypeLimit()
     }
     

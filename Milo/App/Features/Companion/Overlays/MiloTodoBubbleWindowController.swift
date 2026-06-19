@@ -25,6 +25,7 @@ private final class MiloTodoBubbleState: ObservableObject {
 
 private struct MiloTodoBubbleWrapperView: View {
     @ObservedObject var state: MiloTodoBubbleState
+    let onVisualFrameChange: (CGRect) -> Void
 
     var body: some View {
         if let todo = state.todo,
@@ -34,7 +35,8 @@ private struct MiloTodoBubbleWrapperView: View {
              MiloTodoBubbleView(
                  todo: todo,
                  onDone: onDone,
-                 onOpenTodoList: onOpenTodoList
+                 onOpenTodoList: onOpenTodoList,
+                 onVisualFrameChange: onVisualFrameChange
              )
              .environment(\.controlActiveState, .active)
              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -63,9 +65,22 @@ private struct MiloTodoBubbleWrapperView: View {
     func configure() {
         overlay.configure(
             rootView: AnyView(
-                MiloTodoBubbleWrapperView(state: bubbleState)
+                MiloTodoBubbleWrapperView(
+                    state: bubbleState,
+                    onVisualFrameChange: { [weak self] rect in
+                        self?.overlay.updateHitTestRegion(
+                            NSRect(
+                                x: rect.origin.x,
+                                y: rect.origin.y,
+                                width: rect.width,
+                                height: rect.height
+                            )
+                        )
+                    }
+                )
             )
         )
+        overlay.updateHitTestRegion(.zero)
         observeDynamicTypeChanges()
     }
 

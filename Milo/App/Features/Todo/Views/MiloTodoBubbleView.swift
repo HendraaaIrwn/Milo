@@ -12,15 +12,18 @@ struct MiloTodoBubbleView: View {
     let todo: MiloTodo
     let onDone: () -> Void
     let onOpenTodoList: () -> Void
+    let onVisualFrameChange: (CGRect) -> Void
 
     init(
         todo: MiloTodo,
         onDone: @escaping () -> Void,
-        onOpenTodoList: @escaping () -> Void
+        onOpenTodoList: @escaping () -> Void,
+        onVisualFrameChange: @escaping (CGRect) -> Void = { _ in }
     ) {
         self.todo = todo
         self.onDone = onDone
         self.onOpenTodoList = onOpenTodoList
+        self.onVisualFrameChange = onVisualFrameChange
     }
 
     var body: some View {
@@ -56,6 +59,7 @@ struct MiloTodoBubbleView: View {
         .frame(width: bubbleWidth, alignment: .leading)
         .fixedSize(horizontal: false, vertical: true)
         .background(bubbleBackground)
+        .miloReportVisualFrame(onChange: onVisualFrameChange)
         .miloBubbleDynamicTypeLimit()
     }
 
