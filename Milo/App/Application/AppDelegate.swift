@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var projectFileWatcherService: ProjectFileWatcherService?
     private var personalitySettingsStore: MiloPersonalitySettingsStore?
     private var availabilityService: AppleIntelligenceAvailabilityService?
+    private var sparkleUpdaterController: SparkleUpdaterController?
 
     private(set) var miloStateStore: MiloStateStore?
     private var keyboardActivityService: KeyboardActivityService?
@@ -79,6 +80,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.availabilityService = availabilityService
 
         let aiGenerator = AppleFoundationModelsResponseGenerator()
+        let sparkleUpdaterController = SparkleUpdaterController()
+        self.sparkleUpdaterController = sparkleUpdaterController
 
         fileWatcherService.onProjectActivity = { [weak codingMetricsService] activitySnapshot in
             Task { @MainActor in
@@ -138,7 +141,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             reminderService: reminderService,
             todoService: todoService,
             codingMetricsCoordinator: codingMetricsCoordinator,
-            fileWatcherService: fileWatcherService
+            fileWatcherService: fileWatcherService,
+            sparkleUpdaterController: sparkleUpdaterController
         )
 
         ReminderNotificationService.shared.requestAuthorizationIfNeeded()

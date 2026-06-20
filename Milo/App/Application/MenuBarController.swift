@@ -19,6 +19,7 @@ final class MenuBarController: NSObject {
     private let todoService: TodoService
     private let codingMetricsCoordinator: CodingMetricsCoordinator
     private let fileWatcherService: ProjectFileWatcherService
+    private let sparkleUpdaterController: SparkleUpdaterController
 
     private let pomodoroMenuItem = NSMenuItem()
 
@@ -30,7 +31,8 @@ final class MenuBarController: NSObject {
         reminderService: ReminderService,
         todoService: TodoService,
         codingMetricsCoordinator: CodingMetricsCoordinator,
-        fileWatcherService: ProjectFileWatcherService
+        fileWatcherService: ProjectFileWatcherService,
+        sparkleUpdaterController: SparkleUpdaterController
     ) {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.miloWindowController = miloWindowController
@@ -41,6 +43,7 @@ final class MenuBarController: NSObject {
         self.todoService = todoService
         self.codingMetricsCoordinator = codingMetricsCoordinator
         self.fileWatcherService = fileWatcherService
+        self.sparkleUpdaterController = sparkleUpdaterController
 
         super.init()
         setupStatusItem()
@@ -183,6 +186,12 @@ final class MenuBarController: NSObject {
         ))
 
         menu.addItem(makeItem(
+            "Check for Updates...",
+            icon: "arrow.down.circle",
+            action: #selector(checkForUpdates)
+        ))
+
+        menu.addItem(makeItem(
             "Quit",
             icon: "power",
             action: #selector(quitApp)
@@ -234,6 +243,7 @@ final class MenuBarController: NSObject {
     @objc private func resetPomodoro() { pomodoroService.reset(); updatePomodoroMenuTitle() }
 
     @objc private func openSettings() { miloWindowController.openSettings() }
+    @objc private func checkForUpdates() { sparkleUpdaterController.checkForUpdates() }
 
     // Routed through panel router for consistent UI
     @objc private func addReminder() { panelRouter.openAddReminder() }
